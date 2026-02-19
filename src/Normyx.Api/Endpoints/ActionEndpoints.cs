@@ -21,6 +21,9 @@ public static class ActionEndpoints
         group.MapPut("/{actionId:guid}/status", UpdateStatusAsync);
         group.MapPost("/{actionId:guid}/approve", ApproveActionAsync)
             .RequireAuthorization(new AuthorizeAttribute { Roles = $"{RoleNames.Admin},{RoleNames.ComplianceOfficer}" });
+        group.MapGet("/{actionId:guid}/reviews", ListReviewsAsync);
+        group.MapPost("/{actionId:guid}/reviews", ReviewActionAsync)
+            .RequireAuthorization(new AuthorizeAttribute { Roles = $"{RoleNames.Admin},{RoleNames.ComplianceOfficer}" });
 
         return app;
     }
@@ -128,5 +131,85 @@ public static class ActionEndpoints
 
         await dbContext.SaveChangesAsync();
         return Results.NoContent();
+    }
+
+    private static async Task<IResult> ListReviewsAsync([FromRoute] Guid actionId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    {
+        var tenantId = TenantContext.RequireTenantId(currentUser);
+
+        var reviews = await dbContext.ActionReviews
+            .Where(x => x.ActionItemId == actionId && dbContext.ActionItems
+                .Any(action => action.Id == x.ActionItemId && action.AiSystemVersion.AiSystem.TenantId == tenantId))
+            .OrderByDescending(x => x.ReviewedAt)
+            .Select(x => new
+            {
+                x.Id,
+                x.ActionItemId,
+                x.ReviewedByUserId,
+                Decision = x.Decision.ToString(),
+                x.Comment,
+                x.ReviewedAt
+            })
+            .ToListAsync();
+
+        return Results.Ok(reviews);
+    }
+
+    public record ReviewActionRequest(ReviewDecision Decision, string Comment);
+
+    private static async Task<IResult> ReviewActionAsync(
+        [FromRoute] Guid actionId,
+        [FromBody] ReviewActionRequest request,
+        NormyxDbContext dbContext,
+        ICurrentUserContext currentUser)
+    {
+        var tenantId = TenantContext.RequireTenantId(currentUser);
+        var userId = TenantContext.RequireUserId(currentUser);
+
+        var action = await dbContext.ActionItems
+            .FirstOrDefaultAsync(x => x.Id == actionId && x.AiSystemVersion.AiSystem.TenantId == tenantId);
+
+        if (action is null)
+        {
+            return Results.NotFound();
+        }
+
+        var review = new ActionReview
+        {
+            Id = Guid.NewGuid(),
+            ActionItemId = actionId,
+            ReviewedByUserId = userId,
+            Decision = request.Decision,
+            Comment = request.Comment,
+            ReviewedAt = DateTimeOffset.UtcNow
+        };
+
+        switch (request.Decision)
+        {
+            case ReviewDecision.Approved:
+                action.Status = ActionStatus.Done;
+                action.ApprovedBy = userId;
+                action.ApprovedAt = DateTimeOffset.UtcNow;
+                break;
+            case ReviewDecision.Rejected:
+                action.Status = ActionStatus.AcceptedRisk;
+                action.ApprovedBy = null;
+                action.ApprovedAt = null;
+                break;
+            case ReviewDecision.NeedsEdits:
+                action.Status = ActionStatus.InProgress;
+                action.ApprovedBy = null;
+                action.ApprovedAt = null;
+                break;
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.Comment))
+        {
+            action.Description += $"\nReview ({request.Decision}): {request.Comment}";
+        }
+
+        dbContext.ActionReviews.Add(review);
+        await dbContext.SaveChangesAsync();
+        return Results.Created($"/actions/{actionId}/reviews/{review.Id}", new { review.Id, Decision = review.Decision.ToString(), review.ReviewedAt });
     }
 }

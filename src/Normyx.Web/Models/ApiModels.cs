@@ -28,6 +28,7 @@ public record FindingDto(Guid Id, string Type, string Severity, string Title, st
 
 public record ActionItemDto(Guid Id, string Title, string Description, string Priority, string OwnerRole, string Status, string AcceptanceCriteria, DateTimeOffset? DueDate, Guid? SourceFindingId, Guid? ApprovedBy, DateTimeOffset? ApprovedAt);
 public record ActionBoardDto(List<ActionItemDto> New, List<ActionItemDto> InProgress, List<ActionItemDto> Done, List<ActionItemDto> AcceptedRisk);
+public record ActionReviewDto(Guid Id, Guid ActionItemId, Guid ReviewedByUserId, string Decision, string Comment, DateTimeOffset ReviewedAt);
 
 public record ExportArtifactDto(Guid Id, string ExportType, string? MimeType, DateTimeOffset CreatedAt);
 public record ExportListItemDto(Guid Id, string ExportType, string MimeType, DateTimeOffset CreatedAt, Guid CreatedByUserId);

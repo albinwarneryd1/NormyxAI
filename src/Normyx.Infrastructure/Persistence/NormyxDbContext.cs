@@ -28,6 +28,7 @@ public class NormyxDbContext(DbContextOptions<NormyxDbContext> options) : DbCont
     public DbSet<Assessment> Assessments => Set<Assessment>();
     public DbSet<Finding> Findings => Set<Finding>();
     public DbSet<ActionItem> ActionItems => Set<ActionItem>();
+    public DbSet<ActionReview> ActionReviews => Set<ActionReview>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<ExportArtifact> ExportArtifacts => Set<ExportArtifact>();
     public DbSet<TenantIntegration> TenantIntegrations => Set<TenantIntegration>();
@@ -55,6 +56,7 @@ public class NormyxDbContext(DbContextOptions<NormyxDbContext> options) : DbCont
         modelBuilder.Entity<AiSystemVersion>().HasOne<User>().WithMany().HasForeignKey(x => x.CreatedByUserId).OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<AuditLog>().HasIndex(x => new { x.TenantId, x.Timestamp });
+        modelBuilder.Entity<ActionReview>().HasIndex(x => new { x.ActionItemId, x.ReviewedAt });
         modelBuilder.Entity<TenantIntegration>().HasIndex(x => new { x.TenantId, x.Provider }).IsUnique();
         modelBuilder.Entity<TenantPolicyPackSelection>().HasIndex(x => new { x.TenantId, x.PolicyPackId }).IsUnique();
 

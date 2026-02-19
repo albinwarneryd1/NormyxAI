@@ -191,7 +191,9 @@ else
                             <span>@action.Priority / @action.OwnerRole</span>
                             <div class="btn-row">
                                 <button class="btn-small" @onclick="() => UpdateActionStatusAsync(action.Id, 2)">Done</button>
-                                <button class="btn-small" @onclick="() => ApproveActionAsync(action.Id)">Approve</button>
+                                <button class="btn-small" @onclick="() => ReviewActionAsync(action.Id, 1)">Approve</button>
+                                <button class="btn-small" @onclick="() => ReviewActionAsync(action.Id, 0)">Needs edits</button>
+                                <button class="btn-small" @onclick="() => ReviewActionAsync(action.Id, 2)">Reject</button>
                             </div>
                         </article>
                     }
@@ -218,6 +220,17 @@ else
                     }
                 </div>
             </div>
+
+            @if (_recentReviews.Count > 0)
+            {
+                <h3>Recent Reviews</h3>
+                <ul>
+                    @foreach (var review in _recentReviews.Take(10))
+                    {
+                        <li>@review.ReviewedAt.ToString("u") - @review.Decision - @review.Comment</li>
+                    }
+                </ul>
+            }
 
             <h2>Exports</h2>
             <div class="field-grid">
@@ -261,6 +274,7 @@ else
     private Normyx.Web.Models.EvidenceGapsResponse _evidenceGaps = new(0, [], []);
     private List<Normyx.Web.Models.RagSearchResultDto> _evidenceHits = [];
     private List<Normyx.Web.Models.ExportListItemDto> _exports = [];
+    private List<Normyx.Web.Models.ActionReviewDto> _recentReviews = [];
 
     private Normyx.Web.Models.AssessmentRunResult? _lastRun;
     private Normyx.Web.Models.AssessmentDiffDto? _diff;
@@ -339,6 +353,18 @@ else
         {
             _findings = [];
         }
+
+        _recentReviews = [];
+        foreach (var action in _actions.Take(6))
+        {
+            var reviews = await Api.GetAsync<List<Normyx.Web.Models.ActionReviewDto>>($"/actions/{action.Id}/reviews");
+            if (reviews is not null)
+            {
+                _recentReviews.AddRange(reviews);
+            }
+        }
+
+        _recentReviews = _recentReviews.OrderByDescending(x => x.ReviewedAt).ToList();
     }
 
     private async Task RunAssessmentAsync()
@@ -478,6 +504,26 @@ else
         try
         {
             await Api.PostAsync($"/actions/{actionId}/approve", new { comment = "Approved from UI" });
+            if (_currentVersionId is not null)
+            {
+                await LoadVersionDataAsync(_currentVersionId.Value);
+            }
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+
+    private async Task ReviewActionAsync(Guid actionId, int decision)
+    {
+        try
+        {
+            await Api.PostAsync($"/actions/{actionId}/reviews", new
+            {
+                decision,
+                comment = $"Review submitted from UI ({decision})"
+            });
             if (_currentVersionId is not null)
             {
                 await LoadVersionDataAsync(_currentVersionId.Value);

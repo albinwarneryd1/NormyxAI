@@ -305,6 +305,16 @@ public class ActionItem
     public AiSystemVersion AiSystemVersion { get; set; } = null!;
 }
 
+public class ActionReview
+{
+    public Guid Id { get; set; }
+    public Guid ActionItemId { get; set; }
+    public Guid ReviewedByUserId { get; set; }
+    public ReviewDecision Decision { get; set; }
+    public string Comment { get; set; } = string.Empty;
+    public DateTimeOffset ReviewedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
 public class AuditLog
 {
     public Guid Id { get; set; }

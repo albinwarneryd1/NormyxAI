@@ -32,6 +32,13 @@ public enum FindingSeverity
     Critical = 3
 }
 
+public enum ReviewDecision
+{
+    NeedsEdits = 0,
+    Approved = 1,
+    Rejected = 2
+}
+
 public enum PolicyScope
 {
     Gdpr = 0,
