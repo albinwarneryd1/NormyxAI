@@ -212,6 +212,30 @@ a {
     text-transform: uppercase;
 }
 
+.timeline-list {
+    display: grid;
+    gap: var(--space-2);
+}
+
+.timeline-item {
+    border: 1px solid var(--border-soft);
+    border-left: 4px solid var(--info);
+    border-radius: var(--radius-sm);
+    padding: var(--space-3);
+    background: #fff;
+}
+
+.timeline-item header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-1);
+}
+
+.timeline-item p {
+    margin: 0 0 var(--space-1);
+}
+
 .kanban-board {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
