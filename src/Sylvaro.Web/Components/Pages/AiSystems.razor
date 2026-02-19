@@ -28,6 +28,12 @@ else
 
     <div class="card-shell">
 
+        <OperationalGuide
+            Title="System registration workflow"
+            Summary="Use this page to keep your governed AI inventory complete and current."
+            Steps="@GuideSteps"
+            Actions="@GuideActions" />
+
         @if (!string.IsNullOrWhiteSpace(_error))
         {
             <InstitutionalAlert ErrorText="@_error" FriendlyMessage="AI system registry operation failed." OnRetry="LoadSystemsAsync" />
@@ -86,6 +92,20 @@ else
     private bool _attemptedInitialLoad;
     private string _searchFilter = string.Empty;
     private string _statusFilter = string.Empty;
+
+    private readonly string[] GuideSteps =
+    [
+        "Register each in-scope AI system with a clear purpose.",
+        "Open Workspace and create a new version when architecture changes.",
+        "Run regulatory assessment after each material change.",
+        "Track lifecycle status until controls are signed off."
+    ];
+
+    private readonly OperationalGuide.GuideAction[] GuideActions =
+    [
+        new("Go to Exposure Matrix", "/regulatory-exposure"),
+        new("Go to Audit Trail", "/audit-log")
+    ];
 
     private IReadOnlyList<Sylvaro.Web.Models.AiSystemListItem> FilteredSystems => _systems
         .Where(x => string.IsNullOrWhiteSpace(_searchFilter) || x.Name.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase))

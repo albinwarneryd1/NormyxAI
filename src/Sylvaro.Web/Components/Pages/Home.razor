@@ -49,6 +49,11 @@ else
             <InstitutionalAlert ErrorText="@_error" FriendlyMessage="Executive overview processing failed." OnRetry="LoadOverviewAsync" />
         }
 
+        <OperationalGuide
+            Title="Regulatory assessment workflow"
+            Summary="Follow this sequence to move from inventory to audit-ready reporting."
+            Steps="@GuideSteps"
+            Actions="@GuideActions" />
         @if (!string.IsNullOrWhiteSpace(_exportMessage))
         {
             <div class="risk-pill success">@_exportMessage</div>
@@ -243,6 +248,21 @@ else
     private string _latestSignoff = "Pending";
     private string _systemLifecycleStatus = "Unknown";
     private Guid? _latestVersionId;
+    private readonly string[] GuideSteps =
+    [
+        "Register or update the AI system inventory.",
+        "Execute Regulatory Assessment to classify exposure.",
+        "Review findings and approve remediation actions.",
+        "Link evidence excerpts to controls and findings.",
+        "Generate Board Summary or Regulator Export."
+    ];
+
+    private readonly OperationalGuide.GuideAction[] GuideActions =
+    [
+        new("Open AI Systems", "/ai-systems"),
+        new("Open Controls & Actions", "/controls-actions"),
+        new("Open Evidence Vault", "/evidence-vault")
+    ];
 
     private int ComplianceScore => _systemDashboard?.ScoreTrend.OrderBy(x => x.RanAt).LastOrDefault()?.Score ?? 0;
     private int ScoreDelta

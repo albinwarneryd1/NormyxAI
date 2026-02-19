@@ -28,6 +28,12 @@ else
     </div>
 
     <div class="card-shell">
+        <OperationalGuide
+            Title="Audit review workflow"
+            Summary="Use timeline and table filters to validate who changed what, when, and why."
+            Steps="@GuideSteps"
+            Actions="@GuideActions" />
+
         <div class="field-grid">
             <InputSelect @bind-Value="_actionFilter" class="text-input">
                 <option value="">All actions</option>
@@ -143,6 +149,20 @@ else
     private IReadOnlyList<string> _actionTypes = [];
     private IReadOnlyList<string> _targetTypes = [];
     private Dictionary<Guid, string> _actorLookup = new();
+
+    private readonly string[] GuideSteps =
+    [
+        "Filter by action type and actor to isolate governance decisions.",
+        "Use date range to prepare evidence for audit windows.",
+        "Switch to Regulator View to hide internal payload details.",
+        "Export filtered records for external review packages."
+    ];
+
+    private readonly OperationalGuide.GuideAction[] GuideActions =
+    [
+        new("Open Evidence Vault", "/evidence-vault"),
+        new("Open Tenant Governance", "/tenant-settings")
+    ];
 
     private IReadOnlyList<Sylvaro.Web.Models.AuditLogDto> _filteredLogs => _logs
         .Where(x => string.IsNullOrWhiteSpace(_actionFilter) || x.ActionType.Equals(_actionFilter, StringComparison.OrdinalIgnoreCase))

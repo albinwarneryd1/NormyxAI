@@ -1,0 +1,39 @@
+@if (!string.IsNullOrWhiteSpace(Title) && Steps is { Length: > 0 })
+{
+    <section class="operational-guide">
+        <header>
+            <span class="section-label">Workflow Guide</span>
+            <h3>@Title</h3>
+            @if (!string.IsNullOrWhiteSpace(Summary))
+            {
+                <p class="context-text">@Summary</p>
+            }
+        </header>
+
+        <ol>
+            @foreach (var step in Steps)
+            {
+                <li>@step</li>
+            }
+        </ol>
+
+        @if (Actions is { Length: > 0 })
+        {
+            <div class="btn-row" style="margin-bottom:0;">
+                @foreach (var action in Actions)
+                {
+                    <a class="btn-small" href="@action.Href">@action.Label</a>
+                }
+            </div>
+        }
+    </section>
+}
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string? Summary { get; set; }
+    [Parameter] public string[] Steps { get; set; } = [];
+    [Parameter] public GuideAction[]? Actions { get; set; }
+
+    public sealed record GuideAction(string Label, string Href);
+}
