@@ -8,6 +8,13 @@ public record DashboardTenantDto(
     [property: JsonPropertyName("systemCount")] int SystemCount,
     [property: JsonPropertyName("openActions")] int OpenActions,
     [property: JsonPropertyName("riskDistribution")] Dictionary<string, int> RiskDistribution);
+public record DashboardSystemDto(
+    Guid Id,
+    string Name,
+    string Status,
+    int AssessmentsCount,
+    List<DashboardScorePointDto> ScoreTrend);
+public record DashboardScorePointDto(Guid Id, DateTimeOffset RanAt, int Score);
 
 public record TenantDto(Guid Id, string Name, DateTimeOffset CreatedAt);
 public record RoleDto(Guid Id, string Name);
