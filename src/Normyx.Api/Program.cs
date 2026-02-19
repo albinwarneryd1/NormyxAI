@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Normyx.Api.Middleware;
 using Normyx.Api.Endpoints;
 using Normyx.Application.Abstractions;
 using Normyx.Infrastructure.Audit;
@@ -60,6 +61,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+builder.Services.AddProblemDetails();
 
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen(c =>
@@ -82,6 +84,9 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+app.UseMiddleware<CorrelationIdMiddleware>();
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -100,6 +105,7 @@ using (var scope = app.Services.CreateScope())
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<ApiStatusCodeEnvelopeMiddleware>();
 app.UseMiddleware<AuditMiddleware>();
 
 app.MapGet("/health/live", () => Results.Ok(new { status = "ok" }));
