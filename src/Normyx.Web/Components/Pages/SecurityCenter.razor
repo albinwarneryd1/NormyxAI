@@ -44,7 +44,7 @@ else
             }
             @if (!string.IsNullOrWhiteSpace(_error))
             {
-                <div class="alert-danger">@_error</div>
+                <EnterpriseErrorPanel ErrorText="@_error" FriendlyMessage="Security operation failed." OnRetry="RetrySecurityAsync" />
             }
             <table class="table-shell">
                 <thead><tr><th>Session</th><th>IP</th><th>User Agent</th><th>Started</th><th>Expires</th><th>Status</th><th></th></tr></thead>
@@ -331,5 +331,11 @@ else
         }
 
         return userAgent.Length <= 72 ? userAgent : $"{userAgent[..72]}...";
+    }
+
+    private async Task RetrySecurityAsync()
+    {
+        await RefreshSessionsAsync();
+        await RefreshApiTokensAsync();
     }
 }

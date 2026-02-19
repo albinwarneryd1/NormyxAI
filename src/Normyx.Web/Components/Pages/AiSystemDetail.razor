@@ -28,7 +28,7 @@ else
 
         @if (!string.IsNullOrWhiteSpace(_error))
         {
-            <div class="alert-danger">@_error</div>
+            <EnterpriseErrorPanel ErrorText="@_error" FriendlyMessage="AI system workspace operation failed." OnRetry="LoadSystemAsync" />
         }
 
         <div class="tab-row">

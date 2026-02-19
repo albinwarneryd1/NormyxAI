@@ -206,26 +206,34 @@ public class NormyxApiClient(IHttpClientFactory factory, AuthSession session, IJ
         }
 
         var body = await response.Content.ReadAsStringAsync();
-        var errorMessage = TryExtractApiError(body);
+        var parsed = TryExtractApiError(body);
+        var errorMessage = string.IsNullOrWhiteSpace(parsed.CorrelationId)
+            ? parsed.Message
+            : $"{parsed.Message} (corr:{parsed.CorrelationId})";
         throw new HttpRequestException($"API call failed ({(int)response.StatusCode}): {errorMessage}");
     }
 
-    private static string TryExtractApiError(string body)
+    private static ApiErrorParse TryExtractApiError(string body)
     {
         if (string.IsNullOrWhiteSpace(body))
         {
-            return "No error payload returned.";
+            return new ApiErrorParse("No error payload returned.", null);
         }
 
         try
         {
             using var document = JsonDocument.Parse(body);
+            var correlationId = document.RootElement.TryGetProperty("correlationId", out var correlationProp)
+                ? correlationProp.GetString()
+                : null;
+
             if (document.RootElement.TryGetProperty("error", out var error))
             {
                 var code = error.TryGetProperty("code", out var codeProp) ? codeProp.GetString() : null;
                 var message = error.TryGetProperty("message", out var messageProp) ? messageProp.GetString() : null;
                 var text = string.IsNullOrWhiteSpace(message) ? body : message;
-                return string.IsNullOrWhiteSpace(code) ? text! : $"{code}: {text}";
+                var formatted = string.IsNullOrWhiteSpace(code) ? text! : $"{code}: {text}";
+                return new ApiErrorParse(formatted, correlationId);
             }
         }
         catch
@@ -233,6 +241,8 @@ public class NormyxApiClient(IHttpClientFactory factory, AuthSession session, IJ
             // Non-JSON payload; return raw response body.
         }
 
-        return body;
+        return new ApiErrorParse(body, null);
     }
+
+    private sealed record ApiErrorParse(string Message, string? CorrelationId);
 }

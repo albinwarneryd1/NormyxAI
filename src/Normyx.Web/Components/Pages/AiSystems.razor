@@ -30,7 +30,7 @@ else
 
         @if (!string.IsNullOrWhiteSpace(_error))
         {
-            <div class="alert-danger">@_error</div>
+            <EnterpriseErrorPanel ErrorText="@_error" FriendlyMessage="AI system registry operation failed." OnRetry="LoadSystemsAsync" />
         }
 
         <EditForm FormName="ai-systems-create-form" Model="_createForm" OnValidSubmit="CreateSystemAsync">
