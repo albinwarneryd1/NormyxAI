@@ -266,7 +266,78 @@ public class TenantIsolationTests : IAsyncLifetime
         Assert.Contains("correlationId", payload, StringComparison.OrdinalIgnoreCase);
     }
 
+    [Fact]
+    public async Task SecuritySessions_List_ReturnsActiveSessionMetadata()
+    {
+        if (!_dockerAvailable)
+        {
+            return;
+        }
+
+        var client = _factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            BaseAddress = new Uri("http://localhost")
+        });
+
+        var auth = await LoginWithTokensAsync(client, "NordicFin AB", "admin@nordicfin.example", "ChangeMe123!");
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/security/sessions");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
+
+        var response = await client.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+
+        var sessions = await response.Content.ReadFromJsonAsync<List<SecuritySessionDto>>();
+        Assert.NotNull(sessions);
+        Assert.NotEmpty(sessions!);
+        Assert.All(sessions!, session =>
+        {
+            Assert.False(string.IsNullOrWhiteSpace(session.SessionRef));
+            Assert.False(string.IsNullOrWhiteSpace(session.Ip));
+            Assert.True(session.ExpiresAt > session.CreatedAt);
+        });
+    }
+
+    [Fact]
+    public async Task SecuritySessions_RevokeOthers_LeavesOnlyCurrentSession()
+    {
+        if (!_dockerAvailable)
+        {
+            return;
+        }
+
+        var client = _factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            BaseAddress = new Uri("http://localhost")
+        });
+
+        _ = await LoginWithTokensAsync(client, "NordicFin AB", "admin@nordicfin.example", "ChangeMe123!");
+        var currentAuth = await LoginWithTokensAsync(client, "NordicFin AB", "admin@nordicfin.example", "ChangeMe123!");
+
+        using var revokeRequest = new HttpRequestMessage(HttpMethod.Post, "/security/sessions/revoke-others")
+        {
+            Content = JsonContent.Create(new { currentRefreshToken = currentAuth.RefreshToken })
+        };
+        revokeRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", currentAuth.AccessToken);
+        var revokeResponse = await client.SendAsync(revokeRequest);
+        revokeResponse.EnsureSuccessStatusCode();
+
+        using var listRequest = new HttpRequestMessage(HttpMethod.Get, "/security/sessions");
+        listRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", currentAuth.AccessToken);
+        var listResponse = await client.SendAsync(listRequest);
+        listResponse.EnsureSuccessStatusCode();
+        var sessions = await listResponse.Content.ReadFromJsonAsync<List<SecuritySessionDto>>();
+
+        Assert.NotNull(sessions);
+        Assert.Single(sessions!);
+    }
+
     private static async Task<string> LoginAsync(HttpClient client, string tenant, string email, string password)
+    {
+        var auth = await LoginWithTokensAsync(client, tenant, email, password);
+        return auth.AccessToken;
+    }
+
+    private static async Task<AuthResponse> LoginWithTokensAsync(HttpClient client, string tenant, string email, string password)
     {
         var response = await client.PostAsJsonAsync("/auth/login", new
         {
@@ -278,7 +349,7 @@ public class TenantIsolationTests : IAsyncLifetime
 
         var auth = await response.Content.ReadFromJsonAsync<AuthResponse>();
         Assert.NotNull(auth);
-        return auth!.AccessToken;
+        return auth!;
     }
 
     private static async Task<HttpResponseMessage> SendAuthorizedAsync(HttpClient client, string token, HttpMethod method, string url, object? body = null)
@@ -367,6 +438,7 @@ public class TenantIsolationTests : IAsyncLifetime
     }
 
     private sealed record AuthResponse(string AccessToken, string RefreshToken, DateTimeOffset RefreshTokenExpiresAt);
+    private sealed record SecuritySessionDto(Guid Id, string SessionRef, string Ip, string UserAgent, DateTimeOffset CreatedAt, DateTimeOffset ExpiresAt);
 
     private sealed class CustomFactory(string connectionString) : WebApplicationFactory<Program>
     {
