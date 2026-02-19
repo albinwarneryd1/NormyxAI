@@ -44,7 +44,7 @@ else
 
         @if (!string.IsNullOrWhiteSpace(_error))
         {
-            <EnterpriseErrorPanel ErrorText="@_error" FriendlyMessage="Executive overview processing failed." OnRetry="LoadOverviewAsync" />
+            <InstitutionalAlert ErrorText="@_error" FriendlyMessage="Executive overview processing failed." OnRetry="LoadOverviewAsync" />
         }
 
         @if (!string.IsNullOrWhiteSpace(_exportMessage))

@@ -20,7 +20,7 @@
 
         @if (!string.IsNullOrWhiteSpace(_error))
         {
-            <EnterpriseErrorPanel ErrorText="@_error" FriendlyMessage="Tenant registration failed." />
+            <InstitutionalAlert ErrorText="@_error" FriendlyMessage="Tenant registration failed." />
         }
 
         <EditForm FormName="register-form" Model="_model" OnValidSubmit="OnSubmitAsync">

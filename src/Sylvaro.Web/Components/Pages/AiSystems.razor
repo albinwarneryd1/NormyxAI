@@ -30,7 +30,7 @@ else
 
         @if (!string.IsNullOrWhiteSpace(_error))
         {
-            <EnterpriseErrorPanel ErrorText="@_error" FriendlyMessage="AI system registry operation failed." OnRetry="LoadSystemsAsync" />
+            <InstitutionalAlert ErrorText="@_error" FriendlyMessage="AI system registry operation failed." OnRetry="LoadSystemsAsync" />
         }
 
         <EditForm FormName="ai-systems-create-form" Model="_createForm" OnValidSubmit="CreateSystemAsync">

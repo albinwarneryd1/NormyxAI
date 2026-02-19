@@ -20,7 +20,7 @@
 
         @if (!string.IsNullOrWhiteSpace(_error))
         {
-            <EnterpriseErrorPanel ErrorText="@_error" FriendlyMessage="Authentication request failed." />
+            <InstitutionalAlert ErrorText="@_error" FriendlyMessage="Authentication request failed." />
         }
 
         <EditForm FormName="login-form" Model="_model" OnValidSubmit="OnSubmitAsync">

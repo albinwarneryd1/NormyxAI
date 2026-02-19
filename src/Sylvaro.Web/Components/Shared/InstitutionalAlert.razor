@@ -1,0 +1,127 @@
+@using System.Text.RegularExpressions
+
+@if (!string.IsNullOrWhiteSpace(ErrorText))
+{
+    <div class="institutional-alert @SeverityClass" role="alert" aria-live="polite">
+        <header>
+            <strong>@ResolvedTitle</strong>
+            <span class="metadata-text">Correlation ID: @ResolvedCorrelationId</span>
+        </header>
+        <p>@ResolvedSummary</p>
+
+        @if (OnRetry.HasDelegate)
+        {
+            <div class="btn-row" style="margin-top:0.35rem; margin-bottom:0;">
+                <button class="btn-small" @onclick="HandleRetryAsync">@RetryLabel</button>
+            </div>
+        }
+
+        <details>
+            <summary>Technical details</summary>
+            <pre>@ErrorText</pre>
+        </details>
+    </div>
+}
+
+@code {
+    [Parameter] public string? ErrorText { get; set; }
+    [Parameter] public string? FriendlyMessage { get; set; }
+    [Parameter] public string RetryLabel { get; set; } = "Retry operation";
+    [Parameter] public string Severity { get; set; } = "error";
+    [Parameter] public EventCallback OnRetry { get; set; }
+
+    private string SeverityClass => Severity.Equals("warning", StringComparison.OrdinalIgnoreCase) ? "warning" : "error";
+
+    private string ResolvedTitle
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(ErrorText))
+            {
+                return FriendlyMessage ?? "Regulatory Processing Error";
+            }
+
+            var error = ErrorText;
+            if (error.Contains("JSON value could not be converted", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Assessment Processing Error";
+            }
+
+            if (error.Contains("unauthorized", StringComparison.OrdinalIgnoreCase) || error.Contains("(401)", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Authentication Requirement";
+            }
+
+            if (error.Contains("forbidden", StringComparison.OrdinalIgnoreCase) || error.Contains("(403)", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Authorization Restriction";
+            }
+
+            if (error.Contains("validation_failed", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Input Validation Failure";
+            }
+
+            return FriendlyMessage ?? "Regulatory Processing Error";
+        }
+    }
+
+    private string ResolvedSummary
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(ErrorText))
+            {
+                return "The requested operation could not be completed. Retry operation or contact platform governance support.";
+            }
+
+            var error = ErrorText;
+            if (error.Contains("JSON value could not be converted", StringComparison.OrdinalIgnoreCase))
+            {
+                return "The latest regulatory analysis could not be completed due to structured response mismatch. Review provider schema alignment or retry operation.";
+            }
+
+            if (error.Contains("unauthorized", StringComparison.OrdinalIgnoreCase) || error.Contains("(401)", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Your authenticated session is no longer valid for this operation. Sign in again and retry.";
+            }
+
+            if (error.Contains("forbidden", StringComparison.OrdinalIgnoreCase) || error.Contains("(403)", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Your current role does not authorize this governance action.";
+            }
+
+            return "The requested compliance operation did not complete successfully. Review technical details and retry once inputs are aligned.";
+        }
+    }
+
+    private string ResolvedCorrelationId
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(ErrorText))
+            {
+                return "Unavailable";
+            }
+
+            var value = TryExtract("correlationId\\W*[:=]\\W*\\\"?(?<id>[A-Za-z0-9\\-]+)")
+                ?? TryExtract("corr:\\s*(?<id>[A-Za-z0-9\\-]+)")
+                ?? TryExtract("Correlation ID\\W*[:=]\\W*(?<id>[A-Za-z0-9\\-]+)");
+
+            return string.IsNullOrWhiteSpace(value) ? "Unavailable" : value;
+        }
+    }
+
+    private string? TryExtract(string pattern)
+    {
+        if (string.IsNullOrWhiteSpace(ErrorText))
+        {
+            return null;
+        }
+
+        var match = Regex.Match(ErrorText, pattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        return match.Success ? match.Groups["id"].Value : null;
+    }
+
+    private Task HandleRetryAsync() => OnRetry.InvokeAsync();
+}

@@ -57,7 +57,7 @@ else
 
         @if (!string.IsNullOrWhiteSpace(_error))
         {
-            <EnterpriseErrorPanel ErrorText="@_error" FriendlyMessage="Audit ledger query failed." OnRetry="RefreshAsync" />
+            <InstitutionalAlert ErrorText="@_error" FriendlyMessage="Audit ledger query failed." OnRetry="RefreshAsync" />
         }
     </div>
 
