@@ -178,6 +178,46 @@ else
             <h2>Data & Vendors</h2>
             <p>Data items: @_inventory.DataItems.Count | Vendors: @_inventory.Vendors.Count</p>
 
+            <ul>
+                @foreach (var item in _inventory.DataItems)
+                {
+                    <li>@item.DataCategory - lawful basis: @item.LawfulBasis - retention: @item.RetentionDays days - transfer outside EU: @item.TransferOutsideEu</li>
+                }
+            </ul>
+
+            <h3>Add data inventory item</h3>
+            <EditForm Model="_newDataItem" OnValidSubmit="AddDataItemAsync">
+                <div class="field-grid">
+                    <InputText @bind-Value="_newDataItem.DataCategory" class="text-input" placeholder="Data category" />
+                    <InputText @bind-Value="_newDataItem.Source" class="text-input" placeholder="Source" />
+                    <InputText @bind-Value="_newDataItem.LawfulBasis" class="text-input" placeholder="Lawful basis" />
+                    <InputNumber @bind-Value="_newDataItem.RetentionDays" class="text-input" />
+                </div>
+                <label><InputCheckbox @bind-Value="_newDataItem.ContainsPersonalData" /> Contains personal data</label>
+                <label><InputCheckbox @bind-Value="_newDataItem.SpecialCategory" /> Special category data</label>
+                <label><InputCheckbox @bind-Value="_newDataItem.TransferOutsideEu" /> Transfer outside EU</label>
+                <button class="btn-small" type="submit">Add data item</button>
+            </EditForm>
+
+            <ul>
+                @foreach (var vendor in _inventory.Vendors)
+                {
+                    <li>@vendor.Name (@vendor.ServiceType) - @vendor.Region - sub-processors: @string.Join(", ", vendor.SubProcessors)</li>
+                }
+            </ul>
+
+            <h3>Add vendor</h3>
+            <EditForm Model="_newVendor" OnValidSubmit="AddVendorAsync">
+                <div class="field-grid">
+                    <InputText @bind-Value="_newVendor.Name" class="text-input" placeholder="Vendor name" />
+                    <InputText @bind-Value="_newVendor.ServiceType" class="text-input" placeholder="Service type" />
+                    <InputText @bind-Value="_newVendor.Region" class="text-input" placeholder="Region" />
+                    <InputText @bind-Value="_newVendor.SubProcessorsCsv" class="text-input" placeholder="sub-processor-a, sub-processor-b" />
+                </div>
+                <label><InputCheckbox @bind-Value="_newVendor.DpaInPlace" /> DPA in place</label>
+                <button class="btn-small" type="submit">Add vendor</button>
+            </EditForm>
+
             <h2>Evidence</h2>
             <InputFile OnChange="UploadDocumentAsync" />
             @if (!string.IsNullOrWhiteSpace(_uploadMessage))
@@ -416,6 +456,8 @@ else
     private readonly NewComponentForm _newComponent = new();
     private readonly NewFlowForm _newFlow = new();
     private readonly NewStoreForm _newStore = new();
+    private readonly NewDataItemForm _newDataItem = new();
+    private readonly NewVendorForm _newVendor = new();
     private readonly NewExcerptForm _newExcerpt = new();
     private readonly LinkEvidenceForm _linkEvidence = new();
     private readonly ExportForm _exportForm = new();
@@ -688,6 +730,67 @@ else
         }
     }
 
+    private async Task AddDataItemAsync()
+    {
+        if (_currentVersionId is null || string.IsNullOrWhiteSpace(_newDataItem.DataCategory))
+        {
+            return;
+        }
+
+        try
+        {
+            await Api.PostAsync($"/versions/{_currentVersionId}/inventory/data-items", new
+            {
+                dataCategory = _newDataItem.DataCategory,
+                containsPersonalData = _newDataItem.ContainsPersonalData,
+                specialCategory = _newDataItem.SpecialCategory,
+                source = _newDataItem.Source,
+                lawfulBasis = _newDataItem.LawfulBasis,
+                retentionDays = _newDataItem.RetentionDays,
+                transferOutsideEu = _newDataItem.TransferOutsideEu,
+                notes = _newDataItem.Notes
+            });
+
+            _newDataItem.Reset();
+            await LoadVersionDataAsync(_currentVersionId.Value);
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+
+    private async Task AddVendorAsync()
+    {
+        if (_currentVersionId is null || string.IsNullOrWhiteSpace(_newVendor.Name))
+        {
+            return;
+        }
+
+        try
+        {
+            var subProcessors = _newVendor.SubProcessorsCsv
+                .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+
+            await Api.PostAsync($"/versions/{_currentVersionId}/inventory/vendors", new
+            {
+                name = _newVendor.Name,
+                serviceType = _newVendor.ServiceType,
+                region = _newVendor.Region,
+                subProcessors,
+                dpaInPlace = _newVendor.DpaInPlace,
+                notes = _newVendor.Notes
+            });
+
+            _newVendor.Reset();
+            await LoadVersionDataAsync(_currentVersionId.Value);
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+
     private async Task LoadExcerptsAsync()
     {
         if (_selectedDocumentId is null)
@@ -952,6 +1055,50 @@ else
             RetentionDays = 365;
             EncryptionAtRest = true;
             AccessModel = "RBAC";
+        }
+    }
+
+    private sealed class NewDataItemForm
+    {
+        public string DataCategory { get; set; } = "personal_data";
+        public bool ContainsPersonalData { get; set; } = true;
+        public bool SpecialCategory { get; set; }
+        public string Source { get; set; } = "Web form";
+        public string LawfulBasis { get; set; } = "legitimate_interest";
+        public int RetentionDays { get; set; } = 365;
+        public bool TransferOutsideEu { get; set; } = true;
+        public string Notes { get; set; } = string.Empty;
+
+        public void Reset()
+        {
+            DataCategory = "personal_data";
+            ContainsPersonalData = true;
+            SpecialCategory = false;
+            Source = "Web form";
+            LawfulBasis = "legitimate_interest";
+            RetentionDays = 365;
+            TransferOutsideEu = true;
+            Notes = string.Empty;
+        }
+    }
+
+    private sealed class NewVendorForm
+    {
+        public string Name { get; set; } = "LLM Provider";
+        public string ServiceType { get; set; } = "LLM";
+        public string Region { get; set; } = "US";
+        public string SubProcessorsCsv { get; set; } = "inference-cluster";
+        public bool DpaInPlace { get; set; } = true;
+        public string Notes { get; set; } = string.Empty;
+
+        public void Reset()
+        {
+            Name = "LLM Provider";
+            ServiceType = "LLM";
+            Region = "US";
+            SubProcessorsCsv = "inference-cluster";
+            DpaInPlace = true;
+            Notes = string.Empty;
         }
     }
 
