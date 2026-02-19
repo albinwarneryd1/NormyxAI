@@ -114,6 +114,7 @@ else
             <div class="field-grid">
                 <label><InputCheckbox @bind-Value="_showPersonalDataOnly" /> Show personal-data flows only</label>
                 <label><InputCheckbox @bind-Value="_showHighRiskFlowsOnly" /> Show high-risk flows only</label>
+                <label><InputCheckbox @bind-Value="_showVendorOverlay" /> Show vendor dependency overlay</label>
             </div>
 
             <div class="zone-grid">
@@ -132,6 +133,10 @@ else
                                     @onclick="() => SelectComponent(component.Id)">
                                 <strong>@component.Name</strong>
                                 <span>@component.Type | @component.DataSensitivityLevel</span>
+                                @if (_showVendorOverlay && HasVendorDependency(component))
+                                {
+                                    <span class="risk-pill warning">Vendor Dependency</span>
+                                }
                             </button>
                         }
                     </section>
@@ -175,6 +180,31 @@ else
                             <td>@string.Join(", ", flow.DataCategories)</td>
                             <td>@flow.Purpose</td>
                             <td>@(flow.EncryptionInTransit ? "Encrypted" : "Unencrypted")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <h3>Data Flow Matrix</h3>
+            <table class="table-shell">
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Outbound Flows</th>
+                        <th>Inbound Flows</th>
+                        <th>Sensitive Categories</th>
+                        <th>Risk</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in GetDataFlowMatrixRows())
+                    {
+                        <tr>
+                            <td>@row.ComponentName</td>
+                            <td>@row.Outbound</td>
+                            <td>@row.Inbound</td>
+                            <td>@string.Join(", ", row.SensitiveCategories)</td>
+                            <td><span class="@($"risk-pill {ToRiskPillClass(row.Risk)}")">@row.Risk</span></td>
                         </tr>
                     }
                 </tbody>
@@ -706,6 +736,7 @@ else
     private Guid? _selectedRiskComponentId;
     private bool _showPersonalDataOnly;
     private bool _showHighRiskFlowsOnly;
+    private bool _showVendorOverlay;
     private string _riskPerspective = "Regulatory";
 
     private static readonly string[] WorkspaceTabs =
@@ -1465,6 +1496,39 @@ else
             .Where(flow => !_showPersonalDataOnly || IsPersonalDataFlow(flow))
             .Where(flow => !_showHighRiskFlowsOnly || IsHighRiskFlow(flow));
 
+    private bool HasVendorDependency(Normyx.Web.Models.ComponentDto component)
+        => component.IsExternal ||
+           _inventory.Vendors.Any(vendor =>
+               component.Name.Contains(vendor.Name, StringComparison.OrdinalIgnoreCase) ||
+               component.Type.Contains(vendor.ServiceType, StringComparison.OrdinalIgnoreCase));
+
+    private IEnumerable<DataFlowMatrixRow> GetDataFlowMatrixRows()
+        => _architecture.Components
+            .OrderBy(component => component.Name)
+            .Select(component =>
+            {
+                var outbound = _architecture.Flows.Where(flow => flow.FromComponentId == component.Id).ToList();
+                var inbound = _architecture.Flows.Where(flow => flow.ToComponentId == component.Id).ToList();
+                var sensitive = outbound.Concat(inbound)
+                    .SelectMany(flow => flow.DataCategories)
+                    .Where(category => category.Contains("personal", StringComparison.OrdinalIgnoreCase) ||
+                                       category.Contains("financial", StringComparison.OrdinalIgnoreCase) ||
+                                       category.Contains("special", StringComparison.OrdinalIgnoreCase))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToArray();
+
+                var risk = sensitive.Length > 0 || !outbound.Concat(inbound).All(flow => flow.EncryptionInTransit)
+                    ? "High"
+                    : HasVendorDependency(component) ? "Medium" : "Low";
+
+                return new DataFlowMatrixRow(
+                    component.Name,
+                    outbound.Count,
+                    inbound.Count,
+                    sensitive.Length == 0 ? ["none"] : sensitive,
+                    risk);
+            });
+
     private string GetFlowRiskClass(Normyx.Web.Models.DataFlowDto flow)
     {
         if (IsHighRiskFlow(flow))
@@ -1566,6 +1630,7 @@ else
     }
 
     private sealed record RiskMatrixRow(Guid ComponentId, string ComponentName, IReadOnlyList<string> Severities);
+    private sealed record DataFlowMatrixRow(string ComponentName, int Outbound, int Inbound, IReadOnlyList<string> SensitiveCategories, string Risk);
 
     private sealed class NewComponentForm
     {
