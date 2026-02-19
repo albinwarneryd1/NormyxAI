@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Veridion.Api/Veridion.Api.csproj" />
+    <Project Path="src/Veridion.Application/Veridion.Application.csproj" />
+    <Project Path="src/Veridion.Domain/Veridion.Domain.csproj" />
+    <Project Path="src/Veridion.Infrastructure/Veridion.Infrastructure.csproj" />
+    <Project Path="src/Veridion.Web/Veridion.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Veridion.Tests/Veridion.Tests.csproj" />
+  </Folder>
+</Solution>
