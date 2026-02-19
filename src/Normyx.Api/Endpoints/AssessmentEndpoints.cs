@@ -26,8 +26,15 @@ public static class AssessmentEndpoints
         var tenantId = TenantContext.RequireTenantId(currentUser);
         var userId = TenantContext.RequireUserId(currentUser);
 
-        var result = await assessmentService.RunAssessmentAsync(tenantId, versionId, userId);
-        return Results.Ok(result);
+        try
+        {
+            var result = await assessmentService.RunAssessmentAsync(tenantId, versionId, userId);
+            return Results.Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Results.BadRequest(new { message = ex.Message });
+        }
     }
 
     private static async Task<IResult> ListAssessmentsAsync([FromRoute] Guid versionId, NormyxDbContext dbContext, ICurrentUserContext currentUser)

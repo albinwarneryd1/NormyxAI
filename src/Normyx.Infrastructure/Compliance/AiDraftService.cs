@@ -1,12 +1,152 @@
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Normyx.Application.Abstractions;
 using Normyx.Application.Compliance;
+using Normyx.Domain.Enums;
+using Normyx.Infrastructure.AI;
 
 namespace Normyx.Infrastructure.Compliance;
 
-public class AiDraftService : IAiDraftService
+public class AiDraftService(
+    IAiJsonCompletionProvider jsonCompletionProvider,
+    IPromptTemplateRepository promptTemplates,
+    IPiiRedactor piiRedactor,
+    IOptions<AiProviderOptions> options,
+    ILogger<AiDraftService> logger) : IAiDraftService
 {
-    public Task<DraftActionPlanJson> GenerateActionPlanAsync(AssessmentSummary summary, IReadOnlyCollection<FindingDraft> findings, CancellationToken cancellationToken = default)
+    private readonly AiProviderOptions _options = options.Value;
+
+    public async Task<DraftActionPlanJson> GenerateActionPlanAsync(AssessmentSummary summary, IReadOnlyCollection<FindingDraft> findings, CancellationToken cancellationToken = default)
+    {
+        EnforceGuardrails(summary, findings);
+
+        var fallback = CreateFallbackActionPlan(findings);
+        var payloadJson = BuildModelInput(summary, findings);
+
+        if (_options.Mode.Equals("Local", StringComparison.OrdinalIgnoreCase))
+        {
+            ValidateActionPlan(fallback);
+            return fallback;
+        }
+
+        try
+        {
+            var rendered = RenderPrompt("action-plan", payloadJson);
+            var output = await jsonCompletionProvider.GenerateJsonAsync("action-plan", rendered.SystemPrompt, rendered.UserPrompt, cancellationToken);
+            var parsed = JsonSerializer.Deserialize<DraftActionPlanJson>(output, SerializerOptions);
+
+            if (parsed is null)
+            {
+                throw new InvalidOperationException("AI action plan response was empty.");
+            }
+
+            ValidateActionPlan(parsed);
+            return parsed;
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Action plan generation failed, using deterministic fallback.");
+            ValidateActionPlan(fallback);
+            return fallback;
+        }
+    }
+
+    public async Task<DraftDpiaJson> GenerateDpiaDraftAsync(AssessmentSummary summary, IReadOnlyCollection<FindingDraft> findings, CancellationToken cancellationToken = default)
+    {
+        EnforceGuardrails(summary, findings);
+
+        var fallback = CreateFallbackDpia(summary, findings);
+        var payloadJson = BuildModelInput(summary, findings);
+
+        if (_options.Mode.Equals("Local", StringComparison.OrdinalIgnoreCase))
+        {
+            ValidateDpia(fallback);
+            return fallback;
+        }
+
+        try
+        {
+            var rendered = RenderPrompt("dpia-draft", payloadJson);
+            var output = await jsonCompletionProvider.GenerateJsonAsync("dpia-draft", rendered.SystemPrompt, rendered.UserPrompt, cancellationToken);
+            var parsed = JsonSerializer.Deserialize<DraftDpiaJson>(output, SerializerOptions);
+
+            if (parsed is null)
+            {
+                throw new InvalidOperationException("AI DPIA response was empty.");
+            }
+
+            ValidateDpia(parsed);
+            return parsed;
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "DPIA draft generation failed, using deterministic fallback.");
+            ValidateDpia(fallback);
+            return fallback;
+        }
+    }
+
+    private static readonly JsonSerializerOptions SerializerOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
+    private string BuildModelInput(AssessmentSummary summary, IReadOnlyCollection<FindingDraft> findings)
+    {
+        var modelInput = JsonSerializer.Serialize(new
+        {
+            summary,
+            findings = findings.Select(x => new
+            {
+                x.Type,
+                Severity = x.Severity.ToString(),
+                x.Title,
+                x.Description,
+                x.RuleKeys,
+                x.EvidenceSuggestions
+            })
+        });
+
+        return _options.EnablePiiMasking ? piiRedactor.Redact(modelInput) : modelInput;
+    }
+
+    private (string SystemPrompt, string UserPrompt) RenderPrompt(string templateKey, string inputJson)
+    {
+        var systemPrompt = promptTemplates.GetSystemPrompt(templateKey);
+        var userPrompt = promptTemplates.GetUserPrompt(templateKey)
+            .Replace("{{INPUT_JSON}}", inputJson, StringComparison.Ordinal);
+
+        return (systemPrompt, userPrompt);
+    }
+
+    private static void EnforceGuardrails(AssessmentSummary summary, IReadOnlyCollection<FindingDraft> findings)
+    {
+        var corpus = string.Join("\n", new[]
+        {
+            summary.Rationale,
+            summary.AiActRiskClass,
+            string.Join(" ", summary.GdprFlags),
+            string.Join(" ", summary.Nis2Flags),
+            string.Join(" ", findings.Select(x => x.Title + " " + x.Description))
+        }).ToLowerInvariant();
+
+        var blockedPhrases = new[]
+        {
+            "fake evidence",
+            "fabricate evidence",
+            "invent evidence",
+            "forged evidence",
+            "backdate evidence"
+        };
+
+        if (blockedPhrases.Any(corpus.Contains))
+        {
+            throw new InvalidOperationException("Guardrail blocked request: fake evidence generation is not allowed.");
+        }
+    }
+
+    private static DraftActionPlanJson CreateFallbackActionPlan(IReadOnlyCollection<FindingDraft> findings)
     {
         var actions = findings
             .Select((finding, index) => new DraftActionItem(
@@ -14,9 +154,9 @@ public class AiDraftService : IAiDraftService
                 finding.Description,
                 finding.Severity switch
                 {
-                    Normyx.Domain.Enums.FindingSeverity.Critical => "P0",
-                    Normyx.Domain.Enums.FindingSeverity.High => "P1",
-                    Normyx.Domain.Enums.FindingSeverity.Medium => "P2",
+                    FindingSeverity.Critical => "P0",
+                    FindingSeverity.High => "P1",
+                    FindingSeverity.Medium => "P2",
                     _ => "P3"
                 },
                 index % 2 == 0 ? "SecurityLead" : "ComplianceOfficer",
@@ -24,13 +164,10 @@ public class AiDraftService : IAiDraftService
                 finding.EvidenceSuggestions.Length == 0 ? ["Policy evidence", "Control evidence"] : finding.EvidenceSuggestions))
             .ToArray();
 
-        var json = new DraftActionPlanJson(actions);
-        ValidateActionPlan(json);
-
-        return Task.FromResult(json);
+        return new DraftActionPlanJson(actions);
     }
 
-    public Task<DraftDpiaJson> GenerateDpiaDraftAsync(AssessmentSummary summary, IReadOnlyCollection<FindingDraft> findings, CancellationToken cancellationToken = default)
+    private static DraftDpiaJson CreateFallbackDpia(AssessmentSummary summary, IReadOnlyCollection<FindingDraft> findings)
     {
         var sections = new List<DraftDpiaSection>
         {
@@ -39,10 +176,7 @@ public class AiDraftService : IAiDraftService
             new("Mitigations", ["Action plan approved", "Evidence links attached"], ["Complete supplier transfer assessment"])
         };
 
-        var json = new DraftDpiaJson(sections);
-        ValidateDpia(json);
-
-        return Task.FromResult(json);
+        return new DraftDpiaJson(sections);
     }
 
     private static void ValidateActionPlan(DraftActionPlanJson json)

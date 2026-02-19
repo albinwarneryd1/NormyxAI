@@ -6,6 +6,7 @@ using Microsoft.OpenApi.Models;
 using Normyx.Api.Endpoints;
 using Normyx.Application.Abstractions;
 using Normyx.Infrastructure.Audit;
+using Normyx.Infrastructure.AI;
 using Normyx.Infrastructure.Auth;
 using Normyx.Infrastructure.Extensions;
 using Normyx.Infrastructure.Persistence;
@@ -15,12 +16,19 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddNormyxInfrastructure(builder.Configuration);
 builder.Services.Configure<StorageOptions>(builder.Configuration.GetSection(StorageOptions.SectionName));
+builder.Services.Configure<AiProviderOptions>(builder.Configuration.GetSection(AiProviderOptions.SectionName));
 builder.Services.AddScoped<IObjectStorage, LocalObjectStorage>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 builder.Services.AddScoped<ICurrentUserContext, HttpCurrentUserContext>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddSingleton<IPromptTemplateRepository, FilePromptTemplateRepository>();
+builder.Services.AddSingleton<IPiiRedactor, RegexPiiRedactor>();
+builder.Services.AddHttpClient("AiProvider", client => client.Timeout = TimeSpan.FromSeconds(45));
+builder.Services.AddTransient<OpenAiCompatibleJsonCompletionProvider>();
+builder.Services.AddSingleton<LocalJsonCompletionProvider>();
+builder.Services.AddTransient<IAiJsonCompletionProvider, SwitchingJsonCompletionProvider>();
 builder.Services.AddSingleton<Normyx.Infrastructure.Compliance.PolicyEngine>();
 builder.Services.AddScoped<IAiDraftService, Normyx.Infrastructure.Compliance.AiDraftService>();
 builder.Services.AddScoped<IAssessmentService, Normyx.Infrastructure.Compliance.AssessmentService>();
