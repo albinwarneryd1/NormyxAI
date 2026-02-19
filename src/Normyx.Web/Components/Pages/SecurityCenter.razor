@@ -24,6 +24,7 @@ else
             <span class="risk-pill success">Password Policy: Enforced</span>
             <span class="risk-pill warning">Active Sessions: @_activeSessions.Count</span>
             <span class="risk-pill info">Available Roles: @_roles.Count</span>
+            <span class="@($"risk-pill {(_rateLimitPolicy?.IsActive == true ? "success" : "warning")}")">Rate Limiting: @(_rateLimitPolicy?.IsActive == true ? "Active" : "Unavailable")</span>
         </div>
     </div>
 
@@ -102,8 +103,9 @@ else
             </ul>
             <h3>Rate Limiting Policy</h3>
             <ul>
-                <li>Global API quota: 200 requests / minute per client IP</li>
-                <li>Authentication endpoints: 20 requests / minute per client IP</li>
+                <li>Global API quota: @(_rateLimitPolicy?.GlobalPermitLimitPerMinute ?? 200) requests / minute per client IP</li>
+                <li>Authentication endpoints: @(_rateLimitPolicy?.AuthPermitLimitPerMinute ?? 20) requests / minute per client IP</li>
+                <li>Evaluation window: @(_rateLimitPolicy?.WindowSeconds ?? 60) seconds</li>
                 <li>429 responses are audited with correlation IDs</li>
             </ul>
         </section>
@@ -181,6 +183,7 @@ else
     private List<Normyx.Web.Models.SecuritySessionDto> _activeSessions = [];
     private List<Normyx.Web.Models.ApiTokenDto> _tokens = [];
     private List<Normyx.Web.Models.RoleDto> _roles = [];
+    private Normyx.Web.Models.RateLimitPolicyDto? _rateLimitPolicy;
     private bool _attemptedInitialLoad;
 
     protected override async Task OnInitializedAsync()
@@ -194,6 +197,7 @@ else
         await RefreshSessionsAsync();
         await RefreshApiTokensAsync();
         await LoadRolesAsync();
+        await LoadRateLimitPolicyAsync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -207,6 +211,7 @@ else
         await RefreshSessionsAsync();
         await RefreshApiTokensAsync();
         await LoadRolesAsync();
+        await LoadRateLimitPolicyAsync();
         await InvokeAsync(StateHasChanged);
     }
 
@@ -254,6 +259,18 @@ else
         try
         {
             _roles = (await Api.GetAsync<List<Normyx.Web.Models.RoleDto>>("/tenants/roles")) ?? [];
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+
+    private async Task LoadRateLimitPolicyAsync()
+    {
+        try
+        {
+            _rateLimitPolicy = await Api.GetAsync<Normyx.Web.Models.RateLimitPolicyDto>("/security/rate-limit-policy");
         }
         catch (Exception ex)
         {
@@ -385,5 +402,6 @@ else
         await RefreshSessionsAsync();
         await RefreshApiTokensAsync();
         await LoadRolesAsync();
+        await LoadRateLimitPolicyAsync();
     }
 }
