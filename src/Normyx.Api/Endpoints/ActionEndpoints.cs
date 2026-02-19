@@ -19,6 +19,7 @@ public static class ActionEndpoints
 
         group.MapGet("/version/{versionId:guid}", ListActionsAsync);
         group.MapGet("/board/{versionId:guid}", ActionBoardAsync);
+        group.MapGet("/version/{versionId:guid}/reviews", ListReviewsForVersionAsync);
         group.MapPut("/{actionId:guid}/status", UpdateStatusAsync);
         group.MapPost("/{actionId:guid}/approve", ApproveActionAsync)
             .RequireAuthorization(new AuthorizeAttribute { Roles = $"{RoleNames.Admin},{RoleNames.ComplianceOfficer}" });
@@ -137,10 +138,15 @@ public static class ActionEndpoints
     private static async Task<IResult> ListReviewsAsync([FromRoute] Guid actionId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
+        var actionInTenant = await dbContext.ActionItems
+            .AnyAsync(action => action.Id == actionId && action.AiSystemVersion.AiSystem.TenantId == tenantId);
+        if (!actionInTenant)
+        {
+            return Results.NotFound();
+        }
 
         var reviews = await dbContext.ActionReviews
-            .Where(x => x.ActionItemId == actionId && dbContext.ActionItems
-                .Any(action => action.Id == x.ActionItemId && action.AiSystemVersion.AiSystem.TenantId == tenantId))
+            .Where(x => x.ActionItemId == actionId)
             .OrderByDescending(x => x.ReviewedAt)
             .Select(x => new
             {
@@ -151,6 +157,35 @@ public static class ActionEndpoints
                 x.Comment,
                 x.ReviewedAt
             })
+            .ToListAsync();
+
+        return Results.Ok(reviews);
+    }
+
+    private static async Task<IResult> ListReviewsForVersionAsync([FromRoute] Guid versionId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    {
+        var tenantId = TenantContext.RequireTenantId(currentUser);
+        var versionInTenant = await dbContext.AiSystemVersions
+            .AnyAsync(version => version.Id == versionId && version.AiSystem.TenantId == tenantId);
+
+        if (!versionInTenant)
+        {
+            return Results.NotFound();
+        }
+
+        var reviews = await dbContext.ActionReviews
+            .Where(review => review.ActionItem.AiSystemVersionId == versionId)
+            .OrderByDescending(review => review.ReviewedAt)
+            .Select(review => new
+            {
+                review.Id,
+                review.ActionItemId,
+                review.ReviewedByUserId,
+                Decision = review.Decision.ToString(),
+                review.Comment,
+                review.ReviewedAt
+            })
+            .Take(400)
             .ToListAsync();
 
         return Results.Ok(reviews);

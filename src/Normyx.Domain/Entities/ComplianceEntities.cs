@@ -313,6 +313,8 @@ public class ActionReview
     public ReviewDecision Decision { get; set; }
     public string Comment { get; set; } = string.Empty;
     public DateTimeOffset ReviewedAt { get; set; } = DateTimeOffset.UtcNow;
+
+    public ActionItem ActionItem { get; set; } = null!;
 }
 
 public class AuditLog

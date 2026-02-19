@@ -732,17 +732,7 @@ else
             _findings = [];
         }
 
-        _recentReviews = [];
-        foreach (var action in _actions.Take(6))
-        {
-            var reviews = await Api.GetAsync<List<Normyx.Web.Models.ActionReviewDto>>($"/actions/{action.Id}/reviews");
-            if (reviews is not null)
-            {
-                _recentReviews.AddRange(reviews);
-            }
-        }
-
-        _recentReviews = _recentReviews.OrderByDescending(x => x.ReviewedAt).ToList();
+        _recentReviews = (await Api.GetAsync<List<Normyx.Web.Models.ActionReviewDto>>($"/actions/version/{versionId}/reviews")) ?? [];
         EnsureEvidenceLinkDefaults();
     }
 
