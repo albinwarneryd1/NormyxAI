@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Normyx.Api.Utilities;
@@ -12,7 +13,7 @@ public static class QuestionnaireEndpoints
 {
     public static IEndpointRouteBuilder MapQuestionnaireEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/versions/{versionId:guid}/questionnaire").WithTags("Questionnaire").RequireAuthorization();
+        var group = app.MapGroup("/versions/{versionId:guid}/questionnaire").WithTags("Questionnaire").RequireAuthorization().WithRequestValidation();
 
         group.MapGet("", GetQuestionnaireAsync);
         group.MapPut("", UpsertQuestionnaireAsync);
@@ -35,7 +36,7 @@ public static class QuestionnaireEndpoints
         return Results.Ok(new { versionId, answers, questionnaire.UpdatedAt, questionnaire.UpdatedByUserId });
     }
 
-    public record UpsertQuestionnaireRequest(Dictionary<string, string> Answers);
+    public record UpsertQuestionnaireRequest([property: Required, MinLength(1)] Dictionary<string, string> Answers);
 
     private static async Task<IResult> UpsertQuestionnaireAsync(
         [FromRoute] Guid versionId,

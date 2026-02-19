@@ -11,7 +11,7 @@ public static class AssessmentEndpoints
 {
     public static IEndpointRouteBuilder MapAssessmentEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/versions/{versionId:guid}/assessments").WithTags("Assessments").RequireAuthorization();
+        var group = app.MapGroup("/versions/{versionId:guid}/assessments").WithTags("Assessments").RequireAuthorization().WithRequestValidation();
 
         group.MapPost("/run", RunAssessmentAsync);
         group.MapGet("", ListAssessmentsAsync);

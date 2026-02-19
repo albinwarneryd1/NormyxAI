@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Normyx.Api.Utilities;
@@ -11,7 +12,7 @@ public static class ArchitectureEndpoints
 {
     public static IEndpointRouteBuilder MapArchitectureEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/versions/{versionId:guid}/architecture").WithTags("Architecture").RequireAuthorization();
+        var group = app.MapGroup("/versions/{versionId:guid}/architecture").WithTags("Architecture").RequireAuthorization().WithRequestValidation();
 
         group.MapGet("", GetArchitectureAsync);
         group.MapPost("/components", AddComponentAsync);
@@ -50,7 +51,13 @@ public static class ArchitectureEndpoints
         return Results.Ok(new { components, flows, stores });
     }
 
-    private record UpsertComponentRequest(string Name, string Type, string Description, string TrustZone, bool IsExternal, string DataSensitivityLevel);
+    private record UpsertComponentRequest(
+        [property: Required, StringLength(120, MinimumLength = 2)] string Name,
+        [property: Required, StringLength(80, MinimumLength = 2)] string Type,
+        [property: StringLength(2000)] string Description,
+        [property: Required, StringLength(80, MinimumLength = 2)] string TrustZone,
+        bool IsExternal,
+        [property: Required, StringLength(40, MinimumLength = 2)] string DataSensitivityLevel);
 
     private static async Task<IResult> AddComponentAsync([FromRoute] Guid versionId, [FromBody] UpsertComponentRequest request, NormyxDbContext dbContext, ICurrentUserContext currentUser)
     {
@@ -121,7 +128,13 @@ public static class ArchitectureEndpoints
         return Results.NoContent();
     }
 
-    private record UpsertFlowRequest(Guid FromComponentId, Guid ToComponentId, string[] DataCategories, string Purpose, bool EncryptionInTransit, string Notes);
+    private record UpsertFlowRequest(
+        Guid FromComponentId,
+        Guid ToComponentId,
+        [property: MinLength(1)] string[] DataCategories,
+        [property: Required, StringLength(200, MinimumLength = 2)] string Purpose,
+        bool EncryptionInTransit,
+        [property: StringLength(1000)] string Notes);
 
     private static async Task<IResult> AddFlowAsync([FromRoute] Guid versionId, [FromBody] UpsertFlowRequest request, NormyxDbContext dbContext, ICurrentUserContext currentUser)
     {
@@ -204,7 +217,13 @@ public static class ArchitectureEndpoints
         return Results.NoContent();
     }
 
-    private record UpsertStoreRequest(Guid ComponentId, string StorageType, string Region, int RetentionDays, bool EncryptionAtRest, string AccessModel);
+    private record UpsertStoreRequest(
+        Guid ComponentId,
+        [property: Required, StringLength(80, MinimumLength = 2)] string StorageType,
+        [property: Required, StringLength(80, MinimumLength = 2)] string Region,
+        [property: Range(1, 36500)] int RetentionDays,
+        bool EncryptionAtRest,
+        [property: Required, StringLength(120, MinimumLength = 2)] string AccessModel);
 
     private static async Task<IResult> AddStoreAsync([FromRoute] Guid versionId, [FromBody] UpsertStoreRequest request, NormyxDbContext dbContext, ICurrentUserContext currentUser)
     {

@@ -10,7 +10,7 @@ public static class AuditEndpoints
 {
     public static IEndpointRouteBuilder MapAuditEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/audit").WithTags("Audit").RequireAuthorization();
+        var group = app.MapGroup("/audit").WithTags("Audit").RequireAuthorization().WithRequestValidation();
 
         group.MapGet("", ListAuditLogsAsync);
 

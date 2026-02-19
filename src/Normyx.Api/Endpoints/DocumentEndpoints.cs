@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Normyx.Api.Utilities;
@@ -11,7 +12,7 @@ public static class DocumentEndpoints
 {
     public static IEndpointRouteBuilder MapDocumentEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/documents").WithTags("Documents").RequireAuthorization();
+        var group = app.MapGroup("/documents").WithTags("Documents").RequireAuthorization().WithRequestValidation();
 
         group.MapGet("", ListDocumentsAsync);
         group.MapGet("/{documentId:guid}/excerpts", ListExcerptsAsync);
@@ -168,7 +169,10 @@ public static class DocumentEndpoints
         return Results.File(stream, contentType == "application/octet-stream" ? doc.MimeType : contentType, doc.FileName);
     }
 
-    private record CreateExcerptRequest(string Title, string Text, string PageRef);
+    private record CreateExcerptRequest(
+        [property: Required, StringLength(200, MinimumLength = 2)] string Title,
+        [property: Required, StringLength(8000, MinimumLength = 10)] string Text,
+        [property: Required, StringLength(80, MinimumLength = 1)] string PageRef);
 
     private static async Task<IResult> CreateExcerptAsync(
         [FromRoute] Guid documentId,
@@ -211,7 +215,10 @@ public static class DocumentEndpoints
         return Results.Created($"/documents/{documentId}/excerpts/{excerpt.Id}", excerpt);
     }
 
-    private record CreateEvidenceLinkRequest(string TargetType, Guid TargetId, Guid EvidenceExcerptId);
+    private record CreateEvidenceLinkRequest(
+        [property: Required, StringLength(80, MinimumLength = 2)] string TargetType,
+        Guid TargetId,
+        Guid EvidenceExcerptId);
 
     private static async Task<IResult> CreateEvidenceLinkAsync(
         [FromBody] CreateEvidenceLinkRequest request,

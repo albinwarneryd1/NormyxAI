@@ -18,7 +18,7 @@ public static class AuthEndpoints
 {
     public static IEndpointRouteBuilder MapAuthEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/auth").WithTags("Auth").RequireRateLimiting("auth");
+        var group = app.MapGroup("/auth").WithTags("Auth").RequireRateLimiting("auth").WithRequestValidation();
 
         group.MapPost("/register", RegisterAsync).AllowAnonymous();
         group.MapPost("/login", LoginAsync).AllowAnonymous();

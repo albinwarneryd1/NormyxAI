@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +15,7 @@ public static class ActionEndpoints
 {
     public static IEndpointRouteBuilder MapActionEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/actions").WithTags("Actions").RequireAuthorization();
+        var group = app.MapGroup("/actions").WithTags("Actions").RequireAuthorization().WithRequestValidation();
 
         group.MapGet("/version/{versionId:guid}", ListActionsAsync);
         group.MapGet("/board/{versionId:guid}", ActionBoardAsync);
@@ -107,7 +108,7 @@ public static class ActionEndpoints
         return Results.NoContent();
     }
 
-    public record ApproveActionRequest(string Comment);
+    public record ApproveActionRequest([property: Required, StringLength(1000, MinimumLength = 2)] string Comment);
 
     private static async Task<IResult> ApproveActionAsync([FromRoute] Guid actionId, [FromBody] ApproveActionRequest request, NormyxDbContext dbContext, ICurrentUserContext currentUser)
     {
@@ -155,7 +156,7 @@ public static class ActionEndpoints
         return Results.Ok(reviews);
     }
 
-    public record ReviewActionRequest(ReviewDecision Decision, string Comment);
+    public record ReviewActionRequest(ReviewDecision Decision, [property: Required, StringLength(1000, MinimumLength = 2)] string Comment);
 
     private static async Task<IResult> ReviewActionAsync(
         [FromRoute] Guid actionId,

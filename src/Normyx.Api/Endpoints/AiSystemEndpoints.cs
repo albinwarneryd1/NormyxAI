@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +14,7 @@ public static class AiSystemEndpoints
 {
     public static IEndpointRouteBuilder MapAiSystemEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/aisystems").WithTags("AI Systems").RequireAuthorization();
+        var group = app.MapGroup("/aisystems").WithTags("AI Systems").RequireAuthorization().WithRequestValidation();
 
         group.MapGet("", ListSystemsAsync);
         group.MapPost("", CreateSystemAsync);
@@ -49,7 +50,10 @@ public static class AiSystemEndpoints
         return Results.Ok(systems);
     }
 
-    private record CreateAiSystemRequest(string Name, string Description, Guid? OwnerUserId);
+    private record CreateAiSystemRequest(
+        [property: Required, StringLength(180, MinimumLength = 2)] string Name,
+        [property: StringLength(2000)] string Description,
+        Guid? OwnerUserId);
 
     private static async Task<IResult> CreateSystemAsync(
         [FromBody] CreateAiSystemRequest request,
@@ -110,7 +114,11 @@ public static class AiSystemEndpoints
         return system is null ? Results.NotFound() : Results.Ok(system);
     }
 
-    private record UpdateAiSystemRequest(string Name, string Description, AiSystemStatus Status, Guid OwnerUserId);
+    private record UpdateAiSystemRequest(
+        [property: Required, StringLength(180, MinimumLength = 2)] string Name,
+        [property: StringLength(2000)] string Description,
+        AiSystemStatus Status,
+        Guid OwnerUserId);
 
     private static async Task<IResult> UpdateSystemAsync(
         [FromRoute] Guid systemId,
@@ -166,7 +174,8 @@ public static class AiSystemEndpoints
         return Results.Ok(versions);
     }
 
-    private record CreateVersionRequest(string ChangeSummary);
+    private record CreateVersionRequest(
+        [property: Required, StringLength(500, MinimumLength = 2)] string ChangeSummary);
 
     private static async Task<IResult> CreateVersionAsync(
         [FromRoute] Guid systemId,
