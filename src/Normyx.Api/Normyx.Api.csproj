@@ -18,6 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\..\policy-packs\**\*.json" Link="policy-packs\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Normyx.Application\Normyx.Application.csproj" />
     <ProjectReference Include="..\Normyx.Infrastructure\Normyx.Infrastructure.csproj" />
   </ItemGroup>
