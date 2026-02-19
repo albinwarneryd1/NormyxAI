@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Normyx.Api.Utilities;
 using Normyx.Application.Abstractions;
+using Normyx.Application.Security;
 using Normyx.Domain.Entities;
 using Normyx.Domain.Enums;
 using Normyx.Infrastructure.Persistence;
@@ -15,15 +16,16 @@ public static class AiSystemEndpoints
     public static IEndpointRouteBuilder MapAiSystemEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/aisystems").WithTags("AI Systems").RequireAuthorization().WithRequestValidation();
+        var writeRoles = $"{RoleNames.Admin},{RoleNames.ComplianceOfficer},{RoleNames.SecurityLead},{RoleNames.ProductOwner}";
 
         group.MapGet("", ListSystemsAsync);
-        group.MapPost("", CreateSystemAsync);
+        group.MapPost("", CreateSystemAsync).RequireAuthorization(new AuthorizeAttribute { Roles = writeRoles });
         group.MapGet("/{systemId:guid}", GetSystemAsync);
-        group.MapPut("/{systemId:guid}", UpdateSystemAsync);
-        group.MapDelete("/{systemId:guid}", ArchiveSystemAsync);
+        group.MapPut("/{systemId:guid}", UpdateSystemAsync).RequireAuthorization(new AuthorizeAttribute { Roles = writeRoles });
+        group.MapDelete("/{systemId:guid}", ArchiveSystemAsync).RequireAuthorization(new AuthorizeAttribute { Roles = writeRoles });
 
         group.MapGet("/{systemId:guid}/versions", ListVersionsAsync);
-        group.MapPost("/{systemId:guid}/versions", CreateVersionAsync);
+        group.MapPost("/{systemId:guid}/versions", CreateVersionAsync).RequireAuthorization(new AuthorizeAttribute { Roles = writeRoles });
 
         return app;
     }

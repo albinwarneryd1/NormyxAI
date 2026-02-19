@@ -1,9 +1,11 @@
 using System.Text.Json;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Normyx.Api.Utilities;
 using Normyx.Application.Abstractions;
+using Normyx.Application.Security;
 using Normyx.Domain.Entities;
 using Normyx.Infrastructure.Persistence;
 
@@ -14,9 +16,10 @@ public static class QuestionnaireEndpoints
     public static IEndpointRouteBuilder MapQuestionnaireEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/versions/{versionId:guid}/questionnaire").WithTags("Questionnaire").RequireAuthorization().WithRequestValidation();
+        var writeRoles = $"{RoleNames.Admin},{RoleNames.ComplianceOfficer},{RoleNames.SecurityLead},{RoleNames.ProductOwner}";
 
         group.MapGet("", GetQuestionnaireAsync);
-        group.MapPut("", UpsertQuestionnaireAsync);
+        group.MapPut("", UpsertQuestionnaireAsync).RequireAuthorization(new AuthorizeAttribute { Roles = writeRoles });
 
         return app;
     }

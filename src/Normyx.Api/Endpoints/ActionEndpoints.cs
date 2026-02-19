@@ -16,11 +16,12 @@ public static class ActionEndpoints
     public static IEndpointRouteBuilder MapActionEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/actions").WithTags("Actions").RequireAuthorization().WithRequestValidation();
+        var writeRoles = $"{RoleNames.Admin},{RoleNames.ComplianceOfficer},{RoleNames.SecurityLead},{RoleNames.ProductOwner}";
 
         group.MapGet("/version/{versionId:guid}", ListActionsAsync);
         group.MapGet("/board/{versionId:guid}", ActionBoardAsync);
         group.MapGet("/version/{versionId:guid}/reviews", ListReviewsForVersionAsync);
-        group.MapPut("/{actionId:guid}/status", UpdateStatusAsync);
+        group.MapPut("/{actionId:guid}/status", UpdateStatusAsync).RequireAuthorization(new AuthorizeAttribute { Roles = writeRoles });
         group.MapPost("/{actionId:guid}/approve", ApproveActionAsync)
             .RequireAuthorization(new AuthorizeAttribute { Roles = $"{RoleNames.Admin},{RoleNames.ComplianceOfficer}" });
         group.MapGet("/{actionId:guid}/reviews", ListReviewsAsync);

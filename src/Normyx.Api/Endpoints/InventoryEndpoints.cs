@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Normyx.Api.Utilities;
 using Normyx.Application.Abstractions;
+using Normyx.Application.Security;
 using Normyx.Domain.Entities;
 using Normyx.Infrastructure.Persistence;
 
@@ -13,16 +15,17 @@ public static class InventoryEndpoints
     public static IEndpointRouteBuilder MapInventoryEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/versions/{versionId:guid}/inventory").WithTags("Inventory").RequireAuthorization().WithRequestValidation();
+        var writeRoles = $"{RoleNames.Admin},{RoleNames.ComplianceOfficer},{RoleNames.SecurityLead},{RoleNames.ProductOwner}";
 
         group.MapGet("", GetInventoryAsync);
 
-        group.MapPost("/data-items", AddDataItemAsync);
-        group.MapPut("/data-items/{itemId:guid}", UpdateDataItemAsync);
-        group.MapDelete("/data-items/{itemId:guid}", DeleteDataItemAsync);
+        group.MapPost("/data-items", AddDataItemAsync).RequireAuthorization(new AuthorizeAttribute { Roles = writeRoles });
+        group.MapPut("/data-items/{itemId:guid}", UpdateDataItemAsync).RequireAuthorization(new AuthorizeAttribute { Roles = writeRoles });
+        group.MapDelete("/data-items/{itemId:guid}", DeleteDataItemAsync).RequireAuthorization(new AuthorizeAttribute { Roles = writeRoles });
 
-        group.MapPost("/vendors", AddVendorAsync);
-        group.MapPut("/vendors/{vendorId:guid}", UpdateVendorAsync);
-        group.MapDelete("/vendors/{vendorId:guid}", DeleteVendorAsync);
+        group.MapPost("/vendors", AddVendorAsync).RequireAuthorization(new AuthorizeAttribute { Roles = writeRoles });
+        group.MapPut("/vendors/{vendorId:guid}", UpdateVendorAsync).RequireAuthorization(new AuthorizeAttribute { Roles = writeRoles });
+        group.MapDelete("/vendors/{vendorId:guid}", DeleteVendorAsync).RequireAuthorization(new AuthorizeAttribute { Roles = writeRoles });
 
         return app;
     }

@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Normyx.Api.Utilities;
 using Normyx.Application.Abstractions;
+using Normyx.Application.Security;
 using Normyx.Domain.Entities;
 using Normyx.Infrastructure.Persistence;
 
@@ -13,13 +15,14 @@ public static class DocumentEndpoints
     public static IEndpointRouteBuilder MapDocumentEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/documents").WithTags("Documents").RequireAuthorization().WithRequestValidation();
+        var writeRoles = $"{RoleNames.Admin},{RoleNames.ComplianceOfficer},{RoleNames.SecurityLead},{RoleNames.ProductOwner}";
 
         group.MapGet("", ListDocumentsAsync);
         group.MapGet("/{documentId:guid}/excerpts", ListExcerptsAsync);
-        group.MapPost("/upload", UploadDocumentAsync).DisableAntiforgery();
+        group.MapPost("/upload", UploadDocumentAsync).RequireAuthorization(new AuthorizeAttribute { Roles = writeRoles }).DisableAntiforgery();
         group.MapGet("/{documentId:guid}/download", DownloadDocumentAsync);
-        group.MapPost("/{documentId:guid}/excerpts", CreateExcerptAsync);
-        group.MapPost("/evidence-links", CreateEvidenceLinkAsync);
+        group.MapPost("/{documentId:guid}/excerpts", CreateExcerptAsync).RequireAuthorization(new AuthorizeAttribute { Roles = writeRoles });
+        group.MapPost("/evidence-links", CreateEvidenceLinkAsync).RequireAuthorization(new AuthorizeAttribute { Roles = writeRoles });
 
         return app;
     }

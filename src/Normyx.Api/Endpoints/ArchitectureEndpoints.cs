@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Normyx.Api.Utilities;
 using Normyx.Application.Abstractions;
+using Normyx.Application.Security;
 using Normyx.Domain.Entities;
 using Normyx.Infrastructure.Persistence;
 
@@ -13,19 +15,20 @@ public static class ArchitectureEndpoints
     public static IEndpointRouteBuilder MapArchitectureEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/versions/{versionId:guid}/architecture").WithTags("Architecture").RequireAuthorization().WithRequestValidation();
+        var writeRoles = $"{RoleNames.Admin},{RoleNames.ComplianceOfficer},{RoleNames.SecurityLead},{RoleNames.ProductOwner}";
 
         group.MapGet("", GetArchitectureAsync);
-        group.MapPost("/components", AddComponentAsync);
-        group.MapPut("/components/{componentId:guid}", UpdateComponentAsync);
-        group.MapDelete("/components/{componentId:guid}", DeleteComponentAsync);
+        group.MapPost("/components", AddComponentAsync).RequireAuthorization(new AuthorizeAttribute { Roles = writeRoles });
+        group.MapPut("/components/{componentId:guid}", UpdateComponentAsync).RequireAuthorization(new AuthorizeAttribute { Roles = writeRoles });
+        group.MapDelete("/components/{componentId:guid}", DeleteComponentAsync).RequireAuthorization(new AuthorizeAttribute { Roles = writeRoles });
 
-        group.MapPost("/flows", AddFlowAsync);
-        group.MapPut("/flows/{flowId:guid}", UpdateFlowAsync);
-        group.MapDelete("/flows/{flowId:guid}", DeleteFlowAsync);
+        group.MapPost("/flows", AddFlowAsync).RequireAuthorization(new AuthorizeAttribute { Roles = writeRoles });
+        group.MapPut("/flows/{flowId:guid}", UpdateFlowAsync).RequireAuthorization(new AuthorizeAttribute { Roles = writeRoles });
+        group.MapDelete("/flows/{flowId:guid}", DeleteFlowAsync).RequireAuthorization(new AuthorizeAttribute { Roles = writeRoles });
 
-        group.MapPost("/stores", AddStoreAsync);
-        group.MapPut("/stores/{storeId:guid}", UpdateStoreAsync);
-        group.MapDelete("/stores/{storeId:guid}", DeleteStoreAsync);
+        group.MapPost("/stores", AddStoreAsync).RequireAuthorization(new AuthorizeAttribute { Roles = writeRoles });
+        group.MapPut("/stores/{storeId:guid}", UpdateStoreAsync).RequireAuthorization(new AuthorizeAttribute { Roles = writeRoles });
+        group.MapDelete("/stores/{storeId:guid}", DeleteStoreAsync).RequireAuthorization(new AuthorizeAttribute { Roles = writeRoles });
 
         return app;
     }

@@ -331,6 +331,45 @@ public class TenantIsolationTests : IAsyncLifetime
         Assert.Single(sessions!);
     }
 
+    [Fact]
+    public async Task AuditorRole_CannotCreateAiSystem()
+    {
+        if (!_dockerAvailable)
+        {
+            return;
+        }
+
+        var client = _factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            BaseAddress = new Uri("http://localhost")
+        });
+
+        var adminToken = await LoginAsync(client, "NordicFin AB", "admin@nordicfin.example", "ChangeMe123!");
+        var suffix = Guid.NewGuid().ToString("N")[..8];
+        var auditorEmail = $"auditor+{suffix}@nordicfin.example";
+
+        var createUserResponse = await SendAuthorizedAsync(client, adminToken, HttpMethod.Post, "/tenants/users", new
+        {
+            email = auditorEmail,
+            displayName = "Tenant Auditor",
+            password = "ChangeMe123!",
+            roles = new[] { "Auditor" }
+        });
+        Assert.Equal(System.Net.HttpStatusCode.Created, createUserResponse.StatusCode);
+
+        var auditorToken = await LoginAsync(client, "NordicFin AB", auditorEmail, "ChangeMe123!");
+        var createSystemResponse = await SendAuthorizedAsync(client, auditorToken, HttpMethod.Post, "/aisystems", new
+        {
+            name = "Forbidden Auditor System",
+            description = "Should be forbidden",
+            ownerUserId = (Guid?)null
+        });
+
+        Assert.Equal(System.Net.HttpStatusCode.Forbidden, createSystemResponse.StatusCode);
+        var payload = await createSystemResponse.Content.ReadAsStringAsync();
+        Assert.Contains("forbidden", payload, StringComparison.OrdinalIgnoreCase);
+    }
+
     private static async Task<string> LoginAsync(HttpClient client, string tenant, string email, string password)
     {
         var auth = await LoginWithTokensAsync(client, tenant, email, password);
