@@ -27,20 +27,20 @@
     --brand-secondary: #2b2722;
     --brand-accent: #b08d57;
 
-    --surface-app: #f7f5f2;
+    --surface-app: #fbfaf8;
     --surface-panel: #ffffff;
-    --surface-elevated: #f1eee9;
-    --surface-muted: #f1eee9;
-    --surface-table-alt: #faf8f5;
-    --sidebar-bg: #f1eee9;
+    --surface-elevated: #f3f0ea;
+    --surface-muted: #ece5db;
+    --surface-table-alt: #f8f4ee;
+    --sidebar-bg: #f5f2ec;
 
     --text-strong: #1f1c18;
     --text-body: #2f2a24;
     --text-muted: #5b534a;
     --text-inverse: #ffffff;
 
-    --border-subtle: #d8d2c8;
-    --border-strong: #c4bcaf;
+    --border-subtle: #d3cabd;
+    --border-strong: #bcaf9e;
     --border-accent: #6b4326;
 
     --severity-critical: #8c2f2a;
@@ -53,7 +53,7 @@
     --severity-critical-bg: #f6e7e4;
     --severity-high-bg: #f8ece8;
     --severity-medium-bg: #f6efdf;
-    --severity-low-bg: #e9eef6;
+    --severity-low-bg: #edf1f7;
     --severity-info-bg: #eee9e2;
     --severity-compliant-bg: #e4efe8;
 
@@ -519,6 +519,12 @@ input.text-input {
     color: var(--severity-low);
     background: var(--severity-low-bg);
     border-color: color-mix(in srgb, var(--severity-low) 40%, #ffffff);
+}
+
+.risk-pill.neutral {
+    color: var(--severity-info);
+    background: var(--severity-info-bg);
+    border-color: color-mix(in srgb, var(--severity-info) 38%, #ffffff);
 }
 
 .risk-pill.success,

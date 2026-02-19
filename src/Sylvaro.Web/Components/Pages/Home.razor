@@ -32,10 +32,10 @@ else
             </div>
             <div>
                 <div class="status-line">
-                    <span class="risk-pill info">Last Audit Event: @(_latestAudit?.ActionType ?? "N/A")</span>
-                    <span class="risk-pill info">Assessment Version: @_latestVersionLabel</span>
+                    <span class="risk-pill neutral">Last Audit Event: @(_latestAudit?.ActionType ?? "N/A")</span>
+                    <span class="risk-pill neutral">Assessment Version: @_latestVersionLabel</span>
                     <span class="risk-pill success">Signed-off By: @_latestSignoff</span>
-                    <span class="risk-pill info">System Lifecycle: @_systemLifecycleStatus</span>
+                    <span class="risk-pill neutral">System Lifecycle: @_systemLifecycleStatus</span>
                 </div>
                 <div class="btn-row" style="justify-content:flex-end; margin-bottom:0;">
                     <button class="btn-small" @onclick="ExportBoardSummaryAsync" disabled="@_exporting || _latestVersionId is null">Board Summary Export</button>

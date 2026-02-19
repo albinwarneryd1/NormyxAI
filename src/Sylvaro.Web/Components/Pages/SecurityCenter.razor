@@ -20,10 +20,10 @@ else
             <p>Session governance, access hardening and machine-to-machine token controls.</p>
         </div>
         <div class="status-line">
-            <span class="risk-pill info">MFA Status: Planned</span>
+            <span class="risk-pill neutral">MFA Status: Planned</span>
             <span class="risk-pill success">Password Policy: Enforced</span>
             <span class="risk-pill warning">Active Sessions: @_activeSessions.Count</span>
-            <span class="risk-pill info">Available Roles: @_roles.Count</span>
+            <span class="risk-pill neutral">Available Roles: @_roles.Count</span>
             <span class="@($"risk-pill {(_rateLimitPolicy?.IsActive == true ? "success" : "warning")}")">Rate Limiting: @(_rateLimitPolicy?.IsActive == true ? "Active" : "Unavailable")</span>
         </div>
     </div>
@@ -73,7 +73,7 @@ else
                                 <td>@TrimUserAgent(item.UserAgent)</td>
                                 <td>@item.CreatedAt.ToString("u")</td>
                                 <td>@item.ExpiresAt.ToString("u")</td>
-                                <td><span class="risk-pill info">Active</span></td>
+                                <td><span class="risk-pill neutral">Active</span></td>
                                 <td><button class="btn-small" @onclick="() => RevokeSessionAsync(item.Id)" disabled="_loadingSessions">Force Logout</button></td>
                             </tr>
                         }
