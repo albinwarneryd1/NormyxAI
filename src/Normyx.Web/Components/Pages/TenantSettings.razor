@@ -13,7 +13,7 @@ else
 {
     <div class="card-shell">
         <h1>Tenant Settings</h1>
-        <p>Manage users and roles.</p>
+        <p>Manage users, roles and webhook integrations.</p>
 
         @if (!string.IsNullOrWhiteSpace(_error))
         {
@@ -29,14 +29,14 @@ else
         <table class="table-shell">
             <thead><tr><th>Email</th><th>Name</th><th>Roles</th></tr></thead>
             <tbody>
-            @foreach (var user in _users)
-            {
-                <tr>
-                    <td>@user.Email</td>
-                    <td>@user.DisplayName</td>
-                    <td>@string.Join(", ", user.Roles ?? [])</td>
-                </tr>
-            }
+                @foreach (var user in _users)
+                {
+                    <tr>
+                        <td>@user.Email</td>
+                        <td>@user.DisplayName</td>
+                        <td>@string.Join(", ", user.Roles ?? [])</td>
+                    </tr>
+                }
             </tbody>
         </table>
 
@@ -50,14 +50,58 @@ else
             </div>
             <button class="btn-main" type="submit">Create user</button>
         </EditForm>
+
+        <h2>Integrations</h2>
+        <p>Configure webhook stubs for Jira and Azure DevOps exports.</p>
+
+        <div class="card-shell" style="margin-top:0.8rem;">
+            <h3>Jira webhook</h3>
+            <EditForm Model="_jira" OnValidSubmit="SaveJiraWebhookAsync">
+                <div class="field-grid">
+                    <InputText @bind-Value="_jira.WebhookUrl" class="text-input" placeholder="https://..." />
+                    <InputText @bind-Value="_jira.AuthHeader" class="text-input" placeholder="Authorization header (optional)" />
+                </div>
+                <div class="btn-row">
+                    <button class="btn-small" type="submit">Save Jira</button>
+                    <button class="btn-small" type="button" @onclick="TestJiraWebhookAsync">Test Jira</button>
+                </div>
+                <label><InputCheckbox @bind-Value="_jira.IsEnabled" /> Enabled</label>
+            </EditForm>
+        </div>
+
+        <div class="card-shell" style="margin-top:0.8rem;">
+            <h3>Azure DevOps webhook</h3>
+            <EditForm Model="_azureDevOps" OnValidSubmit="SaveAzureWebhookAsync">
+                <div class="field-grid">
+                    <InputText @bind-Value="_azureDevOps.WebhookUrl" class="text-input" placeholder="https://..." />
+                    <InputText @bind-Value="_azureDevOps.AuthHeader" class="text-input" placeholder="Authorization header (optional)" />
+                </div>
+                <div class="btn-row">
+                    <button class="btn-small" type="submit">Save Azure</button>
+                    <button class="btn-small" type="button" @onclick="TestAzureWebhookAsync">Test Azure</button>
+                </div>
+                <label><InputCheckbox @bind-Value="_azureDevOps.IsEnabled" /> Enabled</label>
+            </EditForm>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(_integrationMessage))
+        {
+            <p>@_integrationMessage</p>
+        }
     </div>
 }
 
 @code {
     private Normyx.Web.Models.TenantDto? _tenant;
     private List<Normyx.Web.Models.UserDto> _users = [];
+    private List<Normyx.Web.Models.IntegrationWebhookDto> _integrations = [];
+
     private string _error = string.Empty;
+    private string _integrationMessage = string.Empty;
+
     private readonly CreateUserForm _newUser = new();
+    private readonly WebhookForm _jira = new();
+    private readonly WebhookForm _azureDevOps = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -75,12 +119,28 @@ else
         {
             _tenant = await Api.GetAsync<Normyx.Web.Models.TenantDto>("/tenants/me");
             _users = (await Api.GetAsync<List<Normyx.Web.Models.UserDto>>("/tenants/users")) ?? [];
+            _integrations = (await Api.GetAsync<List<Normyx.Web.Models.IntegrationWebhookDto>>("/integrations/webhooks")) ?? [];
+
+            HydrateWebhookForm("Jira", _jira);
+            HydrateWebhookForm("AzureDevOps", _azureDevOps);
         }
         catch (Exception ex)
         {
             _error = ex.Message;
             Nav.NavigateTo("/login");
         }
+    }
+
+    private void HydrateWebhookForm(string provider, WebhookForm form)
+    {
+        var existing = _integrations.FirstOrDefault(x => x.Provider.Equals(provider, StringComparison.OrdinalIgnoreCase));
+        if (existing is null)
+        {
+            return;
+        }
+
+        form.WebhookUrl = existing.WebhookUrl;
+        form.IsEnabled = existing.IsEnabled;
     }
 
     private async Task CreateUserAsync()
@@ -96,6 +156,7 @@ else
                 password = _newUser.Password,
                 roles
             });
+
             await LoadAsync();
             _newUser.Reset();
         }
@@ -104,6 +165,47 @@ else
             _error = ex.Message;
         }
     }
+
+    private async Task SaveWebhookAsync(string provider, WebhookForm form)
+    {
+        try
+        {
+            _error = string.Empty;
+            await Api.PutAsync($"/integrations/webhooks/{provider}", new
+            {
+                webhookUrl = form.WebhookUrl,
+                authHeader = form.AuthHeader,
+                isEnabled = form.IsEnabled
+            });
+            _integrationMessage = $"Saved integration for {provider}.";
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+
+    private async Task TestWebhookAsync(string provider)
+    {
+        try
+        {
+            _error = string.Empty;
+            var result = await Api.PostAsync<Normyx.Application.Abstractions.WebhookPublishResult>($"/integrations/webhooks/{provider}/test", new { });
+            _integrationMessage = result is null
+                ? $"Test sent to {provider}."
+                : $"{provider} test status: {result.StatusCode}, success={result.Success}.";
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+
+    private Task SaveJiraWebhookAsync() => SaveWebhookAsync("Jira", _jira);
+    private Task SaveAzureWebhookAsync() => SaveWebhookAsync("AzureDevOps", _azureDevOps);
+    private Task TestJiraWebhookAsync() => TestWebhookAsync("Jira");
+    private Task TestAzureWebhookAsync() => TestWebhookAsync("AzureDevOps");
 
     private sealed class CreateUserForm
     {
@@ -119,5 +221,12 @@ else
             Password = string.Empty;
             RolesCsv = "ProductOwner";
         }
+    }
+
+    private sealed class WebhookForm
+    {
+        public string WebhookUrl { get; set; } = string.Empty;
+        public string? AuthHeader { get; set; }
+        public bool IsEnabled { get; set; }
     }
 }

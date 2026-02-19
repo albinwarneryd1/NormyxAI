@@ -29,14 +29,33 @@ else
 
         @if (_currentVersionId is not null)
         {
+            <div class="grid-cards" style="margin-bottom: 1rem;">
+                <section class="metric-card">
+                    <h3>Assessments</h3>
+                    <p>@_assessments.Count</p>
+                </section>
+                <section class="metric-card">
+                    <h3>Findings</h3>
+                    <p>@_findings.Count</p>
+                </section>
+                <section class="metric-card">
+                    <h3>Actions</h3>
+                    <p>@_actions.Count</p>
+                </section>
+                <section class="metric-card">
+                    <h3>Evidence Gaps</h3>
+                    <p>@_evidenceGaps.TotalGaps</p>
+                </section>
+            </div>
+
             <div class="btn-row">
                 <button class="btn-main" @onclick="RunAssessmentAsync">Run Assessment</button>
-                <button class="btn-main secondary" @onclick="GenerateExportAsync">Generate PDF Export</button>
+                <button class="btn-main secondary" @onclick="GenerateExportAsync">Generate Export</button>
             </div>
 
             @if (_lastRun is not null)
             {
-                <p>Latest run: class=@_lastRun.AiActRiskClass score=@_lastRun.ComplianceScore findings=@_lastRun.FindingsCount actions=@_lastRun.ActionsCount</p>
+                <p>Latest run: class=@_lastRun.AiActRiskClass, score=@_lastRun.ComplianceScore, findings=@_lastRun.FindingsCount, actions=@_lastRun.ActionsCount</p>
             }
         }
 
@@ -53,6 +72,22 @@ else
 
         @if (_currentVersionId is not null)
         {
+            <h3>Compliance Diff</h3>
+            <div class="field-grid">
+                <InputSelect @bind-Value="_compareVersionId" class="text-input">
+                    <option value="">Select version</option>
+                    @foreach (var version in _versions.Where(x => x.Id != _currentVersionId.Value))
+                    {
+                        <option value="@version.Id">v@version.VersionNumber</option>
+                    }
+                </InputSelect>
+                <button class="btn-small" @onclick="RunDiffAsync">Compare</button>
+            </div>
+            @if (_diff is not null)
+            {
+                <p>Diff delta: @_diff.ScoreDelta, AI Act class changed: @_diff.AiActClassChanged</p>
+            }
+
             <h2>Questionnaire</h2>
             <EditForm Model="_questionnaire" OnValidSubmit="SaveQuestionnaireAsync">
                 <div class="field-grid">
@@ -84,12 +119,36 @@ else
             <h2>Data & Vendors</h2>
             <p>Data items: @_inventory.DataItems.Count | Vendors: @_inventory.Vendors.Count</p>
 
-            <h2>Evidence Upload</h2>
+            <h2>Evidence</h2>
             <InputFile OnChange="UploadDocumentAsync" />
             @if (!string.IsNullOrWhiteSpace(_uploadMessage))
             {
                 <p>@_uploadMessage</p>
             }
+
+            <h3>Evidence Gaps</h3>
+            <ul>
+                @foreach (var gap in _evidenceGaps.ActionGaps)
+                {
+                    <li>Action gap: @gap.Title (need: @gap.SuggestedEvidence)</li>
+                }
+                @foreach (var gap in _evidenceGaps.ControlGaps)
+                {
+                    <li>Control gap: @gap.Title (need: @gap.SuggestedEvidence)</li>
+                }
+            </ul>
+
+            <h3>Evidence Search (RAG)</h3>
+            <div class="field-grid">
+                <InputText @bind-Value="_evidenceQuery" class="text-input" placeholder="Search evidence..." />
+                <button class="btn-small" @onclick="SearchEvidenceAsync">Search</button>
+            </div>
+            <ul>
+                @foreach (var hit in _evidenceHits)
+                {
+                    <li>[@hit.SourceType] score=@hit.Score.ToString("0.00") - @hit.ChunkText</li>
+                }
+            </ul>
 
             <h2>Assessments</h2>
             <ul>
@@ -107,11 +166,74 @@ else
                 }
             </ul>
 
-            <h2>Actions (@_actions.Count)</h2>
+            <h2>Actions Board</h2>
+            <div class="kanban-board">
+                <div class="kanban-col">
+                    <h4>New</h4>
+                    @foreach (var action in _actionBoard.New)
+                    {
+                        <article class="kanban-card">
+                            <strong>@action.Title</strong>
+                            <span>@action.Priority / @action.OwnerRole</span>
+                            <div class="btn-row">
+                                <button class="btn-small" @onclick="() => UpdateActionStatusAsync(action.Id, 1)">Start</button>
+                            </div>
+                        </article>
+                    }
+                </div>
+
+                <div class="kanban-col">
+                    <h4>In Progress</h4>
+                    @foreach (var action in _actionBoard.InProgress)
+                    {
+                        <article class="kanban-card">
+                            <strong>@action.Title</strong>
+                            <span>@action.Priority / @action.OwnerRole</span>
+                            <div class="btn-row">
+                                <button class="btn-small" @onclick="() => UpdateActionStatusAsync(action.Id, 2)">Done</button>
+                                <button class="btn-small" @onclick="() => ApproveActionAsync(action.Id)">Approve</button>
+                            </div>
+                        </article>
+                    }
+                </div>
+
+                <div class="kanban-col">
+                    <h4>Done</h4>
+                    @foreach (var action in _actionBoard.Done)
+                    {
+                        <article class="kanban-card">
+                            <strong>@action.Title</strong>
+                            <span>Approved: @action.ApprovedAt?.ToString("u")</span>
+                        </article>
+                    }
+                </div>
+
+                <div class="kanban-col">
+                    <h4>Accepted Risk</h4>
+                    @foreach (var action in _actionBoard.AcceptedRisk)
+                    {
+                        <article class="kanban-card">
+                            <strong>@action.Title</strong>
+                        </article>
+                    }
+                </div>
+            </div>
+
+            <h2>Exports</h2>
+            <div class="field-grid">
+                <InputSelect @bind-Value="_exportForm.Format" class="text-input">
+                    <option value="pdf">PDF</option>
+                    <option value="json">JSON</option>
+                </InputSelect>
+                <InputText @bind-Value="_exportForm.ExportType" class="text-input" placeholder="DPIA_Draft" />
+            </div>
+            <label><InputCheckbox @bind-Value="_exportForm.SendWebhook" /> Send to enabled webhooks</label>
+
+            <h3>Generated Exports</h3>
             <ul>
-                @foreach (var action in _actions)
+                @foreach (var item in _exports)
                 {
-                    <li>[ @action.Priority ] @action.Title - @action.Status</li>
+                    <li>@item.CreatedAt.ToString("u") - @item.ExportType (@item.MimeType)</li>
                 }
             </ul>
         }
@@ -128,15 +250,25 @@ else
     private Normyx.Web.Models.AiSystemDetailDto? _system;
     private List<Normyx.Web.Models.VersionSummaryDto> _versions = [];
     private Guid? _currentVersionId;
+    private Guid? _compareVersionId;
+
     private Normyx.Web.Models.ArchitectureResponse _architecture = new([], [], []);
     private Normyx.Web.Models.InventoryResponse _inventory = new([], []);
     private List<Normyx.Web.Models.AssessmentListItem> _assessments = [];
     private List<Normyx.Web.Models.FindingDto> _findings = [];
     private List<Normyx.Web.Models.ActionItemDto> _actions = [];
+    private Normyx.Web.Models.ActionBoardDto _actionBoard = new([], [], [], []);
+    private Normyx.Web.Models.EvidenceGapsResponse _evidenceGaps = new(0, [], []);
+    private List<Normyx.Web.Models.RagSearchResultDto> _evidenceHits = [];
+    private List<Normyx.Web.Models.ExportListItemDto> _exports = [];
+
     private Normyx.Web.Models.AssessmentRunResult? _lastRun;
+    private Normyx.Web.Models.AssessmentDiffDto? _diff;
 
     private readonly QuestionnaireForm _questionnaire = new();
     private readonly NewComponentForm _newComponent = new();
+    private readonly ExportForm _exportForm = new();
+    private string _evidenceQuery = "DPIA lawful basis transfer";
 
     protected override async Task OnParametersSetAsync()
     {
@@ -187,6 +319,16 @@ else
         _inventory = await Api.GetAsync<Normyx.Web.Models.InventoryResponse>($"/versions/{versionId}/inventory") ?? new([], []);
         _assessments = (await Api.GetAsync<List<Normyx.Web.Models.AssessmentListItem>>($"/versions/{versionId}/assessments")) ?? [];
         _actions = (await Api.GetAsync<List<Normyx.Web.Models.ActionItemDto>>($"/actions/version/{versionId}")) ?? [];
+        _actionBoard = (await Api.GetAsync<Normyx.Web.Models.ActionBoardDto>($"/actions/board/{versionId}")) ?? new([], [], [], []);
+        _evidenceGaps = await Api.GetAsync<Normyx.Web.Models.EvidenceGapsResponse>($"/versions/{versionId}/evidence/gaps") ?? new(0, [], []);
+        _exports = (await Api.GetAsync<List<Normyx.Web.Models.ExportListItemDto>>($"/exports/versions/{versionId}")) ?? [];
+
+        var questionnaire = await Api.GetAsync<Normyx.Web.Models.QuestionnaireResponse>($"/versions/{versionId}/questionnaire");
+        if (questionnaire is not null)
+        {
+            _questionnaire.AutomatedDecisionMaking = questionnaire.Answers.TryGetValue("automatedDecisionMaking", out var auto) ? auto : "false";
+            _questionnaire.CriticalSector = questionnaire.Answers.TryGetValue("criticalSector", out var critical) ? critical : "false";
+        }
 
         if (_assessments.Count > 0)
         {
@@ -217,6 +359,23 @@ else
         }
     }
 
+    private async Task RunDiffAsync()
+    {
+        if (_currentVersionId is null || _compareVersionId is null)
+        {
+            return;
+        }
+
+        try
+        {
+            _diff = await Api.GetAsync<Normyx.Web.Models.AssessmentDiffDto>($"/versions/{_currentVersionId}/assessments/diff/{_compareVersionId}");
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+
     private async Task GenerateExportAsync()
     {
         if (_currentVersionId is null)
@@ -226,11 +385,19 @@ else
 
         try
         {
-            var export = await Api.PostAsync<Normyx.Web.Models.ExportArtifactDto>($"/exports/versions/{_currentVersionId}/generate", new { exportType = "DPIA_Draft" });
+            var export = await Api.PostAsync<Normyx.Web.Models.ExportArtifactDto>($"/exports/versions/{_currentVersionId}/generate", new
+            {
+                exportType = _exportForm.ExportType,
+                format = _exportForm.Format,
+                sendWebhook = _exportForm.SendWebhook
+            });
+
             if (export is not null)
             {
-                _uploadMessage = $"Export generated: {export.Id}";
+                _uploadMessage = $"Export generated: {export.Id} ({export.MimeType})";
             }
+
+            await LoadVersionDataAsync(_currentVersionId.Value);
         }
         catch (Exception ex)
         {
@@ -290,6 +457,55 @@ else
         }
     }
 
+    private async Task UpdateActionStatusAsync(Guid actionId, int status)
+    {
+        try
+        {
+            await Api.PutAsync($"/actions/{actionId}/status", new { status });
+            if (_currentVersionId is not null)
+            {
+                await LoadVersionDataAsync(_currentVersionId.Value);
+            }
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+
+    private async Task ApproveActionAsync(Guid actionId)
+    {
+        try
+        {
+            await Api.PostAsync($"/actions/{actionId}/approve", new { comment = "Approved from UI" });
+            if (_currentVersionId is not null)
+            {
+                await LoadVersionDataAsync(_currentVersionId.Value);
+            }
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+
+    private async Task SearchEvidenceAsync()
+    {
+        if (_currentVersionId is null || string.IsNullOrWhiteSpace(_evidenceQuery))
+        {
+            return;
+        }
+
+        try
+        {
+            _evidenceHits = (await Api.GetAsync<List<Normyx.Web.Models.RagSearchResultDto>>($"/versions/{_currentVersionId}/evidence/search?query={Uri.EscapeDataString(_evidenceQuery)}&topK=6")) ?? [];
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+
     private async Task UploadDocumentAsync(InputFileChangeEventArgs args)
     {
         try
@@ -297,6 +513,11 @@ else
             var file = args.File;
             var response = await Api.UploadFileAsync<Normyx.Web.Models.DocumentUploadResponse>("/documents/upload", file, "evidence,demo");
             _uploadMessage = response is null ? "Upload complete." : $"Uploaded: {response.FileName}";
+
+            if (_currentVersionId is not null)
+            {
+                await LoadVersionDataAsync(_currentVersionId.Value);
+            }
         }
         catch (Exception ex)
         {
@@ -308,6 +529,13 @@ else
     {
         public string AutomatedDecisionMaking { get; set; } = "true";
         public string CriticalSector { get; set; } = "true";
+    }
+
+    private sealed class ExportForm
+    {
+        public string ExportType { get; set; } = "DPIA_Draft";
+        public string Format { get; set; } = "pdf";
+        public bool SendWebhook { get; set; }
     }
 
     private sealed class NewComponentForm

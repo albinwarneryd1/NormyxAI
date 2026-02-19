@@ -114,6 +114,29 @@ h3 {
     font-size: 0.92rem;
 }
 
+.kanban-board {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.kanban-col {
+    background: rgba(255, 255, 255, 0.62);
+    border: 1px solid var(--border-soft);
+    border-radius: 0.75rem;
+    padding: 0.6rem;
+}
+
+.kanban-card {
+    display: grid;
+    gap: 0.35rem;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--border-soft);
+    border-radius: 0.55rem;
+    padding: 0.5rem;
+    margin-bottom: 0.45rem;
+}
+
 .alert-danger {
     background: rgba(178, 28, 57, 0.12);
     border: 1px solid rgba(178, 28, 57, 0.3);
@@ -136,6 +159,10 @@ h3 {
     }
 
     .field-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .kanban-board {
         grid-template-columns: 1fr;
     }
 }

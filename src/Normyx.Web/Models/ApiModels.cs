@@ -21,12 +21,16 @@ public record VersionSummaryDto(Guid Id, int VersionNumber, string ChangeSummary
 
 public record AssessmentRunResult(Guid AssessmentId, string AiActRiskClass, int ComplianceScore, int FindingsCount, int ActionsCount);
 public record AssessmentListItem(Guid Id, DateTimeOffset RanAt, Guid RanByUserId, string LlmProvider, string RiskScoresJson);
+public record AssessmentDiffDto(Guid FromVersionId, Guid ToVersionId, int ScoreDelta, bool AiActClassChanged);
+public record QuestionnaireResponse(Guid VersionId, Dictionary<string, string> Answers, DateTimeOffset? UpdatedAt, Guid? UpdatedByUserId);
 
 public record FindingDto(Guid Id, string Type, string Severity, string Title, string Description);
 
 public record ActionItemDto(Guid Id, string Title, string Description, string Priority, string OwnerRole, string Status, string AcceptanceCriteria, DateTimeOffset? DueDate, Guid? SourceFindingId, Guid? ApprovedBy, DateTimeOffset? ApprovedAt);
+public record ActionBoardDto(List<ActionItemDto> New, List<ActionItemDto> InProgress, List<ActionItemDto> Done, List<ActionItemDto> AcceptedRisk);
 
-public record ExportArtifactDto(Guid Id, string ExportType, DateTimeOffset CreatedAt);
+public record ExportArtifactDto(Guid Id, string ExportType, string? MimeType, DateTimeOffset CreatedAt);
+public record ExportListItemDto(Guid Id, string ExportType, string MimeType, DateTimeOffset CreatedAt, Guid CreatedByUserId);
 
 public record DocumentUploadResponse(Guid Id, string FileName, DateTimeOffset UploadedAt);
 
@@ -40,3 +44,14 @@ public record DataInventoryItemDto(Guid Id, Guid AiSystemVersionId, string DataC
 public record VendorDto(Guid Id, Guid AiSystemVersionId, string Name, string ServiceType, string Region, string[] SubProcessors, bool DpaInPlace, string Notes);
 
 public record AuditLogDto(Guid Id, Guid? ActorUserId, string ActionType, string TargetType, Guid? TargetId, DateTimeOffset Timestamp, string BeforeJson, string AfterJson, string Ip, string UserAgent);
+
+public record EvidenceMapResponse(List<EvidenceTargetDto> Actions, List<EvidenceTargetDto> Findings, List<EvidenceTargetDto> Controls);
+public record EvidenceTargetDto(string TargetType, Guid TargetId, string Title, List<EvidenceLinkDto> Evidence);
+public record EvidenceLinkDto(Guid Id, Guid EvidenceExcerptId, string Title, string PageRef);
+
+public record EvidenceGapsResponse(int TotalGaps, List<EvidenceGapDto> ActionGaps, List<EvidenceGapDto> ControlGaps);
+public record EvidenceGapDto(string TargetType, Guid TargetId, string Title, string SuggestedEvidence);
+
+public record RagSearchResultDto(Guid ChunkId, string SourceType, Guid? DocumentId, string ChunkText, float Score, string[] Tags);
+
+public record IntegrationWebhookDto(Guid Id, string Provider, string WebhookUrl, bool IsEnabled, DateTimeOffset CreatedAt, DateTimeOffset UpdatedAt);

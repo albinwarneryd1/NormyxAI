@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Normyx.Api.Utilities;
 using Normyx.Application.Abstractions;
 using Normyx.Application.Security;
+using Normyx.Domain.Entities;
 using Normyx.Domain.Enums;
 using Normyx.Infrastructure.Persistence;
 
@@ -58,12 +59,27 @@ public static class ActionEndpoints
             .Where(x => x.AiSystemVersionId == versionId && x.AiSystemVersion.AiSystem.TenantId == tenantId)
             .ToListAsync();
 
+        static object Shape(ActionItem x) => new
+        {
+            x.Id,
+            x.Title,
+            x.Description,
+            x.Priority,
+            x.OwnerRole,
+            Status = x.Status.ToString(),
+            x.AcceptanceCriteria,
+            x.DueDate,
+            x.SourceFindingId,
+            x.ApprovedBy,
+            x.ApprovedAt
+        };
+
         var board = new
         {
-            New = actions.Where(x => x.Status == ActionStatus.New),
-            InProgress = actions.Where(x => x.Status == ActionStatus.InProgress),
-            Done = actions.Where(x => x.Status == ActionStatus.Done),
-            AcceptedRisk = actions.Where(x => x.Status == ActionStatus.AcceptedRisk)
+            New = actions.Where(x => x.Status == ActionStatus.New).Select(Shape),
+            InProgress = actions.Where(x => x.Status == ActionStatus.InProgress).Select(Shape),
+            Done = actions.Where(x => x.Status == ActionStatus.Done).Select(Shape),
+            AcceptedRisk = actions.Where(x => x.Status == ActionStatus.AcceptedRisk).Select(Shape)
         };
 
         return Results.Ok(board);
