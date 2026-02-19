@@ -55,40 +55,61 @@ else
         }
 
         <section class="card-shell posture-summary">
-            <div class="score-orb">
-                <span class="score-caption">Compliance Score</span>
-                <span class="score-value">@ComplianceScore</span>
-                <span class="delta @DeltaClass(ScoreDelta)">@DeltaLabel(ScoreDelta)</span>
-            </div>
-            <div class="posture-grid">
-                <article class="posture-item">
-                    <header>
-                        <span class="metric-label">AI Act Risk Classification</span>
-                        <span class="delta @DeltaClass(AiActDelta)">@DeltaLabel(AiActDelta)</span>
-                    </header>
+            <div class="metrics-strip">
+                <article class="metric-tile">
+                    <span class="metric-label">Compliance Score</span>
+                    <strong>@ComplianceScore</strong>
+                    <span class="delta @DeltaClass(ScoreDelta)">@DeltaLabel(ScoreDelta)</span>
+                </article>
+                <article class="metric-tile">
+                    <span class="metric-label">AI Act</span>
                     <strong><span class="risk-pill @AiActRiskClassStyle">@AiActRiskClassLabel</span></strong>
+                    <span class="delta @DeltaClass(AiActDelta)">@DeltaLabel(AiActDelta)</span>
                 </article>
-                <article class="posture-item">
-                    <header>
-                        <span class="metric-label">GDPR Exposure Level</span>
-                        <span class="delta @DeltaClass(GdprDelta)">@DeltaLabel(GdprDelta)</span>
-                    </header>
+                <article class="metric-tile">
+                    <span class="metric-label">GDPR</span>
                     <strong><span class="risk-pill @GdprExposureStyle">@GdprExposureLevel</span></strong>
+                    <span class="delta @DeltaClass(GdprDelta)">@DeltaLabel(GdprDelta)</span>
                 </article>
-                <article class="posture-item">
-                    <header>
-                        <span class="metric-label">NIS2 Applicability</span>
-                        <span class="delta @DeltaClass(Nis2Delta)">@DeltaLabel(Nis2Delta)</span>
-                    </header>
+                <article class="metric-tile">
+                    <span class="metric-label">NIS2</span>
                     <strong><span class="risk-pill @Nis2Style">@Nis2Applicability</span></strong>
+                    <span class="delta @DeltaClass(Nis2Delta)">@DeltaLabel(Nis2Delta)</span>
                 </article>
-                <article class="posture-item">
-                    <header>
-                        <span class="metric-label">Control Coverage %</span>
-                        <span class="delta @DeltaClass(ControlCoverageDelta)">@DeltaLabel(ControlCoverageDelta)</span>
-                    </header>
-                    <strong>@ControlCoveragePercent%</strong>
+                <article class="metric-tile">
+                    <span class="metric-label">Critical Deficiencies</span>
+                    <strong>@OpenCriticalActions</strong>
+                    <span class="delta @DeltaClass(CriticalDeficiencyDelta)">@DeltaLabel(CriticalDeficiencyDelta)</span>
                 </article>
+                <article class="metric-tile">
+                    <span class="metric-label">Outstanding Obligations</span>
+                    <strong>@OutstandingActions</strong>
+                    <span class="delta @DeltaClass(ObligationsDelta)">@DeltaLabel(ObligationsDelta)</span>
+                </article>
+            </div>
+
+            <div class="posture-main">
+                <div class="score-orb">
+                    <span class="score-caption">Compliance Instrument</span>
+                    <span class="score-value">@ComplianceScore</span>
+                    <div class="score-meter"><i style="@($"width:{ComplianceScore}%")"></i></div>
+                </div>
+                <div class="posture-grid">
+                    <article class="posture-item">
+                        <header>
+                            <span class="metric-label">Control Coverage</span>
+                            <span class="delta @DeltaClass(ControlCoverageDelta)">@DeltaLabel(ControlCoverageDelta)</span>
+                        </header>
+                        <strong>@ControlCoveragePercent%</strong>
+                    </article>
+                    <article class="posture-item">
+                        <header>
+                            <span class="metric-label">Obligation Mix</span>
+                        </header>
+                        <strong>Critical/High: @HighPriorityActionCount</strong>
+                        <span class="context-text">Medium: @MediumPriorityActionCount | Low: @LowPriorityActionCount</span>
+                    </article>
+                </div>
             </div>
         </section>
 
@@ -250,6 +271,10 @@ else
     private int HighPriorityActionCount => _actions.Count(a =>
         a.Priority.Equals("Critical", StringComparison.OrdinalIgnoreCase) ||
         a.Priority.Equals("High", StringComparison.OrdinalIgnoreCase));
+    private int MediumPriorityActionCount => _actions.Count(a =>
+        a.Priority.Equals("Medium", StringComparison.OrdinalIgnoreCase));
+    private int LowPriorityActionCount => _actions.Count(a =>
+        a.Priority.Equals("Low", StringComparison.OrdinalIgnoreCase));
 
     private string AiActRiskClassLabel => _dashboard?.RiskDistribution.Keys.FirstOrDefault(x =>
         x.Contains("prohibited", StringComparison.OrdinalIgnoreCase) ||

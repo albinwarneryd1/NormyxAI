@@ -749,7 +749,32 @@ input.text-input {
 
 .posture-summary {
     display: grid;
-    grid-template-columns: 220px 1fr;
+    gap: var(--space-3);
+}
+
+.metrics-strip {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0.5rem;
+}
+
+.metric-tile {
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    background: var(--surface-elevated);
+    padding: 0.55rem;
+    display: grid;
+    gap: 0.22rem;
+}
+
+.metric-tile strong {
+    font-size: 1.05rem;
+    color: var(--text-strong);
+}
+
+.posture-main {
+    display: grid;
+    grid-template-columns: 280px 1fr;
     gap: var(--space-3);
     align-items: stretch;
 }
@@ -942,8 +967,12 @@ input.text-input {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .posture-summary {
+    .posture-main {
         grid-template-columns: 1fr;
+    }
+
+    .metrics-strip {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
 
@@ -962,7 +991,8 @@ input.text-input {
     .zone-grid,
     .kanban-board,
     .posture-grid,
-    .governance-grid {
+    .governance-grid,
+    .metrics-strip {
         grid-template-columns: 1fr;
     }
 }
