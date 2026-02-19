@@ -1,24 +1,28 @@
 @inject Sylvaro.Web.Services.AuthSession Session
 
 <nav class="menu-root">
-    <div class="menu-title">Operations</div>
+    <div class="menu-title">Governance</div>
     @if (Session.IsAuthenticated)
     {
-        <NavLink class="menu-link" href="" Match="NavLinkMatch.All">Executive Overview</NavLink>
-        <NavLink class="menu-link" href="ai-systems">AI System Registry</NavLink>
-        <NavLink class="menu-link" href="tenant-settings">Tenant Governance</NavLink>
-        <NavLink class="menu-link" href="audit-log">Audit Records</NavLink>
-        <NavLink class="menu-link" href="security-center">Security Center</NavLink>
+        <NavLink class="menu-link" href="/" Match="NavLinkMatch.All">Executive Overview</NavLink>
+        <NavLink class="menu-link" href="/?view=regulatory-exposure">Regulatory Exposure</NavLink>
+        <NavLink class="menu-link" href="/ai-systems">AI System Inventory</NavLink>
+        <NavLink class="menu-link" href="/ai-systems?tab=actions">Controls &amp; Obligations</NavLink>
+        <NavLink class="menu-link" href="/ai-systems?tab=evidence">Evidence Vault</NavLink>
+        <NavLink class="menu-link" href="/audit-log">Audit Trail</NavLink>
+        <NavLink class="menu-link" href="/?view=governance-reports">Governance Reports</NavLink>
     }
 
-    <div class="menu-title auth-title">Access Control</div>
+    <div class="menu-title auth-title">Access</div>
     @if (Session.IsAuthenticated)
     {
-        <NavLink class="menu-link" href="login">Switch Account</NavLink>
+        <NavLink class="menu-link" href="/security-center">Security Settings</NavLink>
+        <NavLink class="menu-link" href="/tenant-settings">Tenant Profile</NavLink>
+        <NavLink class="menu-link" href="/login">Switch Account</NavLink>
     }
     else
     {
-        <NavLink class="menu-link" href="login">Sign In</NavLink>
-        <NavLink class="menu-link" href="register">Register Tenant</NavLink>
+        <NavLink class="menu-link" href="/login">Sign In</NavLink>
+        <NavLink class="menu-link" href="/register">Register Tenant</NavLink>
     }
 </nav>

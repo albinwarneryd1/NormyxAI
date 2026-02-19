@@ -1,38 +1,44 @@
 .menu-root {
     display: flex;
     flex-direction: column;
-    padding: 0.72rem 0.62rem;
-    gap: 0.15rem;
+    padding: 0.82rem 0.56rem;
+    gap: 0.1rem;
 }
 
 .menu-title {
-    margin-top: 0.45rem;
-    margin-bottom: 0.2rem;
-    font-size: 0.65rem;
+    margin-top: 0.42rem;
+    margin-bottom: 0.18rem;
+    font-size: 0.64rem;
     text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: #8fa0b6;
-    padding: 0 0.38rem;
+    letter-spacing: 0.16em;
+    color: #b9ab97;
+    padding: 0 0.34rem;
     font-weight: 600;
 }
 
 .auth-title {
-    margin-top: 0.82rem;
+    margin-top: 0.86rem;
 }
 
 .menu-link {
-    color: #dbe5f2;
+    color: #e8dfd3;
     text-decoration: none;
-    padding: 0.37rem 0.4rem;
-    border-radius: 6px;
-    font-size: 0.78rem;
+    padding: 0.42rem 0.44rem 0.42rem 0.62rem;
+    border-radius: 4px;
+    font-size: 0.77rem;
     border: 1px solid transparent;
-    transition: background-color 110ms ease, border-color 110ms ease;
+    border-left: 2px solid transparent;
+    transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
 }
 
-.menu-link.active,
 .menu-link:hover {
-    background: rgba(255, 255, 255, 0.09);
-    border-color: rgba(194, 213, 237, 0.3);
-    color: #f4f8ff;
+    background: rgba(176, 141, 87, 0.12);
+    color: #f8f2e9;
+}
+
+.menu-link.active {
+    border-left-color: #b08d57;
+    background: rgba(176, 141, 87, 0.2);
+    border-color: rgba(176, 141, 87, 0.2);
+    color: #fff8ee;
 }

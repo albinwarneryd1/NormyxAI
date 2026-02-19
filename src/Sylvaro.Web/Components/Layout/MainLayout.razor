@@ -1,5 +1,6 @@
 @inherits LayoutComponentBase
 @inject Sylvaro.Web.Services.AuthSession Session
+@inject NavigationManager Nav
 @inject IJSRuntime JsRuntime
 @implements IDisposable
 
@@ -9,22 +10,25 @@
     </aside>
 
     <main class="main-panel">
-        <header class="topbar">
-            <div class="brand-area">
-                <span class="brand-tag">Sylvaro</span>
-                <span class="brand-sub">Compliance Intelligence Platform</span>
+        <header class="governance-topbar">
+            <div class="topbar-left">
+                <img class="wordmark-image" src="/brand/sylvaro-wordmark.svg" alt="SYLVARO" />
+                <span class="brand-sub">Regulatory Intelligence Infrastructure</span>
             </div>
-            <div class="session-meta">
+            <div class="topbar-center">
+                <span class="context-kicker">Current System Context</span>
+                <strong>@CurrentContextLabel</strong>
+            </div>
+            <div class="topbar-right">
                 @if (Session.IsAuthenticated)
                 {
-                    <span class="session-pill">@Session.TenantName</span>
-                    <span class="session-pill">@Session.Email</span>
-                    <span class="session-pill">Last Login: @FormatTimestamp(Session.LastAuthenticatedAt)</span>
+                    <span class="session-pill">Role: @PrimaryRole</span>
+                    <span class="session-pill">Tenant: @Session.TenantName</span>
                     <span class="session-pill">Session Expires: @FormatTimestamp(Session.RefreshTokenExpiresAt)</span>
                 }
                 else
                 {
-                    <span class="session-pill">Not signed in</span>
+                    <span class="session-pill">Access: Not authenticated</span>
                 }
             </div>
         </header>
@@ -41,8 +45,8 @@
         </article>
 
         <footer class="platform-footer">
-            <span>Sylvaro | Compliance Intelligence Platform</span>
-            <span>Version 0.9.0 | Policy Pack Version 2026.1</span>
+            <span>SYLVARO | Compliance Intelligence Platform</span>
+            <span>Version 1.0.0 | Policy Pack Version 2026.1</span>
         </footer>
     </main>
 </div>
@@ -55,10 +59,13 @@
 
 @code {
     private bool _didInitialSessionRestore;
+    private string _currentPath = "/";
 
     protected override void OnInitialized()
     {
+        _currentPath = Nav.ToBaseRelativePath(Nav.Uri);
         Session.Changed += OnSessionChanged;
+        Nav.LocationChanged += OnLocationChanged;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -74,11 +81,86 @@
 
     private void OnSessionChanged() => InvokeAsync(StateHasChanged);
 
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        _currentPath = Nav.ToBaseRelativePath(e.Location);
+        _ = InvokeAsync(StateHasChanged);
+    }
+
     private static string FormatTimestamp(DateTimeOffset value)
         => value == default ? "n/a" : value.UtcDateTime.ToString("yyyy-MM-dd HH:mm:ss 'UTC'");
+
+    private string CurrentContextLabel
+        => _currentPath switch
+        {
+            var path when path.StartsWith("ai-systems/", StringComparison.OrdinalIgnoreCase) => "AI System Governance Workspace",
+            var path when path.StartsWith("ai-systems", StringComparison.OrdinalIgnoreCase) => "AI System Inventory Oversight",
+            var path when path.StartsWith("tenant-settings", StringComparison.OrdinalIgnoreCase) => "Tenant Governance Configuration",
+            var path when path.StartsWith("audit-log", StringComparison.OrdinalIgnoreCase) => "Regulatory Audit Trail",
+            var path when path.StartsWith("security-center", StringComparison.OrdinalIgnoreCase) => "Security Governance Center",
+            _ => "Executive Regulatory Oversight"
+        };
+
+    private string PrimaryRole
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(Session.AccessToken))
+            {
+                return "Unassigned";
+            }
+
+            try
+            {
+                var parts = Session.AccessToken.Split('.');
+                if (parts.Length < 2)
+                {
+                    return "Unassigned";
+                }
+
+                var payload = parts[1]
+                    .Replace('-', '+')
+                    .Replace('_', '/');
+                payload = payload.PadRight(payload.Length + (4 - payload.Length % 4) % 4, '=');
+                var json = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(payload));
+                using var doc = System.Text.Json.JsonDocument.Parse(json);
+
+                if (doc.RootElement.TryGetProperty("role", out var roleElement))
+                {
+                    if (roleElement.ValueKind == System.Text.Json.JsonValueKind.String)
+                    {
+                        return roleElement.GetString() ?? "Unassigned";
+                    }
+
+                    if (roleElement.ValueKind == System.Text.Json.JsonValueKind.Array)
+                    {
+                        var first = roleElement.EnumerateArray().FirstOrDefault();
+                        if (first.ValueKind == System.Text.Json.JsonValueKind.String)
+                        {
+                            return first.GetString() ?? "Unassigned";
+                        }
+                    }
+                }
+
+                var schemaRole = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
+                if (doc.RootElement.TryGetProperty(schemaRole, out var schemaRoleElement) &&
+                    schemaRoleElement.ValueKind == System.Text.Json.JsonValueKind.String)
+                {
+                    return schemaRoleElement.GetString() ?? "Unassigned";
+                }
+            }
+            catch
+            {
+                // Keep a resilient display if token parsing fails.
+            }
+
+            return "Unassigned";
+        }
+    }
 
     public void Dispose()
     {
         Session.Changed -= OnSessionChanged;
+        Nav.LocationChanged -= OnLocationChanged;
     }
 }
