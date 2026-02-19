@@ -4,37 +4,45 @@
 @inject NavigationManager Nav
 @inject IJSRuntime JsRuntime
 
-<PageTitle>Register - Sylvaro</PageTitle>
+<PageTitle>Register Tenant - Sylvaro</PageTitle>
 
-<div class="card-shell narrow">
-    <img class="auth-wordmark" src="/brand/sylvaro-wordmark.svg" alt="SYLVARO" />
-    <h1>Register Tenant Organization</h1>
-    <p>Provision a governed tenant workspace and primary administrator account.</p>
+<div class="auth-shell">
+    <section class="auth-brand-panel">
+        <img class="auth-wordmark" src="/brand/sylvaro-wordmark.svg" alt="SYLVARO" />
+        <h2>Tenant Provisioning</h2>
+        <p>Create a governed tenant workspace and assign the initial administrator account.</p>
+        <p class="metadata-text">All provisioning actions are audit-logged and subject to policy controls.</p>
+    </section>
 
-    @if (!string.IsNullOrWhiteSpace(_error))
-    {
-        <EnterpriseErrorPanel ErrorText="@_error" FriendlyMessage="Tenant registration failed." />
-    }
+    <section class="card-shell auth-card">
+        <h1>Register Tenant Organization</h1>
+        <p>Provision a governed tenant workspace and primary administrator account.</p>
 
-    <EditForm FormName="register-form" Model="_model" OnValidSubmit="OnSubmitAsync">
-        <div class="field">
-            <label>Tenant Name</label>
-            <InputText @bind-Value="_model.TenantName" class="text-input" />
-        </div>
-        <div class="field">
-            <label>Email</label>
-            <InputText @bind-Value="_model.Email" class="text-input" />
-        </div>
-        <div class="field">
-            <label>Display Name</label>
-            <InputText @bind-Value="_model.DisplayName" class="text-input" />
-        </div>
-        <div class="field">
-            <label>Password</label>
-            <InputText @bind-Value="_model.Password" type="password" class="text-input" />
-        </div>
-        <button class="btn-main" type="submit" disabled="@_loading">@(_loading ? "Provisioning..." : "Provision Tenant Workspace")</button>
-    </EditForm>
+        @if (!string.IsNullOrWhiteSpace(_error))
+        {
+            <EnterpriseErrorPanel ErrorText="@_error" FriendlyMessage="Tenant registration failed." />
+        }
+
+        <EditForm FormName="register-form" Model="_model" OnValidSubmit="OnSubmitAsync">
+            <div class="field">
+                <label>Tenant Name</label>
+                <InputText @bind-Value="_model.TenantName" class="text-input" />
+            </div>
+            <div class="field">
+                <label>Email</label>
+                <InputText @bind-Value="_model.Email" class="text-input" />
+            </div>
+            <div class="field">
+                <label>Display Name</label>
+                <InputText @bind-Value="_model.DisplayName" class="text-input" />
+            </div>
+            <div class="field">
+                <label>Password</label>
+                <InputText @bind-Value="_model.Password" type="password" class="text-input" />
+            </div>
+            <button class="btn-main" type="submit" disabled="@_loading">@(_loading ? "Provisioning..." : "Provision Tenant Workspace")</button>
+        </EditForm>
+    </section>
 </div>
 
 @code {
@@ -59,7 +67,7 @@
 
             if (response is null)
             {
-                _error = "Empty response from API.";
+                _error = "Provisioning service returned an empty response.";
                 return;
             }
 

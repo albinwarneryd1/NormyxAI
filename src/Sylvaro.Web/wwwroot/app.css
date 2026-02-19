@@ -181,6 +181,28 @@ a:hover {
     max-width: 560px;
 }
 
+.auth-shell {
+    width: min(1040px, 100%);
+    margin: 1.5rem auto;
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 0.9rem;
+}
+
+.auth-brand-panel {
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    background: var(--surface-2);
+    padding: 1rem;
+    display: grid;
+    align-content: start;
+    gap: 0.55rem;
+}
+
+.auth-card {
+    min-height: 100%;
+}
+
 .auth-wordmark {
     display: block;
     width: 208px;
@@ -906,6 +928,11 @@ input.text-input {
 @media (max-width: 920px) {
     .overview-head {
         grid-template-columns: 1fr;
+    }
+
+    .auth-shell {
+        grid-template-columns: 1fr;
+        margin: 0.75rem auto;
     }
 
     .field-grid,

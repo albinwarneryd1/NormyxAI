@@ -4,33 +4,41 @@
 @inject NavigationManager Nav
 @inject IJSRuntime JsRuntime
 
-<PageTitle>Login - Sylvaro</PageTitle>
+<PageTitle>Sign In - Sylvaro</PageTitle>
 
-<div class="card-shell narrow">
-    <img class="auth-wordmark" src="/brand/sylvaro-wordmark.svg" alt="SYLVARO" />
-    <h1>Sign In</h1>
-    <p>Authenticate with tenant credentials to access compliance operations.</p>
+<div class="auth-shell">
+    <section class="auth-brand-panel">
+        <img class="auth-wordmark" src="/brand/sylvaro-wordmark.svg" alt="SYLVARO" />
+        <h2>Institutional Governance Access</h2>
+        <p>Authenticate to access regulatory intelligence, evidence traceability, and sign-off workflows.</p>
+        <p class="metadata-text">Use tenant-scoped credentials issued by your platform administrator.</p>
+    </section>
 
-    @if (!string.IsNullOrWhiteSpace(_error))
-    {
-        <EnterpriseErrorPanel ErrorText="@_error" FriendlyMessage="Authentication request failed." />
-    }
+    <section class="card-shell auth-card">
+        <h1>Sign In</h1>
+        <p>Login with tenant, email and password.</p>
 
-    <EditForm FormName="login-form" Model="_model" OnValidSubmit="OnSubmitAsync">
-        <div class="field">
-            <label>Tenant</label>
-            <InputText @bind-Value="_model.TenantName" class="text-input" />
-        </div>
-        <div class="field">
-            <label>Email</label>
-            <InputText @bind-Value="_model.Email" class="text-input" />
-        </div>
-        <div class="field">
-            <label>Password</label>
-            <InputText @bind-Value="_model.Password" type="password" class="text-input" />
-        </div>
-        <button class="btn-main" type="submit" disabled="@_loading">@(_loading ? "Signing in..." : "Sign in")</button>
-    </EditForm>
+        @if (!string.IsNullOrWhiteSpace(_error))
+        {
+            <EnterpriseErrorPanel ErrorText="@_error" FriendlyMessage="Authentication request failed." />
+        }
+
+        <EditForm FormName="login-form" Model="_model" OnValidSubmit="OnSubmitAsync">
+            <div class="field">
+                <label>Tenant</label>
+                <InputText @bind-Value="_model.TenantName" class="text-input" />
+            </div>
+            <div class="field">
+                <label>Email</label>
+                <InputText @bind-Value="_model.Email" class="text-input" />
+            </div>
+            <div class="field">
+                <label>Password</label>
+                <InputText @bind-Value="_model.Password" type="password" class="text-input" />
+            </div>
+            <button class="btn-main" type="submit" disabled="@_loading">@(_loading ? "Authenticating..." : "Sign In")</button>
+        </EditForm>
+    </section>
 </div>
 
 @code {
@@ -54,7 +62,7 @@
 
             if (response is null)
             {
-                _error = "Empty response from API.";
+                _error = "Authentication provider returned an empty response.";
                 return;
             }
 
