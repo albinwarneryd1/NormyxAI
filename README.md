@@ -38,10 +38,11 @@ After startup:
 3. Add/update architecture components, data flows, data stores, and questionnaire answers.
 4. Click `Run Assessment`.
 5. Review generated findings/actions.
-6. Review actions as `Approved` / `NeedsEdits` / `Rejected` through API or UI flow.
-7. Configure Jira/Azure webhook stubs in `Tenant Settings` (optional).
-8. Generate `DPIA_Draft` export as PDF or JSON (optionally send webhook).
-9. Open `Audit Log` and `Evidence Gaps` to verify traceability.
+6. Add evidence excerpts and link them to actions/findings.
+7. Review actions as `Approved` / `NeedsEdits` / `Rejected` through API or UI flow.
+8. Configure Jira/Azure webhook stubs in `Tenant Settings` (optional).
+9. Generate `DPIA_Draft` export as PDF or JSON (optionally send webhook).
+10. Open `Audit Log` and `Evidence Gaps` to verify traceability.
 
 ## Local dev (without Docker)
 
@@ -66,11 +67,11 @@ dotnet run --project src/Normyx.Web/Normyx.Web.csproj
 ## Key endpoints
 
 - Auth: `/auth/login`, `/auth/register`, `/auth/refresh`, `/auth/logout`
-- Tenant/users: `/tenants/me`, `/tenants/roles`, `/tenants/users`
+- Tenant/users: `/tenants/me` (GET/PUT), `/tenants/roles`, `/tenants/users`
 - AI systems/versions: `/aisystems`, `/aisystems/{id}/versions`
 - Architecture: `/versions/{versionId}/architecture`, `/versions/{versionId}/architecture/components`, `/versions/{versionId}/architecture/flows`, `/versions/{versionId}/architecture/stores`
 - Inventory: `/versions/{versionId}/inventory`
-- Evidence: `/documents/upload`, `/documents/{id}/download`
+- Evidence: `/documents`, `/documents/upload`, `/documents/{id}/download`, `/documents/{id}/excerpts`, `/documents/evidence-links`
 - Evidence map/gaps/search: `/versions/{versionId}/evidence/map`, `/versions/{versionId}/evidence/gaps`, `/versions/{versionId}/evidence/search`
 - Assessments: `/versions/{versionId}/assessments/run`
 - Assessment diff: `/versions/{versionId}/assessments/diff/{otherVersionId}`

@@ -24,10 +24,11 @@ The API seeds demo tenant/system if no tenant exists.
 2. Verify login for demo tenant.
 3. Run one assessment for `LoanAssist`.
 4. Confirm actions are generated and board updates work.
-5. Verify evidence gaps are listed and RAG search returns chunks.
-6. Generate a PDF and JSON export and download via API.
-7. (Optional) Configure webhook integration and trigger a test event.
-8. Confirm audit events are present in `/audit`.
+5. Create at least one evidence excerpt and link it to an action/finding.
+6. Verify evidence gaps are listed and RAG search returns chunks.
+7. Generate a PDF and JSON export and download via API.
+8. (Optional) Configure webhook integration and trigger a test event.
+9. Confirm audit events are present in `/audit`.
 
 ## Incident quick response
 
