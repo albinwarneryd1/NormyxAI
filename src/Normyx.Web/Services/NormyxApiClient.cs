@@ -3,12 +3,13 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 
 namespace Normyx.Web.Services;
 
-public class NormyxApiClient(IHttpClientFactory factory, AuthSession session, IJSRuntime jsRuntime)
+public class NormyxApiClient(IHttpClientFactory factory, AuthSession session, IJSRuntime jsRuntime, NavigationManager navigationManager)
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -193,6 +194,8 @@ public class NormyxApiClient(IHttpClientFactory factory, AuthSession session, IJ
         {
             session.Clear();
         }
+
+        navigationManager.NavigateTo("/login");
     }
 
     private static async Task EnsureSuccess(HttpResponseMessage response)
