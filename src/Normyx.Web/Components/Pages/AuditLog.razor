@@ -2,38 +2,142 @@
 @inject Normyx.Web.Services.NormyxApiClient Api
 @inject Normyx.Web.Services.AuthSession Session
 
-<PageTitle>Audit Log - Normyx AI</PageTitle>
+<PageTitle>Audit Records - Normyx AI</PageTitle>
 
 @if (!Session.IsAuthenticated)
 {
-    <div class="card-shell"><p>Please <a href="/login">log in</a>.</p></div>
+    <div class="card-shell"><p>Authentication required. Use <a href="/login">Sign In</a> to review immutable records.</p></div>
 }
 else
 {
-    <div class="card-shell">
-        <h1>Audit Log</h1>
-        <p>Immutable trail of tenant events.</p>
-
-        <table class="table-shell">
-            <thead><tr><th>Timestamp</th><th>Action</th><th>Target</th><th>Actor</th><th>IP</th></tr></thead>
-            <tbody>
-                @foreach (var log in _logs)
-                {
-                    <tr>
-                        <td>@log.Timestamp.ToString("u")</td>
-                        <td>@log.ActionType</td>
-                        <td>@log.TargetType</td>
-                        <td>@log.ActorUserId</td>
-                        <td>@log.Ip</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+    <div class="section-head">
+        <div>
+            <h1>Regulatory Audit Ledger</h1>
+            <p>Immutable, filterable and export-ready event records for compliance assurance.</p>
+        </div>
+        <div class="status-line">
+            <span class="risk-pill info">Total Events: @_filteredLogs.Count</span>
+            <span class="risk-pill success">Signed Events: @_signedEventCount</span>
+            <span class="risk-pill info">Last Event: @(_logs.FirstOrDefault()?.Timestamp.ToString("u") ?? "N/A")</span>
+        </div>
     </div>
+
+    <div class="card-shell">
+        <div class="field-grid">
+            <InputSelect @bind-Value="_actionFilter" class="text-input">
+                <option value="">All actions</option>
+                @foreach (var action in _actionTypes)
+                {
+                    <option value="@action">@action</option>
+                }
+            </InputSelect>
+            <InputSelect @bind-Value="_targetFilter" class="text-input">
+                <option value="">All targets</option>
+                @foreach (var target in _targetTypes)
+                {
+                    <option value="@target">@target</option>
+                }
+            </InputSelect>
+            <InputText @bind-Value="_actorFilter" class="text-input" placeholder="Filter actor user id" />
+            <InputText @bind-Value="_targetIdFilter" class="text-input" placeholder="Filter target id" />
+        </div>
+
+        <div class="btn-row" style="margin-top: 0.75rem;">
+            <button class="btn-small" @onclick="SetTableMode">Table Mode</button>
+            <button class="btn-small" @onclick="SetTimelineMode">Timeline Mode</button>
+            <button class="btn-small" @onclick="ToggleRegulatorView">Regulator View: @(_regulatorView ? "On" : "Off")</button>
+            <button class="btn-small" @onclick="RefreshAsync">Refresh</button>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(_error))
+        {
+            <div class="alert-danger" style="margin-top: 0.75rem;">@_error</div>
+        }
+    </div>
+
+    @if (_viewMode == "Table")
+    {
+        <div class="card-shell">
+            <table class="table-shell">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Action</th>
+                        <th>Target</th>
+                        <th>Actor</th>
+                        <th>Network</th>
+                        <th>Hash Ref</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var log in _filteredLogs)
+                    {
+                        <tr>
+                            <td>@log.Timestamp.ToString("u")</td>
+                            <td>@log.ActionType</td>
+                            <td>@log.TargetType @log.TargetId</td>
+                            <td>@(log.ActorUserId?.ToString() ?? "system")</td>
+                            <td>@log.Ip</td>
+                            <td>@GetHashRef(log)</td>
+                        </tr>
+                        @if (!_regulatorView)
+                        {
+                            <tr>
+                                <td colspan="6" class="muted">Before: @ToSummary(log.BeforeJson) | After: @ToSummary(log.AfterJson)</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="card-shell timeline-list">
+            @foreach (var log in _filteredLogs)
+            {
+                <article class="timeline-item">
+                    <header>
+                        <strong>@log.ActionType</strong>
+                        <span class="muted">@log.Timestamp.ToString("u")</span>
+                    </header>
+                    <p>Target: @log.TargetType @log.TargetId</p>
+                    <p>Actor: @(log.ActorUserId?.ToString() ?? "system") | IP: @log.Ip</p>
+                    <p>Hash Ref: @GetHashRef(log)</p>
+                    @if (!_regulatorView)
+                    {
+                        <p class="muted">Before: @ToSummary(log.BeforeJson)</p>
+                        <p class="muted">After: @ToSummary(log.AfterJson)</p>
+                    }
+                </article>
+            }
+        </div>
+    }
 }
 
 @code {
     private List<Normyx.Web.Models.AuditLogDto> _logs = [];
+    private string _error = string.Empty;
+
+    private string _actionFilter = string.Empty;
+    private string _targetFilter = string.Empty;
+    private string _actorFilter = string.Empty;
+    private string _targetIdFilter = string.Empty;
+    private string _viewMode = "Table";
+    private bool _regulatorView = true;
+
+    private int _signedEventCount;
+
+    private IReadOnlyList<string> _actionTypes = [];
+    private IReadOnlyList<string> _targetTypes = [];
+
+    private IReadOnlyList<Normyx.Web.Models.AuditLogDto> _filteredLogs => _logs
+        .Where(x => string.IsNullOrWhiteSpace(_actionFilter) || x.ActionType.Equals(_actionFilter, StringComparison.OrdinalIgnoreCase))
+        .Where(x => string.IsNullOrWhiteSpace(_targetFilter) || x.TargetType.Equals(_targetFilter, StringComparison.OrdinalIgnoreCase))
+        .Where(x => string.IsNullOrWhiteSpace(_actorFilter) || (x.ActorUserId?.ToString().Contains(_actorFilter, StringComparison.OrdinalIgnoreCase) ?? false))
+        .Where(x => string.IsNullOrWhiteSpace(_targetIdFilter) || (x.TargetId?.ToString().Contains(_targetIdFilter, StringComparison.OrdinalIgnoreCase) ?? false))
+        .OrderByDescending(x => x.Timestamp)
+        .ToList();
 
     protected override async Task OnInitializedAsync()
     {
@@ -42,6 +146,60 @@ else
             return;
         }
 
-        _logs = (await Api.GetAsync<List<Normyx.Web.Models.AuditLogDto>>("/audit?take=200")) ?? [];
+        await RefreshAsync();
+    }
+
+    private async Task RefreshAsync()
+    {
+        try
+        {
+            _error = string.Empty;
+            _logs = (await Api.GetAsync<List<Normyx.Web.Models.AuditLogDto>>("/audit?take=300")) ?? [];
+            _actionTypes = _logs
+                .Select(x => x.ActionType)
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(x => x)
+                .ToList();
+            _targetTypes = _logs
+                .Select(x => x.TargetType)
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(x => x)
+                .ToList();
+            _signedEventCount = _logs.Count(x => !string.IsNullOrWhiteSpace(x.AfterJson));
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+
+    private void SetTableMode()
+        => _viewMode = "Table";
+
+    private void SetTimelineMode()
+        => _viewMode = "Timeline";
+
+    private void ToggleRegulatorView()
+        => _regulatorView = !_regulatorView;
+
+    private static string ToSummary(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return "n/a";
+        }
+
+        var trimmed = json.Replace('\n', ' ').Replace('\r', ' ');
+        return trimmed.Length <= 160 ? trimmed : trimmed[..160] + "...";
+    }
+
+    private static string GetHashRef(Normyx.Web.Models.AuditLogDto log)
+    {
+        var input = $"{log.Id}|{log.Timestamp:O}|{log.ActionType}|{log.TargetType}|{log.TargetId}|{log.ActorUserId}";
+        var bytes = System.Text.Encoding.UTF8.GetBytes(input);
+        var hash = System.Security.Cryptography.SHA256.HashData(bytes);
+        return Convert.ToHexString(hash)[..12];
     }
 }

@@ -1,43 +1,149 @@
 @page "/"
 @inject Normyx.Web.Services.NormyxApiClient Api
 @inject Normyx.Web.Services.AuthSession Session
-@inject NavigationManager Nav
 
-<PageTitle>Dashboard - Normyx AI</PageTitle>
+<PageTitle>Executive Overview - Normyx AI</PageTitle>
 
 @if (!Session.IsAuthenticated)
 {
-    <div class="card-shell"><p>Please <a href="/login">log in</a> to continue.</p></div>
+    <div class="card-shell"><p>Authentication required. Use <a href="/login">Sign In</a> to access compliance operations.</p></div>
 }
 else if (_loading)
 {
-    <div class="card-shell"><p>Loading dashboard...</p></div>
+    <div class="panel-grid">
+        <section class="card-shell panel-span-4"><div class="skeleton"></div></section>
+        <section class="card-shell panel-span-4"><div class="skeleton"></div></section>
+        <section class="card-shell panel-span-4"><div class="skeleton"></div></section>
+        <section class="card-shell panel-span-12"><div class="skeleton"></div></section>
+    </div>
 }
 else
 {
-    <div class="grid-cards">
-        <section class="metric-card">
-            <h2>Systems</h2>
-            <p>@_dashboard?.SystemCount</p>
+    <div class="section-head">
+        <div>
+            <h1>Executive Compliance Overview</h1>
+            <p>Board-ready posture across EU AI Act, GDPR, and NIS2 obligations.</p>
+        </div>
+        <div class="status-line">
+            <span class="risk-pill info">Last Audit Event: @(_latestAudit?.ActionType ?? "N/A")</span>
+            <span class="risk-pill info">Last Assessment Version: @_latestVersionLabel</span>
+            <span class="risk-pill success">Signed-off By: @_latestSignoff</span>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(_error))
+    {
+        <div class="alert-danger">@_error</div>
+    }
+
+    <div class="panel-grid">
+        <section class="metric-card panel-span-4">
+            <h3>Compliance Score</h3>
+            <p>@ComplianceScore / 100</p>
         </section>
-        <section class="metric-card">
-            <h2>Open Actions</h2>
-            <p>@_dashboard?.OpenActions</p>
+        <section class="metric-card panel-span-4">
+            <h3>AI Act Risk Class</h3>
+            <p><span class="@($"risk-pill {AiActRiskClassStyle}")">@AiActRiskClassLabel</span></p>
         </section>
-        <section class="metric-card wide">
-            <h2>Risk Distribution</h2>
-            @if (_dashboard?.RiskDistribution is { Count: > 0 } risks)
+        <section class="metric-card panel-span-4">
+            <h3>GDPR Exposure Level</h3>
+            <p><span class="@($"risk-pill {GdprExposureStyle}")">@GdprExposureLevel</span></p>
+        </section>
+        <section class="metric-card panel-span-4">
+            <h3>NIS2 Applicability</h3>
+            <p><span class="@($"risk-pill {Nis2Style}")">@Nis2Applicability</span></p>
+        </section>
+        <section class="metric-card panel-span-4">
+            <h3>Outstanding Compliance Obligations</h3>
+            <p>@OutstandingActions</p>
+        </section>
+        <section class="metric-card panel-span-4">
+            <h3>Open Critical Actions</h3>
+            <p>@OpenCriticalActions</p>
+        </section>
+
+        <section class="card-shell panel-span-6">
+            <h2>Risk Heatmap by Component</h2>
+            <p class="muted">Component-level view across policy dimensions.</p>
+            <div class="heatmap">
+                @foreach (var level in RiskHeatLevels)
+                {
+                    <div class="@($"heat-cell {level}")"></div>
+                }
+            </div>
+        </section>
+
+        <section class="card-shell panel-span-3">
+            <h2>Data Category Exposure</h2>
+            @if (_dataCategorySummary.Count == 0)
             {
-                <ul>
-                    @foreach (var pair in risks)
-                    {
-                        <li>@pair.Key: @pair.Value</li>
-                    }
-                </ul>
+                <p>No inventory data available.</p>
             }
             else
             {
-                <p>No risk data yet.</p>
+                <ul>
+                    @foreach (var row in _dataCategorySummary)
+                    {
+                        <li>@row.Key: @row.Value</li>
+                    }
+                </ul>
+            }
+        </section>
+
+        <section class="card-shell panel-span-3">
+            <h2>Supplier Risk Distribution</h2>
+            <ul>
+                <li>Vendors with DPA: @_vendorWithDpa</li>
+                <li>Vendors missing DPA: @_vendorWithoutDpa</li>
+                <li>Suppliers outside EU: @_vendorOutsideEu</li>
+            </ul>
+        </section>
+
+        <section class="card-shell panel-span-6">
+            <h2>Compliance Trend Over Time</h2>
+            <div class="trend-bars">
+                @if (_trendBars.Count == 0)
+                {
+                    <p>No completed assessments yet.</p>
+                }
+                else
+                {
+                    @foreach (var point in _trendBars)
+                    {
+                        <div>
+                            <label>@point.Label</label>
+                            <span><i style="@($"width:{point.Score}%")"></i></span>
+                            <strong>@point.Score</strong>
+                        </div>
+                    }
+                }
+            </div>
+        </section>
+
+        <section class="card-shell panel-span-3">
+            <h2>Last Assessment Summary</h2>
+            <ul>
+                <li>System: @_primarySystemName</li>
+                <li>Assessments: @_assessmentCount</li>
+                <li>Findings: @_latestFindingsCount</li>
+                <li>Actions: @_actions.Count</li>
+            </ul>
+        </section>
+
+        <section class="card-shell panel-span-3">
+            <h2>Upcoming Deadlines</h2>
+            @if (_upcomingDeadlines.Count == 0)
+            {
+                <p>No due dates assigned.</p>
+            }
+            else
+            {
+                <ul>
+                    @foreach (var due in _upcomingDeadlines)
+                    {
+                        <li>@due.Title (@due.DueDate?.ToString("yyyy-MM-dd"))</li>
+                    }
+                </ul>
             }
         </section>
     </div>
@@ -45,7 +151,79 @@ else
 
 @code {
     private bool _loading = true;
+    private string _error = string.Empty;
+
     private Normyx.Web.Models.DashboardTenantDto? _dashboard;
+    private Normyx.Web.Models.DashboardSystemDto? _systemDashboard;
+    private Normyx.Web.Models.AuditLogDto? _latestAudit;
+    private List<Normyx.Web.Models.AiSystemListItem> _systems = [];
+    private List<Normyx.Web.Models.VersionSummaryDto> _versions = [];
+    private List<Normyx.Web.Models.AssessmentListItem> _assessments = [];
+    private List<Normyx.Web.Models.ActionItemDto> _actions = [];
+    private List<Normyx.Web.Models.FindingDto> _latestFindings = [];
+    private Normyx.Web.Models.InventoryResponse _inventory = new([], []);
+    private List<KeyValuePair<string, int>> _dataCategorySummary = [];
+    private List<TrendPoint> _trendBars = [];
+    private List<Normyx.Web.Models.ActionItemDto> _upcomingDeadlines = [];
+
+    private int _vendorWithDpa;
+    private int _vendorWithoutDpa;
+    private int _vendorOutsideEu;
+    private int _latestFindingsCount;
+    private int _assessmentCount;
+    private string _primarySystemName = "N/A";
+    private string _latestVersionLabel = "N/A";
+    private string _latestSignoff = "Pending";
+
+    private int ComplianceScore => _trendBars.LastOrDefault()?.Score ?? 0;
+    private int OutstandingActions => _dashboard?.OpenActions ?? 0;
+    private int OpenCriticalActions => _actions.Count(a => a.Priority.Equals("Critical", StringComparison.OrdinalIgnoreCase));
+
+    private string AiActRiskClassLabel => _dashboard?.RiskDistribution.Keys.FirstOrDefault(x => x.Contains("high", StringComparison.OrdinalIgnoreCase))
+        ?? _dashboard?.RiskDistribution.Keys.FirstOrDefault()
+        ?? "minimal";
+
+    private string AiActRiskClassStyle => AiActRiskClassLabel.Contains("high", StringComparison.OrdinalIgnoreCase)
+        ? "danger"
+        : AiActRiskClassLabel.Contains("limited", StringComparison.OrdinalIgnoreCase)
+            ? "warning"
+            : "success";
+
+    private string GdprExposureLevel => OutstandingActions >= 10 ? "High" : OutstandingActions >= 4 ? "Moderate" : "Low";
+    private string GdprExposureStyle => OutstandingActions >= 10 ? "danger" : OutstandingActions >= 4 ? "warning" : "success";
+
+    private string Nis2Applicability => _inventory.Vendors.Any() ? "Applicable" : "Under Review";
+    private string Nis2Style => _inventory.Vendors.Any() ? "warning" : "info";
+
+    private IEnumerable<string> RiskHeatLevels
+    {
+        get
+        {
+            var high = _dashboard?.RiskDistribution
+                .Where(x => x.Key.Contains("high", StringComparison.OrdinalIgnoreCase))
+                .Sum(x => x.Value) ?? 0;
+            var limited = _dashboard?.RiskDistribution
+                .Where(x => x.Key.Contains("limited", StringComparison.OrdinalIgnoreCase))
+                .Sum(x => x.Value) ?? 0;
+            var minimal = _dashboard?.RiskDistribution
+                .Where(x => x.Key.Contains("minimal", StringComparison.OrdinalIgnoreCase))
+                .Sum(x => x.Value) ?? 0;
+
+            var criticalCells = Math.Clamp(high, 0, 6);
+            var highCells = Math.Clamp(limited, 0, 6);
+            var mediumCells = Math.Clamp(minimal, 0, 6);
+            var cells = new List<string>();
+            cells.AddRange(Enumerable.Repeat("critical", criticalCells));
+            cells.AddRange(Enumerable.Repeat("high", highCells));
+            cells.AddRange(Enumerable.Repeat("medium", mediumCells));
+            while (cells.Count < 20)
+            {
+                cells.Add("low");
+            }
+
+            return cells.Take(20);
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -55,17 +233,84 @@ else
             return;
         }
 
+        await LoadOverviewAsync();
+    }
+
+    private async Task LoadOverviewAsync()
+    {
         try
         {
             _dashboard = await Api.GetAsync<Normyx.Web.Models.DashboardTenantDto>("/dashboard/tenant");
+            _systems = (await Api.GetAsync<List<Normyx.Web.Models.AiSystemListItem>>("/aisystems")) ?? [];
+            _latestAudit = (await Api.GetAsync<List<Normyx.Web.Models.AuditLogDto>>("/audit?take=1"))?.FirstOrDefault();
+
+            var primarySystem = _systems.OrderByDescending(x => x.UpdatedAt).FirstOrDefault();
+            if (primarySystem is null)
+            {
+                return;
+            }
+
+            _primarySystemName = primarySystem.Name;
+            _systemDashboard = await Api.GetAsync<Normyx.Web.Models.DashboardSystemDto>($"/dashboard/system/{primarySystem.Id}");
+            _assessmentCount = _systemDashboard?.AssessmentsCount ?? 0;
+
+            _versions = (await Api.GetAsync<List<Normyx.Web.Models.VersionSummaryDto>>($"/aisystems/{primarySystem.Id}/versions")) ?? [];
+            var latestVersion = _versions.OrderByDescending(x => x.VersionNumber).FirstOrDefault();
+            if (latestVersion is null)
+            {
+                return;
+            }
+
+            _latestVersionLabel = $"v{latestVersion.VersionNumber}";
+            _assessments = (await Api.GetAsync<List<Normyx.Web.Models.AssessmentListItem>>($"/versions/{latestVersion.Id}/assessments")) ?? [];
+            _actions = (await Api.GetAsync<List<Normyx.Web.Models.ActionItemDto>>($"/actions/version/{latestVersion.Id}")) ?? [];
+            _inventory = await Api.GetAsync<Normyx.Web.Models.InventoryResponse>($"/versions/{latestVersion.Id}/inventory") ?? new([], []);
+
+            _dataCategorySummary = _inventory.DataItems
+                .GroupBy(x => x.DataCategory)
+                .OrderByDescending(x => x.Count())
+                .Take(6)
+                .Select(x => new KeyValuePair<string, int>(x.Key, x.Count()))
+                .ToList();
+
+            _vendorWithDpa = _inventory.Vendors.Count(v => v.DpaInPlace);
+            _vendorWithoutDpa = _inventory.Vendors.Count(v => !v.DpaInPlace);
+            _vendorOutsideEu = _inventory.Vendors.Count(v => !v.Region.Contains("eu", StringComparison.OrdinalIgnoreCase));
+
+            _upcomingDeadlines = _actions
+                .Where(a => a.DueDate.HasValue && a.DueDate.Value > DateTimeOffset.UtcNow)
+                .OrderBy(a => a.DueDate)
+                .Take(5)
+                .ToList();
+
+            _latestSignoff = _actions
+                .Where(a => a.ApprovedBy.HasValue)
+                .OrderByDescending(a => a.ApprovedAt)
+                .Select(a => a.ApprovedBy!.Value.ToString()[..8])
+                .FirstOrDefault() ?? "Pending";
+
+            var latestAssessment = _assessments.OrderByDescending(x => x.RanAt).FirstOrDefault();
+            if (latestAssessment is not null)
+            {
+                _latestFindings = (await Api.GetAsync<List<Normyx.Web.Models.FindingDto>>($"/findings/assessment/{latestAssessment.Id}")) ?? [];
+                _latestFindingsCount = _latestFindings.Count;
+            }
+
+            _trendBars = (_systemDashboard?.ScoreTrend ?? [])
+                .OrderBy(x => x.RanAt)
+                .TakeLast(6)
+                .Select(x => new TrendPoint(x.RanAt.ToString("MM-dd"), Math.Clamp(x.Score, 0, 100)))
+                .ToList();
         }
-        catch
+        catch (Exception ex)
         {
-            Nav.NavigateTo("/login");
+            _error = ex.Message;
         }
         finally
         {
             _loading = false;
         }
     }
+
+    private sealed record TrendPoint(string Label, int Score);
 }

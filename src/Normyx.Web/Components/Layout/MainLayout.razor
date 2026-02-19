@@ -1,5 +1,6 @@
 @inherits LayoutComponentBase
 @inject Normyx.Web.Services.AuthSession Session
+@inject IJSRuntime JsRuntime
 @implements IDisposable
 
 <div class="app-shell">
@@ -11,24 +12,38 @@
         <header class="topbar">
             <div class="brand-area">
                 <span class="brand-tag">Normyx AI</span>
-                <span class="brand-sub">Compliance Copilot</span>
+                <span class="brand-sub">Compliance Intelligence Platform</span>
             </div>
             <div class="session-meta">
                 @if (Session.IsAuthenticated)
                 {
-                    <span>@Session.TenantName</span>
-                    <span>@Session.Email</span>
+                    <span class="session-pill">@Session.TenantName</span>
+                    <span class="session-pill">@Session.Email</span>
+                    <span class="session-pill">Last Login: @FormatTimestamp(Session.LastAuthenticatedAt)</span>
+                    <span class="session-pill">Session Expires: @FormatTimestamp(Session.RefreshTokenExpiresAt)</span>
                 }
                 else
                 {
-                    <span>Not signed in</span>
+                    <span class="session-pill">Not signed in</span>
                 }
             </div>
         </header>
 
         <article class="content-panel">
-            @Body
+            @if (!Session.IsInitialized)
+            {
+                <div class="card-shell"><p>Restoring secure session...</p></div>
+            }
+            else
+            {
+                @Body
+            }
         </article>
+
+        <footer class="platform-footer">
+            <span>Normyx AI | Compliance Intelligence Platform</span>
+            <span>Version 0.9.0 | Policy Pack Version 2026.1</span>
+        </footer>
     </main>
 </div>
 
@@ -39,12 +54,28 @@
 </div>
 
 @code {
+    private bool _didInitialSessionRestore;
+
     protected override void OnInitialized()
     {
         Session.Changed += OnSessionChanged;
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || _didInitialSessionRestore)
+        {
+            return;
+        }
+
+        _didInitialSessionRestore = true;
+        await Session.EnsureInitializedAsync(JsRuntime);
+    }
+
     private void OnSessionChanged() => InvokeAsync(StateHasChanged);
+
+    private static string FormatTimestamp(DateTimeOffset value)
+        => value == default ? "n/a" : value.UtcDateTime.ToString("yyyy-MM-dd HH:mm:ss 'UTC'");
 
     public void Dispose()
     {
