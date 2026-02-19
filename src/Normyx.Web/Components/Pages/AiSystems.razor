@@ -63,6 +63,7 @@ else
     private readonly CreateSystemForm _createForm = new();
     private List<Normyx.Web.Models.AiSystemListItem> _systems = [];
     private string _error = string.Empty;
+    private bool _attemptedInitialLoad;
 
     protected override async Task OnInitializedAsync()
     {
@@ -71,7 +72,20 @@ else
             return;
         }
 
+        _attemptedInitialLoad = true;
         await LoadSystemsAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_attemptedInitialLoad || !Session.IsInitialized || !Session.IsAuthenticated)
+        {
+            return;
+        }
+
+        _attemptedInitialLoad = true;
+        await LoadSystemsAsync();
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task LoadSystemsAsync()

@@ -210,6 +210,7 @@ else
 @code {
     private bool _loading = true;
     private bool _exporting;
+    private bool _attemptedInitialLoad;
     private string _error = string.Empty;
     private string _exportMessage = string.Empty;
 
@@ -287,7 +288,21 @@ else
             return;
         }
 
+        _attemptedInitialLoad = true;
         await LoadOverviewAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_attemptedInitialLoad || !Session.IsInitialized || !Session.IsAuthenticated)
+        {
+            return;
+        }
+
+        _attemptedInitialLoad = true;
+        _loading = true;
+        await LoadOverviewAsync();
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task LoadOverviewAsync()

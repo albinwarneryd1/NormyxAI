@@ -744,6 +744,8 @@ else
     private bool _showHighRiskFlowsOnly;
     private bool _showVendorOverlay;
     private string _riskPerspective = "Regulatory";
+    private bool _attemptedInitialLoad;
+    private Guid _loadedSystemId;
 
     private static readonly string[] WorkspaceTabs =
     [
@@ -768,15 +770,45 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
+        if (_loadedSystemId != SystemId)
+        {
+            _attemptedInitialLoad = false;
+        }
+
         if (!Session.IsAuthenticated)
         {
             _loading = false;
             return;
         }
 
+        _attemptedInitialLoad = true;
+        await LoadCurrentSystemAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_attemptedInitialLoad || !Session.IsInitialized || !Session.IsAuthenticated)
+        {
+            return;
+        }
+
+        _attemptedInitialLoad = true;
+        await LoadCurrentSystemAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task LoadCurrentSystemAsync()
+    {
         _loading = true;
-        await LoadSystemAsync();
-        _loading = false;
+        try
+        {
+            await LoadSystemAsync();
+            _loadedSystemId = SystemId;
+        }
+        finally
+        {
+            _loading = false;
+        }
     }
 
     private async Task LoadSystemAsync()
@@ -805,57 +837,73 @@ else
 
     private async Task SelectVersionAsync(Guid versionId)
     {
-        _currentVersionId = versionId;
-        await LoadVersionDataAsync(versionId);
+        try
+        {
+            _error = string.Empty;
+            _currentVersionId = versionId;
+            await LoadVersionDataAsync(versionId);
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
     }
 
     private async Task LoadVersionDataAsync(Guid versionId)
     {
-        _architecture = await Api.GetAsync<Normyx.Web.Models.ArchitectureResponse>($"/versions/{versionId}/architecture") ?? new([], [], []);
-        if (_selectedComponentId is null || !_architecture.Components.Any(x => x.Id == _selectedComponentId.Value))
+        try
         {
-            _selectedComponentId = _architecture.Components.FirstOrDefault()?.Id;
+            _error = string.Empty;
+            _architecture = await Api.GetAsync<Normyx.Web.Models.ArchitectureResponse>($"/versions/{versionId}/architecture") ?? new([], [], []);
+            if (_selectedComponentId is null || !_architecture.Components.Any(x => x.Id == _selectedComponentId.Value))
+            {
+                _selectedComponentId = _architecture.Components.FirstOrDefault()?.Id;
+            }
+            if (_selectedRiskComponentId is null || !_architecture.Components.Any(x => x.Id == _selectedRiskComponentId.Value))
+            {
+                _selectedRiskComponentId = _architecture.Components.FirstOrDefault()?.Id;
+            }
+
+            _inventory = await Api.GetAsync<Normyx.Web.Models.InventoryResponse>($"/versions/{versionId}/inventory") ?? new([], []);
+            _assessments = (await Api.GetAsync<List<Normyx.Web.Models.AssessmentListItem>>($"/versions/{versionId}/assessments")) ?? [];
+            _actions = (await Api.GetAsync<List<Normyx.Web.Models.ActionItemDto>>($"/actions/version/{versionId}")) ?? [];
+            _actionBoard = (await Api.GetAsync<Normyx.Web.Models.ActionBoardDto>($"/actions/board/{versionId}")) ?? new([], [], [], []);
+            _evidenceMap = await Api.GetAsync<Normyx.Web.Models.EvidenceMapResponse>($"/versions/{versionId}/evidence/map") ?? new([], [], []);
+            _evidenceGaps = await Api.GetAsync<Normyx.Web.Models.EvidenceGapsResponse>($"/versions/{versionId}/evidence/gaps") ?? new(0, [], []);
+            _exports = (await Api.GetAsync<List<Normyx.Web.Models.ExportListItemDto>>($"/exports/versions/{versionId}")) ?? [];
+            _documents = (await Api.GetAsync<List<Normyx.Web.Models.DocumentListItemDto>>("/documents")) ?? [];
+
+            if (_selectedDocumentId is null || !_documents.Any(x => x.Id == _selectedDocumentId.Value))
+            {
+                _selectedDocumentId = _documents.FirstOrDefault()?.Id;
+            }
+
+            await LoadExcerptsAsync();
+
+            var questionnaire = await Api.GetAsync<Normyx.Web.Models.QuestionnaireResponse>($"/versions/{versionId}/questionnaire");
+            if (questionnaire is not null)
+            {
+                _questionnaire.AutomatedDecisionMaking = questionnaire.Answers.TryGetValue("automatedDecisionMaking", out var auto) ? auto : "false";
+                _questionnaire.CriticalSector = questionnaire.Answers.TryGetValue("criticalSector", out var critical) ? critical : "false";
+            }
+
+            if (_assessments.Count > 0)
+            {
+                var latest = _assessments.OrderByDescending(x => x.RanAt).First();
+                _findings = (await Api.GetAsync<List<Normyx.Web.Models.FindingDto>>($"/findings/assessment/{latest.Id}")) ?? [];
+            }
+            else
+            {
+                _findings = [];
+            }
+
+            _recentReviews = (await Api.GetAsync<List<Normyx.Web.Models.ActionReviewDto>>($"/actions/version/{versionId}/reviews")) ?? [];
+            EnsureEvidenceLinkDefaults();
         }
-        if (_selectedRiskComponentId is null || !_architecture.Components.Any(x => x.Id == _selectedRiskComponentId.Value))
+        catch (Exception ex)
         {
-            _selectedRiskComponentId = _architecture.Components.FirstOrDefault()?.Id;
+            _error = ex.Message;
         }
-
-        _inventory = await Api.GetAsync<Normyx.Web.Models.InventoryResponse>($"/versions/{versionId}/inventory") ?? new([], []);
-        _assessments = (await Api.GetAsync<List<Normyx.Web.Models.AssessmentListItem>>($"/versions/{versionId}/assessments")) ?? [];
-        _actions = (await Api.GetAsync<List<Normyx.Web.Models.ActionItemDto>>($"/actions/version/{versionId}")) ?? [];
-        _actionBoard = (await Api.GetAsync<Normyx.Web.Models.ActionBoardDto>($"/actions/board/{versionId}")) ?? new([], [], [], []);
-        _evidenceMap = await Api.GetAsync<Normyx.Web.Models.EvidenceMapResponse>($"/versions/{versionId}/evidence/map") ?? new([], [], []);
-        _evidenceGaps = await Api.GetAsync<Normyx.Web.Models.EvidenceGapsResponse>($"/versions/{versionId}/evidence/gaps") ?? new(0, [], []);
-        _exports = (await Api.GetAsync<List<Normyx.Web.Models.ExportListItemDto>>($"/exports/versions/{versionId}")) ?? [];
-        _documents = (await Api.GetAsync<List<Normyx.Web.Models.DocumentListItemDto>>("/documents")) ?? [];
-
-        if (_selectedDocumentId is null || !_documents.Any(x => x.Id == _selectedDocumentId.Value))
-        {
-            _selectedDocumentId = _documents.FirstOrDefault()?.Id;
-        }
-
-        await LoadExcerptsAsync();
-
-        var questionnaire = await Api.GetAsync<Normyx.Web.Models.QuestionnaireResponse>($"/versions/{versionId}/questionnaire");
-        if (questionnaire is not null)
-        {
-            _questionnaire.AutomatedDecisionMaking = questionnaire.Answers.TryGetValue("automatedDecisionMaking", out var auto) ? auto : "false";
-            _questionnaire.CriticalSector = questionnaire.Answers.TryGetValue("criticalSector", out var critical) ? critical : "false";
-        }
-
-        if (_assessments.Count > 0)
-        {
-            var latest = _assessments.OrderByDescending(x => x.RanAt).First();
-            _findings = (await Api.GetAsync<List<Normyx.Web.Models.FindingDto>>($"/findings/assessment/{latest.Id}")) ?? [];
-        }
-        else
-        {
-            _findings = [];
-        }
-
-        _recentReviews = (await Api.GetAsync<List<Normyx.Web.Models.ActionReviewDto>>($"/actions/version/{versionId}/reviews")) ?? [];
-        EnsureEvidenceLinkDefaults();
     }
 
     private async Task RunAssessmentAsync()

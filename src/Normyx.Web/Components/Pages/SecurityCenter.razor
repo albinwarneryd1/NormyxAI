@@ -181,6 +181,7 @@ else
     private List<Normyx.Web.Models.SecuritySessionDto> _activeSessions = [];
     private List<Normyx.Web.Models.ApiTokenDto> _tokens = [];
     private List<Normyx.Web.Models.RoleDto> _roles = [];
+    private bool _attemptedInitialLoad;
 
     protected override async Task OnInitializedAsync()
     {
@@ -189,9 +190,24 @@ else
             return;
         }
 
+        _attemptedInitialLoad = true;
         await RefreshSessionsAsync();
         await RefreshApiTokensAsync();
         await LoadRolesAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_attemptedInitialLoad || !Session.IsInitialized || !Session.IsAuthenticated)
+        {
+            return;
+        }
+
+        _attemptedInitialLoad = true;
+        await RefreshSessionsAsync();
+        await RefreshApiTokensAsync();
+        await LoadRolesAsync();
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task RefreshSessionsAsync()
