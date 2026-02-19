@@ -93,12 +93,12 @@ h5 {
 }
 
 h1 {
-    font-size: 30px;
+    font-size: 32px;
     line-height: 1.1;
 }
 
 h2 {
-    font-size: 22px;
+    font-size: 23px;
     line-height: 1.15;
 }
 
@@ -759,6 +759,16 @@ input.text-input {
     align-items: start;
     gap: var(--space-3);
 }
+
+.overview-head > div:first-child {
+    padding-left: 0.58rem;
+    border-left: 2px solid #ccb089;
+}
+
+.overview-head h1 {
+    margin-bottom: 0.3rem;
+}
+
 
 .posture-summary {
     display: grid;
