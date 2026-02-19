@@ -549,12 +549,29 @@ else
         @if (_currentVersionId is not null && IsTab("Reports"))
         {
             <h2>Regulatory Reporting</h2>
+            <div class="card-shell" style="margin-bottom:0.8rem;">
+                <h3>Export Metadata</h3>
+                <ul>
+                    <li>Assessment version: @(_assessments.OrderByDescending(x => x.RanAt).FirstOrDefault()?.Id)</li>
+                    <li>System version: @_currentVersionId</li>
+                    <li>Policy pack version: 2026.1</li>
+                    <li>Signature reference: @(_recentReviews.FirstOrDefault()?.Id)</li>
+                    <li>Generated at: @DateTimeOffset.UtcNow.ToString("u")</li>
+                    <li>Scope definition: Tenant-wide AI compliance controls</li>
+                </ul>
+            </div>
             <div class="field-grid">
                 <InputSelect @bind-Value="_exportForm.Format" class="text-input">
                     <option value="pdf">PDF</option>
                     <option value="json">JSON</option>
                 </InputSelect>
-                <InputText @bind-Value="_exportForm.ExportType" class="text-input" placeholder="Regulator_Export" />
+                <InputSelect @bind-Value="_exportForm.ExportType" class="text-input">
+                    <option value="Regulator_Export">Regulator Export</option>
+                    <option value="Board_Summary">Board Summary</option>
+                    <option value="Technical_Annex">Technical Annex</option>
+                    <option value="DPIA_Draft">DPIA Draft</option>
+                    <option value="AI_System_Card">AI System Card</option>
+                </InputSelect>
             </div>
             <label><InputCheckbox @bind-Value="_exportForm.SendWebhook" /> Dispatch via enabled integrations</label>
             <div class="btn-row">
@@ -1327,7 +1344,7 @@ else
 
     private sealed class ExportForm
     {
-        public string ExportType { get; set; } = "DPIA_Draft";
+        public string ExportType { get; set; } = "Regulator_Export";
         public string Format { get; set; } = "pdf";
         public bool SendWebhook { get; set; }
     }
