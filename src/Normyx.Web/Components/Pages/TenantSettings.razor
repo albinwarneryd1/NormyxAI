@@ -23,9 +23,9 @@ else
         @if (_tenant is not null)
         {
             <p><strong>@_tenant.Name</strong> (created @_tenant.CreatedAt.ToString("u"))</p>
-            <EditForm FormName="tenant-update-form" OnValidSubmit="SaveTenantAsync">
+            <EditForm FormName="tenant-update-form" Model="_tenantUpdate" OnValidSubmit="SaveTenantAsync">
                 <div class="field-grid">
-                    <InputText @bind-Value="_tenantName" class="text-input" placeholder="Tenant name" />
+                    <InputText @bind-Value="_tenantUpdate.Name" class="text-input" placeholder="Tenant name" />
                 </div>
                 <button class="btn-small" type="submit">Update tenant name</button>
             </EditForm>
@@ -120,7 +120,6 @@ else
 
 @code {
     private Normyx.Web.Models.TenantDto? _tenant;
-    private string _tenantName = string.Empty;
     private List<Normyx.Web.Models.UserDto> _users = [];
     private List<Normyx.Web.Models.RoleDto> _roles = [];
     private List<Normyx.Web.Models.IntegrationWebhookDto> _integrations = [];
@@ -130,6 +129,7 @@ else
     private string _integrationMessage = string.Empty;
 
     private readonly CreateUserForm _newUser = new();
+    private readonly TenantUpdateForm _tenantUpdate = new();
     private readonly WebhookForm _jira = new();
     private readonly WebhookForm _azureDevOps = new();
     private readonly HashSet<string> _selectedNewUserRoles = ["ProductOwner"];
@@ -149,7 +149,7 @@ else
         try
         {
             _tenant = await Api.GetAsync<Normyx.Web.Models.TenantDto>("/tenants/me");
-            _tenantName = _tenant?.Name ?? string.Empty;
+            _tenantUpdate.Name = _tenant?.Name ?? string.Empty;
             _users = (await Api.GetAsync<List<Normyx.Web.Models.UserDto>>("/tenants/users")) ?? [];
             _roles = (await Api.GetAsync<List<Normyx.Web.Models.RoleDto>>("/tenants/roles")) ?? [];
             _integrations = (await Api.GetAsync<List<Normyx.Web.Models.IntegrationWebhookDto>>("/integrations/webhooks")) ?? [];
@@ -161,7 +161,6 @@ else
         catch (Exception ex)
         {
             _error = ex.Message;
-            Nav.NavigateTo("/login");
         }
     }
 
@@ -264,7 +263,7 @@ else
         try
         {
             _error = string.Empty;
-            await Api.PutAsync("/tenants/me", new { name = _tenantName });
+            await Api.PutAsync("/tenants/me", new { name = _tenantUpdate.Name });
             await LoadAsync();
         }
         catch (Exception ex)
@@ -299,6 +298,11 @@ else
             DisplayName = string.Empty;
             Password = string.Empty;
         }
+    }
+
+    private sealed class TenantUpdateForm
+    {
+        public string Name { get; set; } = string.Empty;
     }
 
     private sealed class WebhookForm

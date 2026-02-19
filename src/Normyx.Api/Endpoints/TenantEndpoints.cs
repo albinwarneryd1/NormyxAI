@@ -79,20 +79,24 @@ public static class TenantEndpoints
 
         var users = await dbContext.Users
             .Where(x => x.TenantId == tenantId)
-            .Select(x => new
-            {
-                x.Id,
-                x.Email,
-                x.DisplayName,
-                x.CreatedAt,
-                x.DisabledAt,
-                Roles = dbContext.UserRoles
-                    .Where(ur => ur.UserId == x.Id)
-                    .Join(dbContext.Roles, ur => ur.RoleId, r => r.Id, (_, role) => role.Name)
-            })
+            .Include(x => x.UserRoles)
+            .ThenInclude(x => x.Role)
             .ToListAsync();
 
-        return Results.Ok(users);
+        var result = users.Select(x => new
+        {
+            x.Id,
+            x.Email,
+            x.DisplayName,
+            x.CreatedAt,
+            x.DisabledAt,
+            Roles = x.UserRoles
+                .Select(ur => ur.Role.Name)
+                .OrderBy(name => name)
+                .ToList()
+        });
+
+        return Results.Ok(result);
     }
 
     private record CreateUserRequest(string Email, string DisplayName, string Password, string[] Roles);
