@@ -5,17 +5,17 @@
     <div class="alert-panel" role="alert">
         <strong>@ResolvedTitle</strong>
         <p>@ResolvedSummary</p>
-        <p class="context-text">Correlation ID: @ResolvedCorrelationId</p>
+        <p class="metadata-text">Correlation ID: @ResolvedCorrelationId</p>
 
         @if (OnRetry.HasDelegate)
         {
-            <div class="btn-row" style="margin-top:0.4rem; margin-bottom:0;">
+            <div class="btn-row" style="margin-top:0.32rem; margin-bottom:0;">
                 <button class="btn-small" @onclick="HandleRetryAsync">@RetryLabel</button>
             </div>
         }
 
         <details>
-            <summary>Technical details</summary>
+            <summary>Technical Details</summary>
             <pre>@ErrorText</pre>
         </details>
     </div>
@@ -24,7 +24,7 @@
 @code {
     [Parameter] public string? ErrorText { get; set; }
     [Parameter] public string? FriendlyMessage { get; set; }
-    [Parameter] public string RetryLabel { get; set; } = "Retry";
+    [Parameter] public string RetryLabel { get; set; } = "Retry Operation";
     [Parameter] public EventCallback OnRetry { get; set; }
 
     private string ResolvedTitle
@@ -33,31 +33,31 @@
         {
             if (string.IsNullOrWhiteSpace(ErrorText))
             {
-                return FriendlyMessage ?? "An error occurred.";
+                return FriendlyMessage ?? "Regulatory Processing Error";
             }
 
             var error = ErrorText;
             if (error.Contains("JSON value could not be converted", StringComparison.OrdinalIgnoreCase))
             {
-                return "An assessment parsing error occurred.";
+                return "Assessment Processing Error";
             }
 
             if (error.Contains("unauthorized", StringComparison.OrdinalIgnoreCase) || error.Contains("(401)", StringComparison.OrdinalIgnoreCase))
             {
-                return "Authentication is required to continue.";
+                return "Authentication Requirement";
             }
 
             if (error.Contains("forbidden", StringComparison.OrdinalIgnoreCase) || error.Contains("(403)", StringComparison.OrdinalIgnoreCase))
             {
-                return "Insufficient privileges for this action.";
+                return "Authorization Restriction";
             }
 
             if (error.Contains("validation_failed", StringComparison.OrdinalIgnoreCase))
             {
-                return "Submitted data failed compliance validation.";
+                return "Input Validation Failure";
             }
 
-            return FriendlyMessage ?? "A platform operation failed.";
+            return FriendlyMessage ?? "Regulatory Processing Error";
         }
     }
 
@@ -67,26 +67,26 @@
         {
             if (string.IsNullOrWhiteSpace(ErrorText))
             {
-                return "Unexpected runtime behavior was captured.";
+                return "The requested operation could not be completed. Retry operation or contact platform governance support.";
             }
 
             var error = ErrorText;
             if (error.Contains("JSON value could not be converted", StringComparison.OrdinalIgnoreCase))
             {
-                return "A structured response could not be interpreted. Retry the operation. If the issue persists, review provider output schema alignment.";
+                return "The latest regulatory analysis could not be completed due to structured response mismatch. Review provider schema alignment or retry operation.";
             }
 
             if (error.Contains("unauthorized", StringComparison.OrdinalIgnoreCase) || error.Contains("(401)", StringComparison.OrdinalIgnoreCase))
             {
-                return "Your secure session may have expired. Sign in again and retry.";
+                return "Your current authenticated session is not valid for this operation. Sign in and retry.";
             }
 
             if (error.Contains("forbidden", StringComparison.OrdinalIgnoreCase) || error.Contains("(403)", StringComparison.OrdinalIgnoreCase))
             {
-                return "Your assigned role does not permit this regulated action.";
+                return "Your assigned role does not authorize this governance action.";
             }
 
-            return "The operation did not complete successfully. Review technical details for diagnostics.";
+            return "The requested compliance operation did not complete successfully. Review the technical details and retry when controls are aligned.";
         }
     }
 
