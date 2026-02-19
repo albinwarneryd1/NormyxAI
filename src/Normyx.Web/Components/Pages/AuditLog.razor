@@ -1,6 +1,7 @@
 @page "/audit-log"
 @inject Normyx.Web.Services.NormyxApiClient Api
 @inject Normyx.Web.Services.AuthSession Session
+@inject IJSRuntime JsRuntime
 
 <PageTitle>Audit Records - Normyx AI</PageTitle>
 
@@ -51,6 +52,7 @@ else
             <button class="btn-small" @onclick="SetTimelineMode">Timeline Mode</button>
             <button class="btn-small" @onclick="ToggleRegulatorView">Regulator View: @(_regulatorView ? "On" : "Off")</button>
             <button class="btn-small" @onclick="RefreshAsync">Refresh</button>
+            <button class="btn-small" @onclick="ExportFilteredAsync" disabled="@_exporting">@(_exporting ? "Exporting..." : "Export Filtered JSON")</button>
         </div>
 
         @if (!string.IsNullOrWhiteSpace(_error))
@@ -129,6 +131,7 @@ else
     private string _targetIdFilter = string.Empty;
     private string _viewMode = "Table";
     private bool _regulatorView = true;
+    private bool _exporting;
 
     private int _signedEventCount;
 
@@ -187,6 +190,28 @@ else
 
     private void ToggleRegulatorView()
         => _regulatorView = !_regulatorView;
+
+    private async Task ExportFilteredAsync()
+    {
+        try
+        {
+            _exporting = true;
+            var payload = System.Text.Json.JsonSerializer.Serialize(_filteredLogs, new System.Text.Json.JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+            var dataUrl = $"data:application/json;charset=utf-8,{Uri.EscapeDataString(payload)}";
+            await JsRuntime.InvokeVoidAsync("open", dataUrl, "_blank");
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _exporting = false;
+        }
+    }
 
     private static string ToSummary(string json)
     {
