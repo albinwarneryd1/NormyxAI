@@ -38,6 +38,7 @@ builder.Services.AddTransient<OpenAiCompatibleJsonCompletionProvider>();
 builder.Services.AddSingleton<LocalJsonCompletionProvider>();
 builder.Services.AddTransient<IAiJsonCompletionProvider, SwitchingJsonCompletionProvider>();
 builder.Services.AddSingleton<Normyx.Infrastructure.Compliance.PolicyEngine>();
+builder.Services.AddSingleton<IAssessmentExecutionGuard, Normyx.Infrastructure.Compliance.InMemoryAssessmentExecutionGuard>();
 builder.Services.AddScoped<IAiDraftService, Normyx.Infrastructure.Compliance.AiDraftService>();
 builder.Services.AddScoped<IAssessmentService, Normyx.Infrastructure.Compliance.AssessmentService>();
 builder.Services.AddScoped<IExportService, Normyx.Infrastructure.Exports.PdfExportService>();
@@ -138,6 +139,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseAuthentication();
+app.UseMiddleware<TenantIsolationMiddleware>();
 app.UseAuthorization();
 app.UseMiddleware<ApiStatusCodeEnvelopeMiddleware>();
 app.UseMiddleware<AuditMiddleware>();
