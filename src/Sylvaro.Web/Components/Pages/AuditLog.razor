@@ -43,8 +43,10 @@ else
                     <option value="@target">@target</option>
                 }
             </InputSelect>
-            <InputText @bind-Value="_actorFilter" class="text-input" placeholder="Filter actor user id" />
-            <InputText @bind-Value="_targetIdFilter" class="text-input" placeholder="Filter target id" />
+            <InputText @bind-Value="_actorFilter" class="text-input" placeholder="Actor (name or email)" />
+            <InputText @bind-Value="_targetIdFilter" class="text-input" placeholder="Target Id" />
+            <InputDate @bind-Value="_fromDate" class="text-input" />
+            <InputDate @bind-Value="_toDate" class="text-input" />
         </div>
 
         <div class="btn-row" style="margin-top: 0.75rem;">
@@ -82,9 +84,9 @@ else
                             <td>@log.Timestamp.ToString("u")</td>
                             <td>@log.ActionType</td>
                             <td>@log.TargetType @log.TargetId</td>
-                            <td>@(log.ActorUserId?.ToString() ?? "system")</td>
+                            <td>@GetActorLabel(log)</td>
                             <td>@log.Ip</td>
-                            <td>@GetHashRef(log)</td>
+                            <td><code>@GetHashRef(log)</code></td>
                         </tr>
                         @if (!_regulatorView)
                         {
@@ -108,8 +110,8 @@ else
                         <span class="muted">@log.Timestamp.ToString("u")</span>
                     </header>
                     <p>Target: @log.TargetType @log.TargetId</p>
-                    <p>Actor: @(log.ActorUserId?.ToString() ?? "system") | IP: @log.Ip</p>
-                    <p>Hash Ref: @GetHashRef(log)</p>
+                    <p>Actor: @GetActorLabel(log) | IP: @log.Ip</p>
+                    <p>Hash Ref: <code>@GetHashRef(log)</code></p>
                     @if (!_regulatorView)
                     {
                         <p class="muted">Before: @ToSummary(log.BeforeJson)</p>
@@ -129,6 +131,8 @@ else
     private string _targetFilter = string.Empty;
     private string _actorFilter = string.Empty;
     private string _targetIdFilter = string.Empty;
+    private DateTime? _fromDate;
+    private DateTime? _toDate;
     private string _viewMode = "Table";
     private bool _regulatorView = true;
     private bool _exporting;
@@ -138,12 +142,15 @@ else
 
     private IReadOnlyList<string> _actionTypes = [];
     private IReadOnlyList<string> _targetTypes = [];
+    private Dictionary<Guid, string> _actorLookup = new();
 
     private IReadOnlyList<Sylvaro.Web.Models.AuditLogDto> _filteredLogs => _logs
         .Where(x => string.IsNullOrWhiteSpace(_actionFilter) || x.ActionType.Equals(_actionFilter, StringComparison.OrdinalIgnoreCase))
         .Where(x => string.IsNullOrWhiteSpace(_targetFilter) || x.TargetType.Equals(_targetFilter, StringComparison.OrdinalIgnoreCase))
-        .Where(x => string.IsNullOrWhiteSpace(_actorFilter) || (x.ActorUserId?.ToString().Contains(_actorFilter, StringComparison.OrdinalIgnoreCase) ?? false))
+        .Where(x => string.IsNullOrWhiteSpace(_actorFilter) || GetActorLabel(x).Contains(_actorFilter, StringComparison.OrdinalIgnoreCase))
         .Where(x => string.IsNullOrWhiteSpace(_targetIdFilter) || (x.TargetId?.ToString().Contains(_targetIdFilter, StringComparison.OrdinalIgnoreCase) ?? false))
+        .Where(x => !_fromDate.HasValue || x.Timestamp >= _fromDate.Value.Date)
+        .Where(x => !_toDate.HasValue || x.Timestamp <= _toDate.Value.Date.AddDays(1).AddTicks(-1))
         .OrderByDescending(x => x.Timestamp)
         .ToList();
 
@@ -189,6 +196,8 @@ else
                 .OrderBy(x => x)
                 .ToList();
             _signedEventCount = _logs.Count(x => !string.IsNullOrWhiteSpace(x.AfterJson));
+
+            await TryLoadActorLookupAsync();
         }
         catch (Exception ex)
         {
@@ -196,14 +205,40 @@ else
         }
     }
 
-    private void SetTableMode()
-        => _viewMode = "Table";
+    private async Task TryLoadActorLookupAsync()
+    {
+        try
+        {
+            var users = await Api.GetAsync<List<Sylvaro.Web.Models.UserDto>>("/tenants/users");
+            _actorLookup = (users ?? [])
+                .ToDictionary(x => x.Id, x => string.IsNullOrWhiteSpace(x.DisplayName) ? x.Email : $"{x.DisplayName} ({x.Email})");
+        }
+        catch
+        {
+            _actorLookup = new();
+        }
+    }
 
-    private void SetTimelineMode()
-        => _viewMode = "Timeline";
+    private string GetActorLabel(Sylvaro.Web.Models.AuditLogDto log)
+    {
+        if (!log.ActorUserId.HasValue)
+        {
+            return "system";
+        }
 
-    private void ToggleRegulatorView()
-        => _regulatorView = !_regulatorView;
+        if (_actorLookup.TryGetValue(log.ActorUserId.Value, out var value))
+        {
+            return value;
+        }
+
+        return $"user:{log.ActorUserId.Value.ToString()[..8]}";
+    }
+
+    private void SetTableMode() => _viewMode = "Table";
+
+    private void SetTimelineMode() => _viewMode = "Timeline";
+
+    private void ToggleRegulatorView() => _regulatorView = !_regulatorView;
 
     private async Task ExportFilteredAsync()
     {

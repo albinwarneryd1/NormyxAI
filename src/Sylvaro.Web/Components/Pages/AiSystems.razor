@@ -41,10 +41,30 @@ else
             <button class="btn-main" type="submit">Register AI System</button>
         </EditForm>
 
+        <div class="field-grid" style="margin-top:0.65rem;">
+            <InputText @bind-Value="_searchFilter" class="text-input" placeholder="Search system name" />
+            <InputSelect @bind-Value="_statusFilter" class="text-input">
+                <option value="">All statuses</option>
+                <option value="Active">Active</option>
+                <option value="Draft">Draft</option>
+                <option value="Paused">Paused</option>
+                <option value="Archived">Archived</option>
+                <option value="Unknown">Unknown</option>
+            </InputSelect>
+        </div>
+
         <table class="table-shell">
-            <thead><tr><th>Name</th><th>Lifecycle Status</th><th>Versions</th><th>Updated</th><th></th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Lifecycle Status</th>
+                    <th>Versions</th>
+                    <th>Updated</th>
+                    <th></th>
+                </tr>
+            </thead>
             <tbody>
-                @foreach (var system in _systems.OrderByDescending(x => x.UpdatedAt))
+                @foreach (var system in FilteredSystems)
                 {
                     <tr>
                         <td>@system.Name</td>
@@ -64,6 +84,14 @@ else
     private List<Sylvaro.Web.Models.AiSystemListItem> _systems = [];
     private string _error = string.Empty;
     private bool _attemptedInitialLoad;
+    private string _searchFilter = string.Empty;
+    private string _statusFilter = string.Empty;
+
+    private IReadOnlyList<Sylvaro.Web.Models.AiSystemListItem> FilteredSystems => _systems
+        .Where(x => string.IsNullOrWhiteSpace(_searchFilter) || x.Name.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase))
+        .Where(x => string.IsNullOrWhiteSpace(_statusFilter) || x.Status.Equals(_statusFilter, StringComparison.OrdinalIgnoreCase))
+        .OrderByDescending(x => x.UpdatedAt)
+        .ToList();
 
     protected override async Task OnInitializedAsync()
     {
@@ -93,6 +121,9 @@ else
         try
         {
             _systems = (await Api.GetAsync<List<Sylvaro.Web.Models.AiSystemListItem>>("/aisystems")) ?? [];
+            _systems = _systems
+                .Select(x => x with { Status = Sylvaro.Web.Models.StatusValueNormalizer.NormalizeSystemStatus(x.Status) })
+                .ToList();
         }
         catch (Exception ex)
         {
@@ -133,5 +164,12 @@ else
     }
 
     private static string ToStatusStyle(string status)
-        => status.Equals("Active", StringComparison.OrdinalIgnoreCase) ? "success" : "warning";
+        => status.ToLowerInvariant() switch
+        {
+            "active" => "success",
+            "paused" => "medium",
+            "archived" => "critical",
+            "unknown" => "info",
+            _ => "warning"
+        };
 }
