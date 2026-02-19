@@ -6,13 +6,23 @@
 
 @if (!Session.IsAuthenticated)
 {
-    <div class="card-shell"><p>Please <a href="/login">log in</a>.</p></div>
+    <div class="card-shell"><p>Authentication required. Use <a href="/login">Sign In</a> to access the AI system registry.</p></div>
 }
 else
 {
+    <div class="section-head">
+        <div>
+            <h1>AI System Registry</h1>
+            <p>Register and maintain AI systems within regulated scope.</p>
+        </div>
+        <div class="status-line">
+            <span class="risk-pill info">Total Systems: @_systems.Count</span>
+            <span class="risk-pill success">Active: @_systems.Count(x => x.Status.Equals("Active", StringComparison.OrdinalIgnoreCase))</span>
+            <span class="risk-pill warning">Draft: @_systems.Count(x => x.Status.Equals("Draft", StringComparison.OrdinalIgnoreCase))</span>
+        </div>
+    </div>
+
     <div class="card-shell">
-        <h1>AI Systems</h1>
-        <p>Create and monitor AI systems for compliance posture.</p>
 
         @if (!string.IsNullOrWhiteSpace(_error))
         {
@@ -22,22 +32,22 @@ else
         <EditForm FormName="ai-systems-create-form" Model="_createForm" OnValidSubmit="CreateSystemAsync">
             <div class="field-grid">
                 <InputText @bind-Value="_createForm.Name" class="text-input" placeholder="System name" />
-                <InputText @bind-Value="_createForm.Description" class="text-input" placeholder="Description" />
+                <InputText @bind-Value="_createForm.Description" class="text-input" placeholder="System purpose and scope" />
             </div>
-            <button class="btn-main" type="submit">Create system</button>
+            <button class="btn-main" type="submit">Register AI System</button>
         </EditForm>
 
         <table class="table-shell">
-            <thead><tr><th>Name</th><th>Status</th><th>Versions</th><th>Updated</th><th></th></tr></thead>
+            <thead><tr><th>Name</th><th>Lifecycle Status</th><th>Versions</th><th>Updated</th><th></th></tr></thead>
             <tbody>
-                @foreach (var system in _systems)
+                @foreach (var system in _systems.OrderByDescending(x => x.UpdatedAt))
                 {
                     <tr>
                         <td>@system.Name</td>
-                        <td>@system.Status</td>
+                        <td><span class="@($"risk-pill {ToStatusStyle(system.Status)}")">@system.Status</span></td>
                         <td>@system.VersionCount</td>
                         <td>@system.UpdatedAt.ToString("u")</td>
-                        <td><a class="btn-small" href="/ai-systems/@system.Id">Open</a></td>
+                        <td><a class="btn-small" href="/ai-systems/@system.Id">Open Workspace</a></td>
                     </tr>
                 }
             </tbody>
@@ -103,4 +113,7 @@ else
             Description = string.Empty;
         }
     }
+
+    private static string ToStatusStyle(string status)
+        => status.Equals("Active", StringComparison.OrdinalIgnoreCase) ? "success" : "warning";
 }

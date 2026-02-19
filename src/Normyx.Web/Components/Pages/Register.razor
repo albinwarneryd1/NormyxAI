@@ -7,8 +7,8 @@
 <PageTitle>Register - Normyx AI</PageTitle>
 
 <div class="card-shell narrow">
-    <h1>Create Tenant</h1>
-    <p>Register a tenant and admin user.</p>
+    <h1>Register Tenant Organization</h1>
+    <p>Provision a governed tenant workspace and primary administrator account.</p>
 
     @if (!string.IsNullOrWhiteSpace(_error))
     {
@@ -32,7 +32,7 @@
             <label>Password</label>
             <InputText @bind-Value="_model.Password" type="password" class="text-input" />
         </div>
-        <button class="btn-main" type="submit" disabled="@_loading">@(_loading ? "Creating..." : "Create tenant")</button>
+        <button class="btn-main" type="submit" disabled="@_loading">@(_loading ? "Provisioning..." : "Provision Tenant Workspace")</button>
     </EditForm>
 </div>
 
