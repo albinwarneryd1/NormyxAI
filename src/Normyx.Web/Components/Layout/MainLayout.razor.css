@@ -1,13 +1,13 @@
 .app-shell {
     display: grid;
-    grid-template-columns: 280px 1fr;
+    grid-template-columns: 264px 1fr;
     min-height: 100vh;
-    background: radial-gradient(circle at 20% 10%, #e8f7ef, #f8f5ec 45%, #f7eef2 100%);
+    background: #f3f5f7;
 }
 
 .sidebar-panel {
-    border-right: 1px solid rgba(22, 29, 36, 0.12);
-    background: linear-gradient(180deg, #0f1f1a 0%, #1a2f2a 100%);
+    border-right: 1px solid #1f2634;
+    background: linear-gradient(180deg, #121722 0%, #171d2a 100%);
 }
 
 .main-panel {
@@ -19,37 +19,60 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid rgba(22, 29, 36, 0.12);
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(7px);
+    padding: 0.68rem 1rem;
+    border-bottom: 1px solid #d9e0e6;
+    background: #ffffff;
 }
 
 .brand-area {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 0.8rem;
 }
 
 .brand-tag {
-    font-size: 1.15rem;
+    font-size: 1rem;
     font-weight: 700;
+    letter-spacing: 0.02em;
 }
 
 .brand-sub {
-    font-size: 0.85rem;
-    color: #304b41;
+    font-size: 0.76rem;
+    color: #5a6878;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
 }
 
 .session-meta {
     display: flex;
-    gap: 1rem;
-    color: #304b41;
-    font-size: 0.9rem;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    color: #5a6878;
+    font-size: 0.76rem;
+}
+
+.session-pill {
+    border: 1px solid #d0dae4;
+    background: #f8fafc;
+    border-radius: 4px;
+    padding: 0.2rem 0.45rem;
 }
 
 .content-panel {
-    padding: 1.5rem;
+    padding: 0.9rem;
+}
+
+.platform-footer {
+    margin-top: auto;
+    border-top: 1px solid #d9e0e6;
+    background: #fff;
+    color: #5a6878;
+    font-size: 0.72rem;
+    padding: 0.45rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.45rem;
 }
 
 @media (max-width: 980px) {
@@ -59,6 +82,6 @@
 
     .sidebar-panel {
         border-right: none;
-        border-bottom: 1px solid rgba(22, 29, 36, 0.12);
+        border-bottom: 1px solid #1f2634;
     }
 }
