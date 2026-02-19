@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Sylvaro.Web.Models;
@@ -8,12 +10,14 @@ public record DashboardTenantDto(
     [property: JsonPropertyName("systemCount")] int SystemCount,
     [property: JsonPropertyName("openActions")] int OpenActions,
     [property: JsonPropertyName("riskDistribution")] Dictionary<string, int> RiskDistribution);
+
 public record DashboardSystemDto(
     Guid Id,
     string Name,
-    string Status,
+    [property: JsonConverter(typeof(FlexibleStringJsonConverter))] string Status,
     int AssessmentsCount,
     List<DashboardScorePointDto> ScoreTrend);
+
 public record DashboardScorePointDto(Guid Id, DateTimeOffset RanAt, int Score);
 
 public record TenantDto(Guid Id, string Name, DateTimeOffset CreatedAt);
@@ -21,9 +25,9 @@ public record RoleDto(Guid Id, string Name);
 
 public record UserDto(Guid Id, string Email, string DisplayName, DateTimeOffset CreatedAt, DateTimeOffset? DisabledAt, IEnumerable<string> Roles);
 
-public record AiSystemListItem(Guid Id, string Name, string Description, string Status, DateTimeOffset CreatedAt, DateTimeOffset UpdatedAt, int VersionCount);
+public record AiSystemListItem(Guid Id, string Name, string Description, [property: JsonConverter(typeof(FlexibleStringJsonConverter))] string Status, DateTimeOffset CreatedAt, DateTimeOffset UpdatedAt, int VersionCount);
 
-public record AiSystemDetailDto(Guid Id, string Name, string Description, string Status, Guid OwnerUserId, DateTimeOffset CreatedAt, DateTimeOffset UpdatedAt, VersionSummaryDto? LatestVersion);
+public record AiSystemDetailDto(Guid Id, string Name, string Description, [property: JsonConverter(typeof(FlexibleStringJsonConverter))] string Status, Guid OwnerUserId, DateTimeOffset CreatedAt, DateTimeOffset UpdatedAt, VersionSummaryDto? LatestVersion);
 
 public record VersionSummaryDto(Guid Id, int VersionNumber, string ChangeSummary, DateTimeOffset CreatedAt);
 
@@ -34,7 +38,7 @@ public record QuestionnaireResponse(Guid VersionId, Dictionary<string, string> A
 
 public record FindingDto(Guid Id, string Type, string Severity, string Title, string Description);
 
-public record ActionItemDto(Guid Id, string Title, string Description, string Priority, string OwnerRole, string Status, string AcceptanceCriteria, DateTimeOffset? DueDate, Guid? SourceFindingId, Guid? ApprovedBy, DateTimeOffset? ApprovedAt);
+public record ActionItemDto(Guid Id, string Title, string Description, [property: JsonConverter(typeof(FlexibleStringJsonConverter))] string Priority, string OwnerRole, [property: JsonConverter(typeof(FlexibleStringJsonConverter))] string Status, string AcceptanceCriteria, DateTimeOffset? DueDate, Guid? SourceFindingId, Guid? ApprovedBy, DateTimeOffset? ApprovedAt);
 public record ActionBoardDto(List<ActionItemDto> New, List<ActionItemDto> InProgress, List<ActionItemDto> Done, List<ActionItemDto> AcceptedRisk);
 public record ActionReviewDto(Guid Id, Guid ActionItemId, Guid ReviewedByUserId, string Decision, string Comment, DateTimeOffset ReviewedAt);
 
@@ -71,3 +75,72 @@ public record SecuritySessionDto(Guid Id, string SessionRef, string Ip, string U
 public record ApiTokenDto(Guid Id, string Name, string Scope, string TokenPrefix, Guid CreatedByUserId, DateTimeOffset CreatedAt, DateTimeOffset? RevokedAt);
 public record ApiTokenCreateResult(Guid Id, string Name, string Scope, string TokenPrefix, Guid CreatedByUserId, DateTimeOffset CreatedAt, string TokenValue);
 public record RateLimitPolicyDto(int GlobalPermitLimitPerMinute, int AuthPermitLimitPerMinute, int WindowSeconds, bool IsActive);
+
+public static class StatusValueNormalizer
+{
+    private static readonly HashSet<string> KnownSystemStatuses = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Draft",
+        "Active",
+        "Paused",
+        "Archived",
+        "Unknown"
+    };
+
+    public static string NormalizeSystemStatus(string? status)
+    {
+        if (string.IsNullOrWhiteSpace(status))
+        {
+            return "Unknown";
+        }
+
+        var normalized = status.Trim();
+        if (KnownSystemStatuses.Contains(normalized))
+        {
+            return KnownSystemStatuses.First(x => x.Equals(normalized, StringComparison.OrdinalIgnoreCase));
+        }
+
+        return "Unknown";
+    }
+}
+
+public sealed class FlexibleStringJsonConverter : JsonConverter<string>
+{
+    public override string Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        return reader.TokenType switch
+        {
+            JsonTokenType.String => reader.GetString() ?? "Unknown",
+            JsonTokenType.Number => ReadNumber(ref reader),
+            JsonTokenType.True => "true",
+            JsonTokenType.False => "false",
+            JsonTokenType.Null => "Unknown",
+            _ => ReadComplex(ref reader)
+        };
+    }
+
+    public override void Write(Utf8JsonWriter writer, string value, JsonSerializerOptions options)
+        => writer.WriteStringValue(value);
+
+    private static string ReadNumber(ref Utf8JsonReader reader)
+    {
+        if (reader.TryGetInt64(out var intValue))
+        {
+            return intValue.ToString(CultureInfo.InvariantCulture);
+        }
+
+        if (reader.TryGetDouble(out var doubleValue))
+        {
+            return doubleValue.ToString(CultureInfo.InvariantCulture);
+        }
+
+        return "Unknown";
+    }
+
+    private static string ReadComplex(ref Utf8JsonReader reader)
+    {
+        using var doc = JsonDocument.ParseValue(ref reader);
+        var value = doc.RootElement.ToString();
+        return string.IsNullOrWhiteSpace(value) ? "Unknown" : value;
+    }
+}

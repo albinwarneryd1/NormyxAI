@@ -69,7 +69,7 @@ public static class DashboardEndpoints
         {
             system.Id,
             system.Name,
-            system.Status,
+            status = Enum.IsDefined(typeof(AiSystemStatus), system.Status) ? system.Status.ToString() : "Unknown",
             assessmentsCount = assessments.Count,
             scoreTrend
         });

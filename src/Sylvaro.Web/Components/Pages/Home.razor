@@ -1,6 +1,7 @@
 @page "/"
 @inject Sylvaro.Web.Services.SylvaroApiClient Api
 @inject Sylvaro.Web.Services.AuthSession Session
+@inject ILogger<Home> Logger
 
 <PageTitle>Executive Overview - Sylvaro</PageTitle>
 
@@ -34,6 +35,7 @@ else
                     <span class="risk-pill info">Last Audit Event: @(_latestAudit?.ActionType ?? "N/A")</span>
                     <span class="risk-pill info">Assessment Version: @_latestVersionLabel</span>
                     <span class="risk-pill success">Signed-off By: @_latestSignoff</span>
+                    <span class="risk-pill info">System Lifecycle: @_systemLifecycleStatus</span>
                 </div>
                 <div class="btn-row" style="justify-content:flex-end; margin-bottom:0;">
                     <button class="btn-small" @onclick="ExportBoardSummaryAsync" disabled="@_exporting || _latestVersionId is null">Board Summary Export</button>
@@ -218,6 +220,7 @@ else
     private int _vendorOutsideEu;
     private string _latestVersionLabel = "N/A";
     private string _latestSignoff = "Pending";
+    private string _systemLifecycleStatus = "Unknown";
     private Guid? _latestVersionId;
 
     private int ComplianceScore => _systemDashboard?.ScoreTrend.OrderBy(x => x.RanAt).LastOrDefault()?.Score ?? 0;
@@ -343,7 +346,31 @@ else
                 return;
             }
 
-            _systemDashboard = await Api.GetAsync<Sylvaro.Web.Models.DashboardSystemDto>($"/dashboard/system/{primarySystem.Id}");
+            _systemLifecycleStatus = Sylvaro.Web.Models.StatusValueNormalizer.NormalizeSystemStatus(primarySystem.Status);
+            if (!_systemLifecycleStatus.Equals(primarySystem.Status, StringComparison.OrdinalIgnoreCase))
+            {
+                Logger.LogWarning("Unknown AI system status received for dashboard: {Status}", primarySystem.Status);
+            }
+
+            try
+            {
+                _systemDashboard = await Api.GetAsync<Sylvaro.Web.Models.DashboardSystemDto>($"/dashboard/system/{primarySystem.Id}");
+                if (_systemDashboard is not null)
+                {
+                    var normalizedSystemDashboardStatus = Sylvaro.Web.Models.StatusValueNormalizer.NormalizeSystemStatus(_systemDashboard.Status);
+                    if (!normalizedSystemDashboardStatus.Equals(_systemDashboard.Status, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Logger.LogWarning("Unknown dashboard system status payload: {Status}", _systemDashboard.Status);
+                        _systemDashboard = _systemDashboard with { Status = normalizedSystemDashboardStatus };
+                    }
+                }
+            }
+            catch (Exception ex) when (ex is System.Text.Json.JsonException or InvalidOperationException)
+            {
+                Logger.LogWarning(ex, "Dashboard system payload parsing mismatch. Falling back to partial tenant dashboard.");
+                _error = "An assessment parsing error occurred. Some system metrics are temporarily unavailable.";
+                _systemDashboard = null;
+            }
 
             _versions = (await Api.GetAsync<List<Sylvaro.Web.Models.VersionSummaryDto>>($"/aisystems/{primarySystem.Id}/versions")) ?? [];
             var latestVersion = _versions.OrderByDescending(x => x.VersionNumber).FirstOrDefault();
