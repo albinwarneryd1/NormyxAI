@@ -9,11 +9,11 @@ using Microsoft.Extensions.Configuration;
 using Testcontainers.PostgreSql;
 using Xunit;
 
-namespace Normyx.Tests;
+namespace Sylvaro.Tests;
 
 public class TenantIsolationTests : IAsyncLifetime
 {
-    private readonly string _testDatabaseName = $"normyx_test_{Guid.NewGuid():N}";
+    private readonly string _testDatabaseName = $"sylvaro_test_{Guid.NewGuid():N}";
     private PostgreSqlContainer? _postgres;
     private WebApplicationFactory<Program> _factory = null!;
     private bool _dockerAvailable = true;

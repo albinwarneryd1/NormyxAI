@@ -1,15 +1,15 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
-using Normyx.Application.Abstractions;
-using Normyx.Application.Compliance;
-using Normyx.Infrastructure.Persistence;
-using Normyx.Domain.Entities;
-using Normyx.Domain.Enums;
+using Sylvaro.Application.Abstractions;
+using Sylvaro.Application.Compliance;
+using Sylvaro.Infrastructure.Persistence;
+using Sylvaro.Domain.Entities;
+using Sylvaro.Domain.Enums;
 
-namespace Normyx.Infrastructure.Compliance;
+namespace Sylvaro.Infrastructure.Compliance;
 
 public class AssessmentService(
-    NormyxDbContext dbContext,
+    SylvaroDbContext dbContext,
     IAiDraftService aiDraftService,
     PolicyEngine policyEngine,
     IAssessmentExecutionGuard executionGuard) : IAssessmentService

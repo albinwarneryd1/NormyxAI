@@ -1,8 +1,8 @@
 @page "/security-center"
-@inject Normyx.Web.Services.NormyxApiClient Api
-@inject Normyx.Web.Services.AuthSession Session
+@inject Sylvaro.Web.Services.SylvaroApiClient Api
+@inject Sylvaro.Web.Services.AuthSession Session
 
-<PageTitle>Security Center - Normyx AI</PageTitle>
+<PageTitle>Security Center - Sylvaro</PageTitle>
 
 @if (!Session.IsInitialized)
 {
@@ -180,10 +180,10 @@ else
     private string _tokenMessage = string.Empty;
     private string _newTokenValue = string.Empty;
 
-    private List<Normyx.Web.Models.SecuritySessionDto> _activeSessions = [];
-    private List<Normyx.Web.Models.ApiTokenDto> _tokens = [];
-    private List<Normyx.Web.Models.RoleDto> _roles = [];
-    private Normyx.Web.Models.RateLimitPolicyDto? _rateLimitPolicy;
+    private List<Sylvaro.Web.Models.SecuritySessionDto> _activeSessions = [];
+    private List<Sylvaro.Web.Models.ApiTokenDto> _tokens = [];
+    private List<Sylvaro.Web.Models.RoleDto> _roles = [];
+    private Sylvaro.Web.Models.RateLimitPolicyDto? _rateLimitPolicy;
     private bool _attemptedInitialLoad;
 
     protected override async Task OnInitializedAsync()
@@ -222,7 +222,7 @@ else
             _loadingSessions = true;
             _error = string.Empty;
             _sessionMessage = string.Empty;
-            _activeSessions = (await Api.GetAsync<List<Normyx.Web.Models.SecuritySessionDto>>("/security/sessions")) ?? [];
+            _activeSessions = (await Api.GetAsync<List<Sylvaro.Web.Models.SecuritySessionDto>>("/security/sessions")) ?? [];
         }
         catch (Exception ex)
         {
@@ -242,7 +242,7 @@ else
             _error = string.Empty;
             _tokenMessage = string.Empty;
             _newTokenValue = string.Empty;
-            _tokens = (await Api.GetAsync<List<Normyx.Web.Models.ApiTokenDto>>("/security/api-tokens")) ?? [];
+            _tokens = (await Api.GetAsync<List<Sylvaro.Web.Models.ApiTokenDto>>("/security/api-tokens")) ?? [];
         }
         catch (Exception ex)
         {
@@ -258,7 +258,7 @@ else
     {
         try
         {
-            _roles = (await Api.GetAsync<List<Normyx.Web.Models.RoleDto>>("/tenants/roles")) ?? [];
+            _roles = (await Api.GetAsync<List<Sylvaro.Web.Models.RoleDto>>("/tenants/roles")) ?? [];
         }
         catch (Exception ex)
         {
@@ -270,7 +270,7 @@ else
     {
         try
         {
-            _rateLimitPolicy = await Api.GetAsync<Normyx.Web.Models.RateLimitPolicyDto>("/security/rate-limit-policy");
+            _rateLimitPolicy = await Api.GetAsync<Sylvaro.Web.Models.RateLimitPolicyDto>("/security/rate-limit-policy");
         }
         catch (Exception ex)
         {
@@ -335,7 +335,7 @@ else
             _tokenMessage = string.Empty;
             _newTokenValue = string.Empty;
 
-            var result = await Api.PostAsync<Normyx.Web.Models.ApiTokenCreateResult>("/security/api-tokens", new
+            var result = await Api.PostAsync<Sylvaro.Web.Models.ApiTokenCreateResult>("/security/api-tokens", new
             {
                 name = _tokenName,
                 scope = _tokenScope

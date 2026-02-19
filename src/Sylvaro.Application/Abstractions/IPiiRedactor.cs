@@ -1,4 +1,4 @@
-namespace Normyx.Application.Abstractions;
+namespace Sylvaro.Application.Abstractions;
 
 public interface IPiiRedactor
 {

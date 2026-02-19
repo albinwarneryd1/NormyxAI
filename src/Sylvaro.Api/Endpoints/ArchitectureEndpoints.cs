@@ -2,13 +2,13 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Normyx.Api.Utilities;
-using Normyx.Application.Abstractions;
-using Normyx.Application.Security;
-using Normyx.Domain.Entities;
-using Normyx.Infrastructure.Persistence;
+using Sylvaro.Api.Utilities;
+using Sylvaro.Application.Abstractions;
+using Sylvaro.Application.Security;
+using Sylvaro.Domain.Entities;
+using Sylvaro.Infrastructure.Persistence;
 
-namespace Normyx.Api.Endpoints;
+namespace Sylvaro.Api.Endpoints;
 
 public static class ArchitectureEndpoints
 {
@@ -33,13 +33,13 @@ public static class ArchitectureEndpoints
         return app;
     }
 
-    private static async Task<bool> VersionBelongsToTenantAsync(NormyxDbContext dbContext, Guid versionId, Guid tenantId)
+    private static async Task<bool> VersionBelongsToTenantAsync(SylvaroDbContext dbContext, Guid versionId, Guid tenantId)
         => await dbContext.AiSystemVersions.AnyAsync(v => v.Id == versionId && v.AiSystem.TenantId == tenantId);
 
-    private static async Task<bool> ComponentBelongsToVersionAsync(NormyxDbContext dbContext, Guid versionId, Guid componentId)
+    private static async Task<bool> ComponentBelongsToVersionAsync(SylvaroDbContext dbContext, Guid versionId, Guid componentId)
         => await dbContext.Components.AnyAsync(c => c.Id == componentId && c.AiSystemVersionId == versionId);
 
-    private static async Task<IResult> GetArchitectureAsync([FromRoute] Guid versionId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> GetArchitectureAsync([FromRoute] Guid versionId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         if (!await VersionBelongsToTenantAsync(dbContext, versionId, tenantId))
@@ -62,7 +62,7 @@ public static class ArchitectureEndpoints
         bool IsExternal,
         [property: Required, StringLength(40, MinimumLength = 2)] string DataSensitivityLevel);
 
-    private static async Task<IResult> AddComponentAsync([FromRoute] Guid versionId, [FromBody] UpsertComponentRequest request, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> AddComponentAsync([FromRoute] Guid versionId, [FromBody] UpsertComponentRequest request, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         if (!await VersionBelongsToTenantAsync(dbContext, versionId, tenantId))
@@ -87,7 +87,7 @@ public static class ArchitectureEndpoints
         return Results.Created($"/versions/{versionId}/architecture/components/{component.Id}", component);
     }
 
-    private static async Task<IResult> UpdateComponentAsync([FromRoute] Guid versionId, [FromRoute] Guid componentId, [FromBody] UpsertComponentRequest request, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> UpdateComponentAsync([FromRoute] Guid versionId, [FromRoute] Guid componentId, [FromBody] UpsertComponentRequest request, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         if (!await VersionBelongsToTenantAsync(dbContext, versionId, tenantId))
@@ -112,7 +112,7 @@ public static class ArchitectureEndpoints
         return Results.NoContent();
     }
 
-    private static async Task<IResult> DeleteComponentAsync([FromRoute] Guid versionId, [FromRoute] Guid componentId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> DeleteComponentAsync([FromRoute] Guid versionId, [FromRoute] Guid componentId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         if (!await VersionBelongsToTenantAsync(dbContext, versionId, tenantId))
@@ -139,7 +139,7 @@ public static class ArchitectureEndpoints
         bool EncryptionInTransit,
         [property: StringLength(1000)] string Notes);
 
-    private static async Task<IResult> AddFlowAsync([FromRoute] Guid versionId, [FromBody] UpsertFlowRequest request, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> AddFlowAsync([FromRoute] Guid versionId, [FromBody] UpsertFlowRequest request, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         if (!await VersionBelongsToTenantAsync(dbContext, versionId, tenantId))
@@ -170,7 +170,7 @@ public static class ArchitectureEndpoints
         return Results.Created($"/versions/{versionId}/architecture/flows/{flow.Id}", flow);
     }
 
-    private static async Task<IResult> UpdateFlowAsync([FromRoute] Guid versionId, [FromRoute] Guid flowId, [FromBody] UpsertFlowRequest request, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> UpdateFlowAsync([FromRoute] Guid versionId, [FromRoute] Guid flowId, [FromBody] UpsertFlowRequest request, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         if (!await VersionBelongsToTenantAsync(dbContext, versionId, tenantId))
@@ -201,7 +201,7 @@ public static class ArchitectureEndpoints
         return Results.NoContent();
     }
 
-    private static async Task<IResult> DeleteFlowAsync([FromRoute] Guid versionId, [FromRoute] Guid flowId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> DeleteFlowAsync([FromRoute] Guid versionId, [FromRoute] Guid flowId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         if (!await VersionBelongsToTenantAsync(dbContext, versionId, tenantId))
@@ -228,7 +228,7 @@ public static class ArchitectureEndpoints
         bool EncryptionAtRest,
         [property: Required, StringLength(120, MinimumLength = 2)] string AccessModel);
 
-    private static async Task<IResult> AddStoreAsync([FromRoute] Guid versionId, [FromBody] UpsertStoreRequest request, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> AddStoreAsync([FromRoute] Guid versionId, [FromBody] UpsertStoreRequest request, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         if (!await VersionBelongsToTenantAsync(dbContext, versionId, tenantId))
@@ -258,7 +258,7 @@ public static class ArchitectureEndpoints
         return Results.Created($"/versions/{versionId}/architecture/stores/{store.Id}", store);
     }
 
-    private static async Task<IResult> UpdateStoreAsync([FromRoute] Guid versionId, [FromRoute] Guid storeId, [FromBody] UpsertStoreRequest request, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> UpdateStoreAsync([FromRoute] Guid versionId, [FromRoute] Guid storeId, [FromBody] UpsertStoreRequest request, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         if (!await VersionBelongsToTenantAsync(dbContext, versionId, tenantId))
@@ -288,7 +288,7 @@ public static class ArchitectureEndpoints
         return Results.NoContent();
     }
 
-    private static async Task<IResult> DeleteStoreAsync([FromRoute] Guid versionId, [FromRoute] Guid storeId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> DeleteStoreAsync([FromRoute] Guid versionId, [FromRoute] Guid storeId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         if (!await VersionBelongsToTenantAsync(dbContext, versionId, tenantId))

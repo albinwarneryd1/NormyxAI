@@ -4,23 +4,23 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Normyx.Api.Configuration;
-using Normyx.Api.Contracts.Errors;
-using Normyx.Api.Middleware;
-using Normyx.Api.Endpoints;
-using Normyx.Application.Abstractions;
-using Normyx.Infrastructure.Audit;
-using Normyx.Infrastructure.AI;
-using Normyx.Infrastructure.Auth;
-using Normyx.Infrastructure.Extensions;
-using Normyx.Infrastructure.Integrations;
-using Normyx.Infrastructure.Persistence;
-using Normyx.Infrastructure.Rag;
-using Normyx.Infrastructure.Storage;
+using Sylvaro.Api.Configuration;
+using Sylvaro.Api.Contracts.Errors;
+using Sylvaro.Api.Middleware;
+using Sylvaro.Api.Endpoints;
+using Sylvaro.Application.Abstractions;
+using Sylvaro.Infrastructure.Audit;
+using Sylvaro.Infrastructure.AI;
+using Sylvaro.Infrastructure.Auth;
+using Sylvaro.Infrastructure.Extensions;
+using Sylvaro.Infrastructure.Integrations;
+using Sylvaro.Infrastructure.Persistence;
+using Sylvaro.Infrastructure.Rag;
+using Sylvaro.Infrastructure.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddNormyxInfrastructure(builder.Configuration);
+builder.Services.AddSylvaroInfrastructure(builder.Configuration);
 builder.Services.Configure<StorageOptions>(builder.Configuration.GetSection(StorageOptions.SectionName));
 builder.Services.Configure<AiProviderOptions>(builder.Configuration.GetSection(AiProviderOptions.SectionName));
 builder.Services.AddScoped<IObjectStorage, LocalObjectStorage>();
@@ -39,11 +39,11 @@ builder.Services.AddHttpClient("AiProvider", client => client.Timeout = TimeSpan
 builder.Services.AddTransient<OpenAiCompatibleJsonCompletionProvider>();
 builder.Services.AddSingleton<LocalJsonCompletionProvider>();
 builder.Services.AddTransient<IAiJsonCompletionProvider, SwitchingJsonCompletionProvider>();
-builder.Services.AddSingleton<Normyx.Infrastructure.Compliance.PolicyEngine>();
-builder.Services.AddSingleton<IAssessmentExecutionGuard, Normyx.Infrastructure.Compliance.InMemoryAssessmentExecutionGuard>();
-builder.Services.AddScoped<IAiDraftService, Normyx.Infrastructure.Compliance.AiDraftService>();
-builder.Services.AddScoped<IAssessmentService, Normyx.Infrastructure.Compliance.AssessmentService>();
-builder.Services.AddScoped<IExportService, Normyx.Infrastructure.Exports.PdfExportService>();
+builder.Services.AddSingleton<Sylvaro.Infrastructure.Compliance.PolicyEngine>();
+builder.Services.AddSingleton<IAssessmentExecutionGuard, Sylvaro.Infrastructure.Compliance.InMemoryAssessmentExecutionGuard>();
+builder.Services.AddScoped<IAiDraftService, Sylvaro.Infrastructure.Compliance.AiDraftService>();
+builder.Services.AddScoped<IAssessmentService, Sylvaro.Infrastructure.Compliance.AssessmentService>();
+builder.Services.AddScoped<IExportService, Sylvaro.Infrastructure.Exports.PdfExportService>();
 
 var jwt = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>() ?? new JwtOptions();
 var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.SigningKey));
@@ -147,7 +147,7 @@ builder.Services.AddRateLimiter(options =>
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Normyx API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Sylvaro API", Version = "v1" });
 
     var scheme = new OpenApiSecurityScheme
     {
@@ -179,7 +179,7 @@ if (app.Environment.IsDevelopment())
 
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<NormyxDbContext>();
+    var db = scope.ServiceProvider.GetRequiredService<SylvaroDbContext>();
     await db.Database.MigrateAsync();
     await SeedData.EnsureSeedAsync(db);
     var ragService = scope.ServiceProvider.GetRequiredService<IRagService>();
@@ -193,7 +193,7 @@ app.UseMiddleware<ApiStatusCodeEnvelopeMiddleware>();
 app.UseMiddleware<AuditMiddleware>();
 
 app.MapGet("/health/live", () => Results.Ok(new { status = "ok" }));
-app.MapGet("/health/ready", async (NormyxDbContext dbContext) =>
+app.MapGet("/health/ready", async (SylvaroDbContext dbContext) =>
 {
     var canConnect = await dbContext.Database.CanConnectAsync();
     return canConnect ? Results.Ok(new { status = "ready" }) : Results.Problem("Database unavailable");

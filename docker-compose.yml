@@ -1,24 +1,24 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: normyx-db
+    container_name: sylvaro-db
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-normyx}
+      POSTGRES_DB: ${POSTGRES_DB:-sylvaro}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     ports:
       - "5432:5432"
     volumes:
-      - normyx-db-data:/var/lib/postgresql/data
+      - sylvaro-db-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-normyx}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-sylvaro}"]
       interval: 5s
       timeout: 5s
       retries: 20
 
   minio:
     image: minio/minio:latest
-    container_name: normyx-minio
+    container_name: sylvaro-minio
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
@@ -27,13 +27,13 @@ services:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - normyx-minio-data:/data
+      - sylvaro-minio-data:/data
 
   api:
     build:
       context: .
-      dockerfile: src/Normyx.Api/Dockerfile
-    container_name: normyx-api
+      dockerfile: src/Sylvaro.Api/Dockerfile
+    container_name: sylvaro-api
     depends_on:
       db:
         condition: service_healthy
@@ -41,9 +41,9 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       UseHttpsRedirection: "false"
-      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=${POSTGRES_DB:-normyx};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}
-      Jwt__Issuer: normyx
-      Jwt__Audience: normyx-web
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=${POSTGRES_DB:-sylvaro};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}
+      Jwt__Issuer: sylvaro
+      Jwt__Audience: sylvaro-web
       Jwt__SigningKey: ${JWT_SIGNING_KEY:-replace-with-a-long-random-secret-at-least-32-chars}
       Storage__RootPath: /data/uploads
       AiProvider__Mode: ${AI_PROVIDER_MODE:-Local}
@@ -54,7 +54,7 @@ services:
     ports:
       - "${API_PORT:-8081}:8080"
     volumes:
-      - normyx-api-data:/data
+      - sylvaro-api-data:/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
       interval: 10s
@@ -64,8 +64,8 @@ services:
   web:
     build:
       context: .
-      dockerfile: src/Normyx.Web/Dockerfile
-    container_name: normyx-web
+      dockerfile: src/Sylvaro.Web/Dockerfile
+    container_name: sylvaro-web
     depends_on:
       api:
         condition: service_healthy
@@ -78,6 +78,6 @@ services:
       - "${WEB_PORT:-8080}:8080"
 
 volumes:
-  normyx-db-data:
-  normyx-minio-data:
-  normyx-api-data:
+  sylvaro-db-data:
+  sylvaro-minio-data:
+  sylvaro-api-data:

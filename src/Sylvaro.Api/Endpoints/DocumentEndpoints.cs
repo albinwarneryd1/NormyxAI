@@ -2,13 +2,13 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Normyx.Api.Utilities;
-using Normyx.Application.Abstractions;
-using Normyx.Application.Security;
-using Normyx.Domain.Entities;
-using Normyx.Infrastructure.Persistence;
+using Sylvaro.Api.Utilities;
+using Sylvaro.Application.Abstractions;
+using Sylvaro.Application.Security;
+using Sylvaro.Domain.Entities;
+using Sylvaro.Infrastructure.Persistence;
 
-namespace Normyx.Api.Endpoints;
+namespace Sylvaro.Api.Endpoints;
 
 public static class DocumentEndpoints
 {
@@ -27,7 +27,7 @@ public static class DocumentEndpoints
         return app;
     }
 
-    private static async Task<IResult> ListDocumentsAsync(NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> ListDocumentsAsync(SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
 
@@ -49,7 +49,7 @@ public static class DocumentEndpoints
         return Results.Ok(docs);
     }
 
-    private static async Task<IResult> ListExcerptsAsync([FromRoute] Guid documentId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> ListExcerptsAsync([FromRoute] Guid documentId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         var documentInTenant = await dbContext.Documents.AnyAsync(x => x.Id == documentId && x.TenantId == tenantId);
@@ -78,7 +78,7 @@ public static class DocumentEndpoints
 
     private static async Task<IResult> UploadDocumentAsync(
         HttpRequest request,
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         ICurrentUserContext currentUser,
         IObjectStorage objectStorage,
         IDocumentTextExtractor textExtractor,
@@ -153,7 +153,7 @@ public static class DocumentEndpoints
 
     private static async Task<IResult> DownloadDocumentAsync(
         [FromRoute] Guid documentId,
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         ICurrentUserContext currentUser,
         IObjectStorage objectStorage,
         CancellationToken cancellationToken)
@@ -180,7 +180,7 @@ public static class DocumentEndpoints
     private static async Task<IResult> CreateExcerptAsync(
         [FromRoute] Guid documentId,
         [FromBody] CreateExcerptRequest request,
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         ICurrentUserContext currentUser,
         IRagService ragService)
     {
@@ -225,7 +225,7 @@ public static class DocumentEndpoints
 
     private static async Task<IResult> CreateEvidenceLinkAsync(
         [FromBody] CreateEvidenceLinkRequest request,
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);

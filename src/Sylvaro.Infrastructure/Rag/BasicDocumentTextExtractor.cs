@@ -1,9 +1,9 @@
 using System.IO.Compression;
 using System.Text;
 using System.Text.RegularExpressions;
-using Normyx.Application.Abstractions;
+using Sylvaro.Application.Abstractions;
 
-namespace Normyx.Infrastructure.Rag;
+namespace Sylvaro.Infrastructure.Rag;
 
 public class BasicDocumentTextExtractor : IDocumentTextExtractor
 {

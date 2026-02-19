@@ -1,10 +1,10 @@
 @page "/login"
-@inject Normyx.Web.Services.NormyxApiClient Api
-@inject Normyx.Web.Services.AuthSession Session
+@inject Sylvaro.Web.Services.SylvaroApiClient Api
+@inject Sylvaro.Web.Services.AuthSession Session
 @inject NavigationManager Nav
 @inject IJSRuntime JsRuntime
 
-<PageTitle>Login - Normyx AI</PageTitle>
+<PageTitle>Login - Sylvaro</PageTitle>
 
 <div class="card-shell narrow">
     <h1>Sign In</h1>
@@ -44,7 +44,7 @@
             _loading = true;
             _error = string.Empty;
 
-            var response = await Api.PostAsync<Normyx.Web.Models.AuthResponse>("/auth/login", new
+            var response = await Api.PostAsync<Sylvaro.Web.Models.AuthResponse>("/auth/login", new
             {
                 tenantName = _model.TenantName,
                 email = _model.Email,

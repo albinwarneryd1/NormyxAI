@@ -1,5 +1,5 @@
-using Normyx.Web.Components;
-using Normyx.Web.Services;
+using Sylvaro.Web.Components;
+using Sylvaro.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,14 +14,14 @@ builder.Services.AddRazorComponents()
     });
 
 var apiBase = builder.Configuration["ApiBaseUrl"] ?? "http://localhost:8080";
-builder.Services.AddHttpClient("NormyxApi", client =>
+builder.Services.AddHttpClient("SylvaroApi", client =>
 {
     client.BaseAddress = new Uri(apiBase);
     client.Timeout = TimeSpan.FromSeconds(60);
 });
 
 builder.Services.AddScoped<AuthSession>();
-builder.Services.AddScoped<NormyxApiClient>();
+builder.Services.AddScoped<SylvaroApiClient>();
 
 var app = builder.Build();
 

@@ -1,4 +1,4 @@
-namespace Normyx.Api.Filters;
+namespace Sylvaro.Api.Filters;
 
 public static class EndpointValidationExtensions
 {

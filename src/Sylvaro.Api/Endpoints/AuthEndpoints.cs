@@ -5,14 +5,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Normyx.Api.Contracts.Auth;
-using Normyx.Application.Abstractions;
-using Normyx.Application.Security;
-using Normyx.Domain.Entities;
-using Normyx.Infrastructure.Auth;
-using Normyx.Infrastructure.Persistence;
+using Sylvaro.Api.Contracts.Auth;
+using Sylvaro.Application.Abstractions;
+using Sylvaro.Application.Security;
+using Sylvaro.Domain.Entities;
+using Sylvaro.Infrastructure.Auth;
+using Sylvaro.Infrastructure.Persistence;
 
-namespace Normyx.Api.Endpoints;
+namespace Sylvaro.Api.Endpoints;
 
 public static class AuthEndpoints
 {
@@ -30,7 +30,7 @@ public static class AuthEndpoints
 
     private static async Task<IResult> RegisterAsync(
         [FromBody] RegisterRequest request,
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         IJwtTokenService jwtTokenService,
         IOptions<JwtOptions> jwtOptions,
         HttpContext httpContext)
@@ -83,7 +83,7 @@ public static class AuthEndpoints
 
     private static async Task<IResult> LoginAsync(
         [FromBody] LoginRequest request,
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         IJwtTokenService jwtTokenService,
         IOptions<JwtOptions> jwtOptions,
         HttpContext httpContext)
@@ -131,7 +131,7 @@ public static class AuthEndpoints
 
     private static async Task<IResult> RefreshAsync(
         [FromBody] RefreshRequest request,
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         IJwtTokenService jwtTokenService,
         IOptions<JwtOptions> jwtOptions,
         HttpContext httpContext)
@@ -197,7 +197,7 @@ public static class AuthEndpoints
 
     private static async Task<IResult> LogoutAsync(
         [FromBody] LogoutRequest request,
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         ICurrentUserContext currentUser)
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
@@ -226,7 +226,7 @@ public static class AuthEndpoints
     }
 
     private static (string RefreshToken, DateTimeOffset ExpiresAt) IssueRefreshToken(
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         IJwtTokenService jwtTokenService,
         Guid userId,
         int refreshTokenDays,

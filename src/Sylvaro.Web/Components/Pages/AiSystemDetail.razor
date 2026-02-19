@@ -1,9 +1,9 @@
 @page "/ai-systems/{SystemId:guid}"
-@inject Normyx.Web.Services.NormyxApiClient Api
-@inject Normyx.Web.Services.AuthSession Session
+@inject Sylvaro.Web.Services.SylvaroApiClient Api
+@inject Sylvaro.Web.Services.AuthSession Session
 @inject IJSRuntime JsRuntime
 
-<PageTitle>AI System Detail - Normyx AI</PageTitle>
+<PageTitle>AI System Detail - Sylvaro</PageTitle>
 
 @if (!Session.IsInitialized)
 {
@@ -704,28 +704,28 @@ else
     private string _uploadMessage = string.Empty;
     private bool _exportingEvidenceMap;
 
-    private Normyx.Web.Models.AiSystemDetailDto? _system;
-    private List<Normyx.Web.Models.VersionSummaryDto> _versions = [];
+    private Sylvaro.Web.Models.AiSystemDetailDto? _system;
+    private List<Sylvaro.Web.Models.VersionSummaryDto> _versions = [];
     private Guid? _currentVersionId;
     private Guid? _compareVersionId;
 
-    private Normyx.Web.Models.ArchitectureResponse _architecture = new([], [], []);
-    private Normyx.Web.Models.InventoryResponse _inventory = new([], []);
-    private List<Normyx.Web.Models.AssessmentListItem> _assessments = [];
-    private List<Normyx.Web.Models.FindingDto> _findings = [];
-    private List<Normyx.Web.Models.ActionItemDto> _actions = [];
-    private Normyx.Web.Models.ActionBoardDto _actionBoard = new([], [], [], []);
-    private Normyx.Web.Models.EvidenceMapResponse _evidenceMap = new([], [], []);
-    private Normyx.Web.Models.EvidenceGapsResponse _evidenceGaps = new(0, [], []);
-    private List<Normyx.Web.Models.RagSearchResultDto> _evidenceHits = [];
-    private List<Normyx.Web.Models.DocumentListItemDto> _documents = [];
-    private List<Normyx.Web.Models.EvidenceExcerptDto> _excerpts = [];
+    private Sylvaro.Web.Models.ArchitectureResponse _architecture = new([], [], []);
+    private Sylvaro.Web.Models.InventoryResponse _inventory = new([], []);
+    private List<Sylvaro.Web.Models.AssessmentListItem> _assessments = [];
+    private List<Sylvaro.Web.Models.FindingDto> _findings = [];
+    private List<Sylvaro.Web.Models.ActionItemDto> _actions = [];
+    private Sylvaro.Web.Models.ActionBoardDto _actionBoard = new([], [], [], []);
+    private Sylvaro.Web.Models.EvidenceMapResponse _evidenceMap = new([], [], []);
+    private Sylvaro.Web.Models.EvidenceGapsResponse _evidenceGaps = new(0, [], []);
+    private List<Sylvaro.Web.Models.RagSearchResultDto> _evidenceHits = [];
+    private List<Sylvaro.Web.Models.DocumentListItemDto> _documents = [];
+    private List<Sylvaro.Web.Models.EvidenceExcerptDto> _excerpts = [];
     private Guid? _selectedDocumentId;
-    private List<Normyx.Web.Models.ExportListItemDto> _exports = [];
-    private List<Normyx.Web.Models.ActionReviewDto> _recentReviews = [];
+    private List<Sylvaro.Web.Models.ExportListItemDto> _exports = [];
+    private List<Sylvaro.Web.Models.ActionReviewDto> _recentReviews = [];
 
-    private Normyx.Web.Models.AssessmentRunResult? _lastRun;
-    private Normyx.Web.Models.AssessmentDiffDto? _diff;
+    private Sylvaro.Web.Models.AssessmentRunResult? _lastRun;
+    private Sylvaro.Web.Models.AssessmentDiffDto? _diff;
 
     private readonly QuestionnaireForm _questionnaire = new();
     private readonly NewComponentForm _newComponent = new();
@@ -816,8 +816,8 @@ else
         try
         {
             _error = string.Empty;
-            _system = await Api.GetAsync<Normyx.Web.Models.AiSystemDetailDto>($"/aisystems/{SystemId}");
-            _versions = (await Api.GetAsync<List<Normyx.Web.Models.VersionSummaryDto>>($"/aisystems/{SystemId}/versions")) ?? [];
+            _system = await Api.GetAsync<Sylvaro.Web.Models.AiSystemDetailDto>($"/aisystems/{SystemId}");
+            _versions = (await Api.GetAsync<List<Sylvaro.Web.Models.VersionSummaryDto>>($"/aisystems/{SystemId}/versions")) ?? [];
 
             if (_currentVersionId is null)
             {
@@ -854,7 +854,7 @@ else
         try
         {
             _error = string.Empty;
-            _architecture = await Api.GetAsync<Normyx.Web.Models.ArchitectureResponse>($"/versions/{versionId}/architecture") ?? new([], [], []);
+            _architecture = await Api.GetAsync<Sylvaro.Web.Models.ArchitectureResponse>($"/versions/{versionId}/architecture") ?? new([], [], []);
             if (_selectedComponentId is null || !_architecture.Components.Any(x => x.Id == _selectedComponentId.Value))
             {
                 _selectedComponentId = _architecture.Components.FirstOrDefault()?.Id;
@@ -864,14 +864,14 @@ else
                 _selectedRiskComponentId = _architecture.Components.FirstOrDefault()?.Id;
             }
 
-            _inventory = await Api.GetAsync<Normyx.Web.Models.InventoryResponse>($"/versions/{versionId}/inventory") ?? new([], []);
-            _assessments = (await Api.GetAsync<List<Normyx.Web.Models.AssessmentListItem>>($"/versions/{versionId}/assessments")) ?? [];
-            _actions = (await Api.GetAsync<List<Normyx.Web.Models.ActionItemDto>>($"/actions/version/{versionId}")) ?? [];
-            _actionBoard = (await Api.GetAsync<Normyx.Web.Models.ActionBoardDto>($"/actions/board/{versionId}")) ?? new([], [], [], []);
-            _evidenceMap = await Api.GetAsync<Normyx.Web.Models.EvidenceMapResponse>($"/versions/{versionId}/evidence/map") ?? new([], [], []);
-            _evidenceGaps = await Api.GetAsync<Normyx.Web.Models.EvidenceGapsResponse>($"/versions/{versionId}/evidence/gaps") ?? new(0, [], []);
-            _exports = (await Api.GetAsync<List<Normyx.Web.Models.ExportListItemDto>>($"/exports/versions/{versionId}")) ?? [];
-            _documents = (await Api.GetAsync<List<Normyx.Web.Models.DocumentListItemDto>>("/documents")) ?? [];
+            _inventory = await Api.GetAsync<Sylvaro.Web.Models.InventoryResponse>($"/versions/{versionId}/inventory") ?? new([], []);
+            _assessments = (await Api.GetAsync<List<Sylvaro.Web.Models.AssessmentListItem>>($"/versions/{versionId}/assessments")) ?? [];
+            _actions = (await Api.GetAsync<List<Sylvaro.Web.Models.ActionItemDto>>($"/actions/version/{versionId}")) ?? [];
+            _actionBoard = (await Api.GetAsync<Sylvaro.Web.Models.ActionBoardDto>($"/actions/board/{versionId}")) ?? new([], [], [], []);
+            _evidenceMap = await Api.GetAsync<Sylvaro.Web.Models.EvidenceMapResponse>($"/versions/{versionId}/evidence/map") ?? new([], [], []);
+            _evidenceGaps = await Api.GetAsync<Sylvaro.Web.Models.EvidenceGapsResponse>($"/versions/{versionId}/evidence/gaps") ?? new(0, [], []);
+            _exports = (await Api.GetAsync<List<Sylvaro.Web.Models.ExportListItemDto>>($"/exports/versions/{versionId}")) ?? [];
+            _documents = (await Api.GetAsync<List<Sylvaro.Web.Models.DocumentListItemDto>>("/documents")) ?? [];
 
             if (_selectedDocumentId is null || !_documents.Any(x => x.Id == _selectedDocumentId.Value))
             {
@@ -880,7 +880,7 @@ else
 
             await LoadExcerptsAsync();
 
-            var questionnaire = await Api.GetAsync<Normyx.Web.Models.QuestionnaireResponse>($"/versions/{versionId}/questionnaire");
+            var questionnaire = await Api.GetAsync<Sylvaro.Web.Models.QuestionnaireResponse>($"/versions/{versionId}/questionnaire");
             if (questionnaire is not null)
             {
                 _questionnaire.AutomatedDecisionMaking = questionnaire.Answers.TryGetValue("automatedDecisionMaking", out var auto) ? auto : "false";
@@ -890,14 +890,14 @@ else
             if (_assessments.Count > 0)
             {
                 var latest = _assessments.OrderByDescending(x => x.RanAt).First();
-                _findings = (await Api.GetAsync<List<Normyx.Web.Models.FindingDto>>($"/findings/assessment/{latest.Id}")) ?? [];
+                _findings = (await Api.GetAsync<List<Sylvaro.Web.Models.FindingDto>>($"/findings/assessment/{latest.Id}")) ?? [];
             }
             else
             {
                 _findings = [];
             }
 
-            _recentReviews = (await Api.GetAsync<List<Normyx.Web.Models.ActionReviewDto>>($"/actions/version/{versionId}/reviews")) ?? [];
+            _recentReviews = (await Api.GetAsync<List<Sylvaro.Web.Models.ActionReviewDto>>($"/actions/version/{versionId}/reviews")) ?? [];
             EnsureEvidenceLinkDefaults();
         }
         catch (Exception ex)
@@ -915,7 +915,7 @@ else
 
         try
         {
-            _lastRun = await Api.PostAsync<Normyx.Web.Models.AssessmentRunResult>($"/versions/{_currentVersionId}/assessments/run", new { });
+            _lastRun = await Api.PostAsync<Sylvaro.Web.Models.AssessmentRunResult>($"/versions/{_currentVersionId}/assessments/run", new { });
             await LoadVersionDataAsync(_currentVersionId.Value);
         }
         catch (Exception ex)
@@ -933,7 +933,7 @@ else
 
         try
         {
-            _diff = await Api.GetAsync<Normyx.Web.Models.AssessmentDiffDto>($"/versions/{_currentVersionId}/assessments/diff/{_compareVersionId}");
+            _diff = await Api.GetAsync<Sylvaro.Web.Models.AssessmentDiffDto>($"/versions/{_currentVersionId}/assessments/diff/{_compareVersionId}");
         }
         catch (Exception ex)
         {
@@ -950,7 +950,7 @@ else
 
         try
         {
-            var export = await Api.PostAsync<Normyx.Web.Models.ExportArtifactDto>($"/exports/versions/{_currentVersionId}/generate", new
+            var export = await Api.PostAsync<Sylvaro.Web.Models.ExportArtifactDto>($"/exports/versions/{_currentVersionId}/generate", new
             {
                 exportType = _exportForm.ExportType,
                 format = _exportForm.Format,
@@ -1151,7 +1151,7 @@ else
             return;
         }
 
-        _excerpts = (await Api.GetAsync<List<Normyx.Web.Models.EvidenceExcerptDto>>($"/documents/{_selectedDocumentId}/excerpts")) ?? [];
+        _excerpts = (await Api.GetAsync<List<Sylvaro.Web.Models.EvidenceExcerptDto>>($"/documents/{_selectedDocumentId}/excerpts")) ?? [];
         if (_linkEvidence.EvidenceExcerptId is null || !_excerpts.Any(x => x.Id == _linkEvidence.EvidenceExcerptId.Value))
         {
             _linkEvidence.EvidenceExcerptId = _excerpts.FirstOrDefault()?.Id;
@@ -1273,7 +1273,7 @@ else
 
         try
         {
-            _evidenceHits = (await Api.GetAsync<List<Normyx.Web.Models.RagSearchResultDto>>($"/versions/{_currentVersionId}/evidence/search?query={Uri.EscapeDataString(_evidenceQuery)}&topK=6")) ?? [];
+            _evidenceHits = (await Api.GetAsync<List<Sylvaro.Web.Models.RagSearchResultDto>>($"/versions/{_currentVersionId}/evidence/search?query={Uri.EscapeDataString(_evidenceQuery)}&topK=6")) ?? [];
         }
         catch (Exception ex)
         {
@@ -1286,7 +1286,7 @@ else
         try
         {
             var file = args.File;
-            var response = await Api.UploadFileAsync<Normyx.Web.Models.DocumentUploadResponse>("/documents/upload", file, "evidence,demo");
+            var response = await Api.UploadFileAsync<Sylvaro.Web.Models.DocumentUploadResponse>("/documents/upload", file, "evidence,demo");
             _uploadMessage = response is null ? "Upload complete." : $"Uploaded: {response.FileName}";
 
             if (_currentVersionId is not null)
@@ -1325,11 +1325,11 @@ else
     private string ResolveComponentName(Guid componentId)
         => _architecture.Components.FirstOrDefault(c => c.Id == componentId)?.Name ?? componentId.ToString()[..8];
 
-    private IEnumerable<Normyx.Web.Models.VersionSummaryDto> GetComparisonVersions()
+    private IEnumerable<Sylvaro.Web.Models.VersionSummaryDto> GetComparisonVersions()
     {
         if (_currentVersionId is null)
         {
-            return Enumerable.Empty<Normyx.Web.Models.VersionSummaryDto>();
+            return Enumerable.Empty<Sylvaro.Web.Models.VersionSummaryDto>();
         }
 
         var currentVersionId = _currentVersionId.Value;
@@ -1382,7 +1382,7 @@ else
     private RiskMatrixRow? GetSelectedRiskMatrixRow()
         => GetRiskMatrixRows().FirstOrDefault(x => x.ComponentId == _selectedRiskComponentId);
 
-    private string EvaluateRiskSeverity(Normyx.Web.Models.ComponentDto component, string axis)
+    private string EvaluateRiskSeverity(Sylvaro.Web.Models.ComponentDto component, string axis)
     {
         var hasPersonalFlow = _architecture.Flows.Any(flow =>
             (flow.FromComponentId == component.Id || flow.ToComponentId == component.Id) &&
@@ -1436,7 +1436,7 @@ else
             _ => "Low"
         };
 
-    private int GetActionImpactScore(Normyx.Web.Models.ActionItemDto action)
+    private int GetActionImpactScore(Sylvaro.Web.Models.ActionItemDto action)
     {
         var priorityScore = action.Priority switch
         {
@@ -1454,7 +1454,7 @@ else
         return Math.Clamp(priorityScore + evidenceScore + dueDateScore, 1, 100);
     }
 
-    private int GetActionRiskReduction(Normyx.Web.Models.ActionItemDto action)
+    private int GetActionRiskReduction(Sylvaro.Web.Models.ActionItemDto action)
         => action.Priority switch
         {
             "Critical" => 40,
@@ -1463,7 +1463,7 @@ else
             _ => 12
         };
 
-    private int GetActionEvidencePercent(Normyx.Web.Models.ActionItemDto action)
+    private int GetActionEvidencePercent(Sylvaro.Web.Models.ActionItemDto action)
     {
         var linked = _evidenceMap.Actions.FirstOrDefault(x => x.TargetId == action.Id)?.Evidence.Count ?? 0;
         if (linked <= 0)
@@ -1504,7 +1504,7 @@ else
         };
     }
 
-    private IEnumerable<IGrouping<string, Normyx.Web.Models.ComponentDto>> GetTrustZoneGroups()
+    private IEnumerable<IGrouping<string, Sylvaro.Web.Models.ComponentDto>> GetTrustZoneGroups()
         => _architecture.Components
             .GroupBy(component => string.IsNullOrWhiteSpace(component.TrustZone) ? "Unassigned Zone" : component.TrustZone)
             .OrderBy(group => group.Key);
@@ -1515,12 +1515,12 @@ else
     private void SelectComponent(Guid componentId)
         => _selectedComponentId = componentId;
 
-    private Normyx.Web.Models.ComponentDto? GetSelectedComponent()
+    private Sylvaro.Web.Models.ComponentDto? GetSelectedComponent()
         => _selectedComponentId is null
             ? null
             : _architecture.Components.FirstOrDefault(x => x.Id == _selectedComponentId.Value);
 
-    private string GetComponentRiskClass(Normyx.Web.Models.ComponentDto component)
+    private string GetComponentRiskClass(Sylvaro.Web.Models.ComponentDto component)
     {
         var sensitivity = component.DataSensitivityLevel?.Trim().ToLowerInvariant() ?? "medium";
         return sensitivity switch
@@ -1532,7 +1532,7 @@ else
         };
     }
 
-    private string GetComponentRiskLabel(Normyx.Web.Models.ComponentDto component)
+    private string GetComponentRiskLabel(Sylvaro.Web.Models.ComponentDto component)
         => GetComponentRiskClass(component) switch
         {
             "critical" => "Critical",
@@ -1541,13 +1541,13 @@ else
             _ => "Medium"
         };
 
-    private string GetComponentRiskTooltip(Normyx.Web.Models.ComponentDto component)
+    private string GetComponentRiskTooltip(Sylvaro.Web.Models.ComponentDto component)
     {
         var risk = GetComponentRiskLabel(component);
         return $"{component.Name}: {risk} risk because sensitivity is '{component.DataSensitivityLevel}' in zone '{component.TrustZone}'.";
     }
 
-    private IEnumerable<string> GetSuggestedControls(Normyx.Web.Models.ComponentDto component)
+    private IEnumerable<string> GetSuggestedControls(Sylvaro.Web.Models.ComponentDto component)
     {
         var risk = GetComponentRiskClass(component);
         if (risk is "critical" or "high")
@@ -1567,12 +1567,12 @@ else
         ];
     }
 
-    private IEnumerable<Normyx.Web.Models.DataFlowDto> GetFilteredFlows()
+    private IEnumerable<Sylvaro.Web.Models.DataFlowDto> GetFilteredFlows()
         => _architecture.Flows
             .Where(flow => !_showPersonalDataOnly || IsPersonalDataFlow(flow))
             .Where(flow => !_showHighRiskFlowsOnly || IsHighRiskFlow(flow));
 
-    private bool HasVendorDependency(Normyx.Web.Models.ComponentDto component)
+    private bool HasVendorDependency(Sylvaro.Web.Models.ComponentDto component)
         => component.IsExternal ||
            _inventory.Vendors.Any(vendor =>
                component.Name.Contains(vendor.Name, StringComparison.OrdinalIgnoreCase) ||
@@ -1605,7 +1605,7 @@ else
                     risk);
             });
 
-    private string GetFlowRiskClass(Normyx.Web.Models.DataFlowDto flow)
+    private string GetFlowRiskClass(Sylvaro.Web.Models.DataFlowDto flow)
     {
         if (IsHighRiskFlow(flow))
         {
@@ -1620,10 +1620,10 @@ else
         return string.Empty;
     }
 
-    private static bool IsPersonalDataFlow(Normyx.Web.Models.DataFlowDto flow)
+    private static bool IsPersonalDataFlow(Sylvaro.Web.Models.DataFlowDto flow)
         => flow.DataCategories.Any(category => category.Contains("personal", StringComparison.OrdinalIgnoreCase));
 
-    private bool IsHighRiskFlow(Normyx.Web.Models.DataFlowDto flow)
+    private bool IsHighRiskFlow(Sylvaro.Web.Models.DataFlowDto flow)
     {
         var from = _architecture.Components.FirstOrDefault(x => x.Id == flow.FromComponentId);
         var to = _architecture.Components.FirstOrDefault(x => x.Id == flow.ToComponentId);
@@ -1650,7 +1650,7 @@ else
         }
     }
 
-    private IEnumerable<Normyx.Web.Models.EvidenceTargetDto> MissingEvidenceTargets
+    private IEnumerable<Sylvaro.Web.Models.EvidenceTargetDto> MissingEvidenceTargets
         => _evidenceMap.Actions
             .Concat(_evidenceMap.Findings)
             .Concat(_evidenceMap.Controls)

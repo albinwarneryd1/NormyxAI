@@ -1,9 +1,9 @@
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using Normyx.Application.Abstractions;
+using Sylvaro.Application.Abstractions;
 
-namespace Normyx.Infrastructure.Integrations;
+namespace Sylvaro.Infrastructure.Integrations;
 
 public class HttpWebhookPublisher(IHttpClientFactory factory) : IWebhookPublisher
 {

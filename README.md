@@ -1,16 +1,16 @@
-# Normyx AI
+# Sylvaro
 
-Normyx AI is a compliance operations platform for AI systems with deterministic assessment logic, evidence mapping, human sign-off, RAG-backed context retrieval, and export/webhook workflows.
+Sylvaro is a compliance operations platform for AI systems with deterministic assessment logic, evidence mapping, human sign-off, RAG-backed context retrieval, and export/webhook workflows.
 
 ## What is included
 
-- `src/Normyx.Api` ASP.NET Core API with JWT auth, RBAC, tenant isolation, audit log, policy engine, assessments, findings/actions, evidence map/gaps, JSON+PDF exports, and webhook integrations.
-- `src/Normyx.Web` Blazor web app with login/register, dashboard, tenant settings, AI systems, diff view, actions kanban, evidence gaps/search, integration controls, and audit views.
-- `src/Normyx.Infrastructure` EF Core/PostgreSQL persistence, seeded demo data, provider-agnostic AI draft layer (Local/OpenAI/Azure-compatible), RAG indexing/search, policy pack evaluation.
+- `src/Sylvaro.Api` ASP.NET Core API with JWT auth, RBAC, tenant isolation, audit log, policy engine, assessments, findings/actions, evidence map/gaps, JSON+PDF exports, and webhook integrations.
+- `src/Sylvaro.Web` Blazor web app with login/register, dashboard, tenant settings, AI systems, diff view, actions kanban, evidence gaps/search, integration controls, and audit views.
+- `src/Sylvaro.Infrastructure` EF Core/PostgreSQL persistence, seeded demo data, provider-agnostic AI draft layer (Local/OpenAI/Azure-compatible), RAG indexing/search, policy pack evaluation.
 - `policy-packs/` versioned compliance-as-code JSON packs.
 - `prompts/` versioned prompt templates for structured JSON generation.
 - `reference-notes/` built-in compliance reference notes used in RAG.
-- `tests/Normyx.Tests` integration and unit tests for tenant isolation, RBAC enforcement, auth hardening, session lifecycle, API token lifecycle, action review workflows, and policy engine cache behavior.
+- `tests/Sylvaro.Tests` integration and unit tests for tenant isolation, RBAC enforcement, auth hardening, session lifecycle, API token lifecycle, action review workflows, and policy engine cache behavior.
 
 ## One command start
 
@@ -48,20 +48,20 @@ After startup:
 
 ```bash
 dotnet restore
-dotnet build NormyxAI.slnx
-dotnet test NormyxAI.slnx
+dotnet build Sylvaro.slnx
+dotnet test Sylvaro.slnx
 ```
 
 Run API:
 
 ```bash
-dotnet run --project src/Normyx.Api/Normyx.Api.csproj
+dotnet run --project src/Sylvaro.Api/Sylvaro.Api.csproj
 ```
 
 Run Web:
 
 ```bash
-dotnet run --project src/Normyx.Web/Normyx.Web.csproj
+dotnet run --project src/Sylvaro.Web/Sylvaro.Web.csproj
 ```
 
 ## Key endpoints

@@ -22,10 +22,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Normyx.Api\Normyx.Api.csproj" />
-    <ProjectReference Include="..\..\src\Normyx.Infrastructure\Normyx.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\src\Normyx.Application\Normyx.Application.csproj" />
-    <ProjectReference Include="..\..\src\Normyx.Domain\Normyx.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Sylvaro.Api\Sylvaro.Api.csproj" />
+    <ProjectReference Include="..\..\src\Sylvaro.Infrastructure\Sylvaro.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Sylvaro.Application\Sylvaro.Application.csproj" />
+    <ProjectReference Include="..\..\src\Sylvaro.Domain\Sylvaro.Domain.csproj" />
   </ItemGroup>
 
 </Project>

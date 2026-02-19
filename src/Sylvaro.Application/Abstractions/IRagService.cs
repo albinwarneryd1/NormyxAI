@@ -1,6 +1,6 @@
-using Normyx.Application.Rag;
+using Sylvaro.Application.Rag;
 
-namespace Normyx.Application.Abstractions;
+namespace Sylvaro.Application.Abstractions;
 
 public interface IRagService
 {

@@ -2,13 +2,13 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Normyx.Api.Utilities;
-using Normyx.Application.Abstractions;
-using Normyx.Application.Security;
-using Normyx.Domain.Entities;
-using Normyx.Infrastructure.Persistence;
+using Sylvaro.Api.Utilities;
+using Sylvaro.Application.Abstractions;
+using Sylvaro.Application.Security;
+using Sylvaro.Domain.Entities;
+using Sylvaro.Infrastructure.Persistence;
 
-namespace Normyx.Api.Endpoints;
+namespace Sylvaro.Api.Endpoints;
 
 public static class IntegrationEndpoints
 {
@@ -24,7 +24,7 @@ public static class IntegrationEndpoints
         return app;
     }
 
-    private static async Task<IResult> ListWebhooksAsync(NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> ListWebhooksAsync(SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
 
@@ -53,7 +53,7 @@ public static class IntegrationEndpoints
     private static async Task<IResult> UpsertWebhookAsync(
         [FromRoute] string provider,
         [FromBody] UpsertWebhookRequest request,
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
@@ -85,7 +85,7 @@ public static class IntegrationEndpoints
 
     private static async Task<IResult> TestWebhookAsync(
         [FromRoute] string provider,
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         ICurrentUserContext currentUser,
         IWebhookPublisher webhookPublisher)
     {
@@ -101,11 +101,11 @@ public static class IntegrationEndpoints
 
         var payload = new
         {
-            eventType = "normyx.webhook.test",
+            eventType = "sylvaro.webhook.test",
             timestamp = DateTimeOffset.UtcNow,
             tenantId,
             provider,
-            message = "Normyx webhook test event"
+            message = "Sylvaro webhook test event"
         };
 
         var result = await webhookPublisher.PublishAsync(integration.WebhookUrl, integration.AuthHeader, payload);

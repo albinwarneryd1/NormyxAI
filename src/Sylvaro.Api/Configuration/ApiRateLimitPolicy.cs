@@ -1,4 +1,4 @@
-namespace Normyx.Api.Configuration;
+namespace Sylvaro.Api.Configuration;
 
 public static class ApiRateLimitPolicy
 {

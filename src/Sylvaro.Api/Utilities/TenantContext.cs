@@ -1,6 +1,6 @@
-using Normyx.Application.Abstractions;
+using Sylvaro.Application.Abstractions;
 
-namespace Normyx.Api.Utilities;
+namespace Sylvaro.Api.Utilities;
 
 public static class TenantContext
 {

@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Normyx.Infrastructure.Persistence.Migrations
+namespace Sylvaro.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
     public partial class AddRefreshTokenClientMetadata : Migration

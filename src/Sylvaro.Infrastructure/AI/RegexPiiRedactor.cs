@@ -1,7 +1,7 @@
 using System.Text.RegularExpressions;
-using Normyx.Application.Abstractions;
+using Sylvaro.Application.Abstractions;
 
-namespace Normyx.Infrastructure.AI;
+namespace Sylvaro.Infrastructure.AI;
 
 public partial class RegexPiiRedactor : IPiiRedactor
 {

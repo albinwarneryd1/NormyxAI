@@ -1,4 +1,4 @@
-namespace Normyx.Application.Security;
+namespace Sylvaro.Application.Security;
 
 public static class RoleNames
 {

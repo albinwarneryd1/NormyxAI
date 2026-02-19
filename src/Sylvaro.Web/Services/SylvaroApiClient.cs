@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 
-namespace Normyx.Web.Services;
+namespace Sylvaro.Web.Services;
 
-public class NormyxApiClient(IHttpClientFactory factory, AuthSession session, IJSRuntime jsRuntime, NavigationManager navigationManager)
+public class SylvaroApiClient(IHttpClientFactory factory, AuthSession session, IJSRuntime jsRuntime, NavigationManager navigationManager)
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -17,7 +17,7 @@ public class NormyxApiClient(IHttpClientFactory factory, AuthSession session, IJ
     };
     private readonly SemaphoreSlim _refreshLock = new(1, 1);
 
-    private HttpClient Client => factory.CreateClient("NormyxApi");
+    private HttpClient Client => factory.CreateClient("SylvaroApi");
 
     public async Task<T?> GetAsync<T>(string path, bool withAuth = true, CancellationToken cancellationToken = default)
     {
@@ -179,7 +179,7 @@ public class NormyxApiClient(IHttpClientFactory factory, AuthSession session, IJ
                     return RefreshSessionResult.TransientFailure;
                 }
 
-                var refreshed = await refreshResponse.Content.ReadFromJsonAsync<Normyx.Web.Models.AuthResponse>(JsonOptions, cancellationToken);
+                var refreshed = await refreshResponse.Content.ReadFromJsonAsync<Sylvaro.Web.Models.AuthResponse>(JsonOptions, cancellationToken);
                 if (refreshed is null || string.IsNullOrWhiteSpace(refreshed.AccessToken) || string.IsNullOrWhiteSpace(refreshed.RefreshToken))
                 {
                     await SafeClearSessionAsync();

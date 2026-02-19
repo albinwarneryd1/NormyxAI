@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
-using Normyx.Api.Contracts.Errors;
-using Normyx.Api.Middleware;
+using Sylvaro.Api.Contracts.Errors;
+using Sylvaro.Api.Middleware;
 
-namespace Normyx.Api.Filters;
+namespace Sylvaro.Api.Filters;
 
 public static class RequestValidationEndpointFilter
 {

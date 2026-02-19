@@ -1,9 +1,9 @@
 using System.Net.Mime;
 using System.Security.Claims;
 using System.Text.Json;
-using Normyx.Api.Contracts.Errors;
+using Sylvaro.Api.Contracts.Errors;
 
-namespace Normyx.Api.Middleware;
+namespace Sylvaro.Api.Middleware;
 
 public sealed class TenantIsolationMiddleware(RequestDelegate next)
 {

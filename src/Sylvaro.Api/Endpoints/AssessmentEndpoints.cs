@@ -2,12 +2,12 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Normyx.Api.Utilities;
-using Normyx.Application.Abstractions;
-using Normyx.Application.Security;
-using Normyx.Infrastructure.Persistence;
+using Sylvaro.Api.Utilities;
+using Sylvaro.Application.Abstractions;
+using Sylvaro.Application.Security;
+using Sylvaro.Infrastructure.Persistence;
 
-namespace Normyx.Api.Endpoints;
+namespace Sylvaro.Api.Endpoints;
 
 public static class AssessmentEndpoints
 {
@@ -40,7 +40,7 @@ public static class AssessmentEndpoints
         }
     }
 
-    private static async Task<IResult> ListAssessmentsAsync([FromRoute] Guid versionId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> ListAssessmentsAsync([FromRoute] Guid versionId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
 
@@ -53,7 +53,7 @@ public static class AssessmentEndpoints
         return Results.Ok(assessments);
     }
 
-    private static async Task<IResult> GetAssessmentAsync([FromRoute] Guid versionId, [FromRoute] Guid assessmentId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> GetAssessmentAsync([FromRoute] Guid versionId, [FromRoute] Guid assessmentId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
 
@@ -79,7 +79,7 @@ public static class AssessmentEndpoints
         return Results.Ok(response);
     }
 
-    private static async Task<IResult> CompareVersionAssessmentsAsync([FromRoute] Guid versionId, [FromRoute] Guid otherVersionId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> CompareVersionAssessmentsAsync([FromRoute] Guid versionId, [FromRoute] Guid otherVersionId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
 

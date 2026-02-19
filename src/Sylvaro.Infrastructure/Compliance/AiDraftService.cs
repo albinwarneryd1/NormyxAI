@@ -1,12 +1,12 @@
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Normyx.Application.Abstractions;
-using Normyx.Application.Compliance;
-using Normyx.Domain.Enums;
-using Normyx.Infrastructure.AI;
+using Sylvaro.Application.Abstractions;
+using Sylvaro.Application.Compliance;
+using Sylvaro.Domain.Enums;
+using Sylvaro.Infrastructure.AI;
 
-namespace Normyx.Infrastructure.Compliance;
+namespace Sylvaro.Infrastructure.Compliance;
 
 public class AiDraftService(
     IAiJsonCompletionProvider jsonCompletionProvider,

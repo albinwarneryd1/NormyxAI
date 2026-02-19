@@ -1,11 +1,11 @@
 using System.Text.Json;
 using Microsoft.JSInterop;
 
-namespace Normyx.Web.Services;
+namespace Sylvaro.Web.Services;
 
 public class AuthSession
 {
-    private const string StorageKey = "normyx.auth.session";
+    private const string StorageKey = "sylvaro.auth.session";
     private bool _initialized;
 
     public string AccessToken { get; private set; } = string.Empty;

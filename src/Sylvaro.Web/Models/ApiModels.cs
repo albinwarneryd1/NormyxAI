@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Normyx.Web.Models;
+namespace Sylvaro.Web.Models;
 
 public record AuthResponse(string AccessToken, string RefreshToken, DateTimeOffset RefreshTokenExpiresAt);
 

@@ -1,6 +1,6 @@
-using Normyx.Domain.Enums;
+using Sylvaro.Domain.Enums;
 
-namespace Normyx.Domain.Entities;
+namespace Sylvaro.Domain.Entities;
 
 public class Tenant
 {

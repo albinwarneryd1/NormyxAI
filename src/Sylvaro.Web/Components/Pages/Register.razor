@@ -1,10 +1,10 @@
 @page "/register"
-@inject Normyx.Web.Services.NormyxApiClient Api
-@inject Normyx.Web.Services.AuthSession Session
+@inject Sylvaro.Web.Services.SylvaroApiClient Api
+@inject Sylvaro.Web.Services.AuthSession Session
 @inject NavigationManager Nav
 @inject IJSRuntime JsRuntime
 
-<PageTitle>Register - Normyx AI</PageTitle>
+<PageTitle>Register - Sylvaro</PageTitle>
 
 <div class="card-shell narrow">
     <h1>Register Tenant Organization</h1>
@@ -48,7 +48,7 @@
             _loading = true;
             _error = string.Empty;
 
-            var response = await Api.PostAsync<Normyx.Web.Models.AuthResponse>("/auth/register", new
+            var response = await Api.PostAsync<Sylvaro.Web.Models.AuthResponse>("/auth/register", new
             {
                 tenantName = _model.TenantName,
                 email = _model.Email,

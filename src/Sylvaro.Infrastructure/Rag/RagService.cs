@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
-using Normyx.Application.Abstractions;
-using Normyx.Application.Rag;
-using Normyx.Domain.Entities;
-using Normyx.Infrastructure.Persistence;
+using Sylvaro.Application.Abstractions;
+using Sylvaro.Application.Rag;
+using Sylvaro.Domain.Entities;
+using Sylvaro.Infrastructure.Persistence;
 
-namespace Normyx.Infrastructure.Rag;
+namespace Sylvaro.Infrastructure.Rag;
 
-public class RagService(NormyxDbContext dbContext) : IRagService
+public class RagService(SylvaroDbContext dbContext) : IRagService
 {
     private const int VectorSize = 128;
 

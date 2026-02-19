@@ -1,14 +1,14 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Normyx.Infrastructure.Persistence;
-using Normyx.Domain.Entities;
+using Sylvaro.Infrastructure.Persistence;
+using Sylvaro.Domain.Entities;
 using System.Security.Claims;
 
-namespace Normyx.Infrastructure.Audit;
+namespace Sylvaro.Infrastructure.Audit;
 
 public class AuditMiddleware(RequestDelegate next, ILogger<AuditMiddleware> logger)
 {
-    public async Task InvokeAsync(HttpContext context, NormyxDbContext dbContext)
+    public async Task InvokeAsync(HttpContext context, SylvaroDbContext dbContext)
     {
         await next(context);
 

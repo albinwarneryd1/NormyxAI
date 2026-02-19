@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Options;
-using Normyx.Application.Abstractions;
+using Sylvaro.Application.Abstractions;
 
-namespace Normyx.Infrastructure.AI;
+namespace Sylvaro.Infrastructure.AI;
 
 public class SwitchingJsonCompletionProvider(
     IOptions<AiProviderOptions> options,

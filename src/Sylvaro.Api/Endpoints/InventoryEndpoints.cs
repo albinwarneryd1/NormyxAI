@@ -2,13 +2,13 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Normyx.Api.Utilities;
-using Normyx.Application.Abstractions;
-using Normyx.Application.Security;
-using Normyx.Domain.Entities;
-using Normyx.Infrastructure.Persistence;
+using Sylvaro.Api.Utilities;
+using Sylvaro.Application.Abstractions;
+using Sylvaro.Application.Security;
+using Sylvaro.Domain.Entities;
+using Sylvaro.Infrastructure.Persistence;
 
-namespace Normyx.Api.Endpoints;
+namespace Sylvaro.Api.Endpoints;
 
 public static class InventoryEndpoints
 {
@@ -30,10 +30,10 @@ public static class InventoryEndpoints
         return app;
     }
 
-    private static async Task<bool> VersionBelongsToTenantAsync(NormyxDbContext dbContext, Guid versionId, Guid tenantId)
+    private static async Task<bool> VersionBelongsToTenantAsync(SylvaroDbContext dbContext, Guid versionId, Guid tenantId)
         => await dbContext.AiSystemVersions.AnyAsync(v => v.Id == versionId && v.AiSystem.TenantId == tenantId);
 
-    private static async Task<IResult> GetInventoryAsync([FromRoute] Guid versionId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> GetInventoryAsync([FromRoute] Guid versionId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         if (!await VersionBelongsToTenantAsync(dbContext, versionId, tenantId))
@@ -57,7 +57,7 @@ public static class InventoryEndpoints
         bool TransferOutsideEu,
         [property: StringLength(1000)] string Notes);
 
-    private static async Task<IResult> AddDataItemAsync([FromRoute] Guid versionId, [FromBody] UpsertDataItemRequest request, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> AddDataItemAsync([FromRoute] Guid versionId, [FromBody] UpsertDataItemRequest request, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         if (!await VersionBelongsToTenantAsync(dbContext, versionId, tenantId))
@@ -85,7 +85,7 @@ public static class InventoryEndpoints
         return Results.Created($"/versions/{versionId}/inventory/data-items/{item.Id}", item);
     }
 
-    private static async Task<IResult> UpdateDataItemAsync([FromRoute] Guid versionId, [FromRoute] Guid itemId, [FromBody] UpsertDataItemRequest request, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> UpdateDataItemAsync([FromRoute] Guid versionId, [FromRoute] Guid itemId, [FromBody] UpsertDataItemRequest request, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         if (!await VersionBelongsToTenantAsync(dbContext, versionId, tenantId))
@@ -112,7 +112,7 @@ public static class InventoryEndpoints
         return Results.NoContent();
     }
 
-    private static async Task<IResult> DeleteDataItemAsync([FromRoute] Guid versionId, [FromRoute] Guid itemId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> DeleteDataItemAsync([FromRoute] Guid versionId, [FromRoute] Guid itemId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         if (!await VersionBelongsToTenantAsync(dbContext, versionId, tenantId))
@@ -140,7 +140,7 @@ public static class InventoryEndpoints
         bool DpaInPlace,
         [property: StringLength(1000)] string Notes);
 
-    private static async Task<IResult> AddVendorAsync([FromRoute] Guid versionId, [FromBody] UpsertVendorRequest request, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> AddVendorAsync([FromRoute] Guid versionId, [FromBody] UpsertVendorRequest request, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         if (!await VersionBelongsToTenantAsync(dbContext, versionId, tenantId))
@@ -165,7 +165,7 @@ public static class InventoryEndpoints
         return Results.Created($"/versions/{versionId}/inventory/vendors/{vendor.Id}", vendor);
     }
 
-    private static async Task<IResult> UpdateVendorAsync([FromRoute] Guid versionId, [FromRoute] Guid vendorId, [FromBody] UpsertVendorRequest request, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> UpdateVendorAsync([FromRoute] Guid versionId, [FromRoute] Guid vendorId, [FromBody] UpsertVendorRequest request, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         if (!await VersionBelongsToTenantAsync(dbContext, versionId, tenantId))
@@ -190,7 +190,7 @@ public static class InventoryEndpoints
         return Results.NoContent();
     }
 
-    private static async Task<IResult> DeleteVendorAsync([FromRoute] Guid versionId, [FromRoute] Guid vendorId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> DeleteVendorAsync([FromRoute] Guid versionId, [FromRoute] Guid vendorId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         if (!await VersionBelongsToTenantAsync(dbContext, versionId, tenantId))

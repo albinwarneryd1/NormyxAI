@@ -1,15 +1,15 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-COPY NormyxAI.sln .
-COPY src/Normyx.Api/Normyx.Api.csproj src/Normyx.Api/
-COPY src/Normyx.Application/Normyx.Application.csproj src/Normyx.Application/
-COPY src/Normyx.Domain/Normyx.Domain.csproj src/Normyx.Domain/
-COPY src/Normyx.Infrastructure/Normyx.Infrastructure.csproj src/Normyx.Infrastructure/
-RUN dotnet restore src/Normyx.Api/Normyx.Api.csproj
+COPY Sylvaro.sln .
+COPY src/Sylvaro.Api/Sylvaro.Api.csproj src/Sylvaro.Api/
+COPY src/Sylvaro.Application/Sylvaro.Application.csproj src/Sylvaro.Application/
+COPY src/Sylvaro.Domain/Sylvaro.Domain.csproj src/Sylvaro.Domain/
+COPY src/Sylvaro.Infrastructure/Sylvaro.Infrastructure.csproj src/Sylvaro.Infrastructure/
+RUN dotnet restore src/Sylvaro.Api/Sylvaro.Api.csproj
 
 COPY . .
-RUN dotnet publish src/Normyx.Api/Normyx.Api.csproj -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish src/Sylvaro.Api/Sylvaro.Api.csproj -c Release -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app
@@ -19,4 +19,4 @@ COPY policy-packs ./policy-packs
 COPY prompts ./prompts
 COPY reference-notes ./reference-notes
 EXPOSE 8080
-ENTRYPOINT ["dotnet", "Normyx.Api.dll"]
+ENTRYPOINT ["dotnet", "Sylvaro.Api.dll"]

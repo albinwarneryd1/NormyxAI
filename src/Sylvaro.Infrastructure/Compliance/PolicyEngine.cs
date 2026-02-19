@@ -1,9 +1,9 @@
 using System.Text.Json;
 using System.Text;
-using Normyx.Application.Compliance;
-using Normyx.Domain.Enums;
+using Sylvaro.Application.Compliance;
+using Sylvaro.Domain.Enums;
 
-namespace Normyx.Infrastructure.Compliance;
+namespace Sylvaro.Infrastructure.Compliance;
 
 public record PolicyRuleEvaluation(string RuleKey, string Description, FindingSeverity Severity, string[] OutputControlKeys);
 

@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Normyx.Api.Utilities;
-using Normyx.Application.Abstractions;
-using Normyx.Infrastructure.Persistence;
+using Sylvaro.Api.Utilities;
+using Sylvaro.Application.Abstractions;
+using Sylvaro.Infrastructure.Persistence;
 
-namespace Normyx.Api.Endpoints;
+namespace Sylvaro.Api.Endpoints;
 
 public static class EvidenceEndpoints
 {
@@ -19,7 +19,7 @@ public static class EvidenceEndpoints
         return app;
     }
 
-    private static async Task<IResult> GetEvidenceMapAsync([FromRoute] Guid versionId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> GetEvidenceMapAsync([FromRoute] Guid versionId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         var versionExists = await dbContext.AiSystemVersions.AnyAsync(x => x.Id == versionId && x.AiSystem.TenantId == tenantId);
@@ -81,7 +81,7 @@ public static class EvidenceEndpoints
         });
     }
 
-    private static async Task<IResult> GetEvidenceGapsAsync([FromRoute] Guid versionId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> GetEvidenceGapsAsync([FromRoute] Guid versionId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
 
@@ -117,7 +117,7 @@ public static class EvidenceEndpoints
         });
     }
 
-    private static async Task<IResult> SearchEvidenceAsync([FromRoute] Guid versionId, [FromQuery] string query, [FromQuery] int topK, IRagService ragService, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> SearchEvidenceAsync([FromRoute] Guid versionId, [FromQuery] string query, [FromQuery] int topK, IRagService ragService, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         var versionExists = await dbContext.AiSystemVersions.AnyAsync(x => x.Id == versionId && x.AiSystem.TenantId == tenantId);

@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Normyx.Application\Normyx.Application.csproj" />
-    <ProjectReference Include="..\Normyx.Domain\Normyx.Domain.csproj" />
+    <ProjectReference Include="..\Sylvaro.Application\Sylvaro.Application.csproj" />
+    <ProjectReference Include="..\Sylvaro.Domain\Sylvaro.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

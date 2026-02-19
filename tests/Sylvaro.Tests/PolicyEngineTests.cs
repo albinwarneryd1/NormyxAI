@@ -1,8 +1,8 @@
 using System.Text;
-using Normyx.Infrastructure.Compliance;
+using Sylvaro.Infrastructure.Compliance;
 using Xunit;
 
-namespace Normyx.Tests;
+namespace Sylvaro.Tests;
 
 public class PolicyEngineTests
 {
@@ -94,7 +94,7 @@ public class PolicyEngineTests
 
     private static string CreateTempPolicyDirectory()
     {
-        var path = Path.Combine(Path.GetTempPath(), $"normyx-policy-tests-{Guid.NewGuid():N}");
+        var path = Path.Combine(Path.GetTempPath(), $"sylvaro-policy-tests-{Guid.NewGuid():N}");
         Directory.CreateDirectory(path);
         return path;
     }

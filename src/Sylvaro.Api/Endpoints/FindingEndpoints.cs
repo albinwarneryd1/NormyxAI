@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Normyx.Api.Utilities;
-using Normyx.Application.Abstractions;
-using Normyx.Infrastructure.Persistence;
+using Sylvaro.Api.Utilities;
+using Sylvaro.Application.Abstractions;
+using Sylvaro.Infrastructure.Persistence;
 
-namespace Normyx.Api.Endpoints;
+namespace Sylvaro.Api.Endpoints;
 
 public static class FindingEndpoints
 {
@@ -18,7 +18,7 @@ public static class FindingEndpoints
         return app;
     }
 
-    private static async Task<IResult> ListFindingsForAssessmentAsync([FromRoute] Guid assessmentId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> ListFindingsForAssessmentAsync([FromRoute] Guid assessmentId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
 
@@ -40,7 +40,7 @@ public static class FindingEndpoints
         return Results.Ok(findings);
     }
 
-    private static async Task<IResult> GetFindingAsync([FromRoute] Guid findingId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> GetFindingAsync([FromRoute] Guid findingId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
 

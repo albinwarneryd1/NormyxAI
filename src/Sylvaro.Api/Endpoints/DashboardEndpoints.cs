@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Normyx.Api.Utilities;
-using Normyx.Application.Abstractions;
-using Normyx.Domain.Enums;
-using Normyx.Infrastructure.Persistence;
+using Sylvaro.Api.Utilities;
+using Sylvaro.Application.Abstractions;
+using Sylvaro.Domain.Enums;
+using Sylvaro.Infrastructure.Persistence;
 
-namespace Normyx.Api.Endpoints;
+namespace Sylvaro.Api.Endpoints;
 
 public static class DashboardEndpoints
 {
@@ -19,7 +19,7 @@ public static class DashboardEndpoints
         return app;
     }
 
-    private static async Task<IResult> TenantDashboardAsync(NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> TenantDashboardAsync(SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
 
@@ -40,7 +40,7 @@ public static class DashboardEndpoints
         return Results.Ok(new { systemCount, openActions, riskDistribution });
     }
 
-    private static async Task<IResult> SystemDashboardAsync([FromRoute] Guid systemId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> SystemDashboardAsync([FromRoute] Guid systemId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
 

@@ -3,13 +3,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Normyx.Api.Utilities;
-using Normyx.Application.Abstractions;
-using Normyx.Application.Security;
-using Normyx.Domain.Entities;
-using Normyx.Infrastructure.Persistence;
+using Sylvaro.Api.Utilities;
+using Sylvaro.Application.Abstractions;
+using Sylvaro.Application.Security;
+using Sylvaro.Domain.Entities;
+using Sylvaro.Infrastructure.Persistence;
 
-namespace Normyx.Api.Endpoints;
+namespace Sylvaro.Api.Endpoints;
 
 public static class TenantEndpoints
 {
@@ -29,7 +29,7 @@ public static class TenantEndpoints
         return app;
     }
 
-    private static async Task<IResult> GetCurrentTenantAsync(NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> GetCurrentTenantAsync(SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
 
@@ -43,7 +43,7 @@ public static class TenantEndpoints
 
     private record UpdateTenantRequest([property: Required, StringLength(120, MinimumLength = 2)] string Name);
 
-    private static async Task<IResult> UpdateCurrentTenantAsync([FromBody] UpdateTenantRequest request, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> UpdateCurrentTenantAsync([FromBody] UpdateTenantRequest request, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         var normalizedName = request.Name?.Trim() ?? string.Empty;
@@ -64,7 +64,7 @@ public static class TenantEndpoints
         return Results.NoContent();
     }
 
-    private static async Task<IResult> ListRolesAsync(NormyxDbContext dbContext)
+    private static async Task<IResult> ListRolesAsync(SylvaroDbContext dbContext)
     {
         var roles = await dbContext.Roles
             .OrderBy(x => x.Name)
@@ -74,7 +74,7 @@ public static class TenantEndpoints
         return Results.Ok(roles);
     }
 
-    private static async Task<IResult> ListUsersAsync(NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> ListUsersAsync(SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
 
@@ -108,7 +108,7 @@ public static class TenantEndpoints
 
     private static async Task<IResult> CreateUserAsync(
         [FromBody] CreateUserRequest request,
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
@@ -146,7 +146,7 @@ public static class TenantEndpoints
 
     private record UpdateRolesRequest([property: MinLength(1)] string[] Roles);
 
-    private static async Task<IResult> ListPolicyPacksAsync(NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> ListPolicyPacksAsync(SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
 
@@ -174,7 +174,7 @@ public static class TenantEndpoints
     private static async Task<IResult> SetPolicyPackEnabledAsync(
         [FromRoute] Guid policyPackId,
         [FromBody] SetPolicyPackEnabledRequest request,
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
@@ -209,7 +209,7 @@ public static class TenantEndpoints
     private static async Task<IResult> UpdateUserRolesAsync(
         [FromRoute] Guid userId,
         [FromBody] UpdateRolesRequest request,
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);

@@ -3,13 +3,13 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Normyx.Api.Utilities;
-using Normyx.Application.Abstractions;
-using Normyx.Application.Security;
-using Normyx.Domain.Entities;
-using Normyx.Infrastructure.Persistence;
+using Sylvaro.Api.Utilities;
+using Sylvaro.Application.Abstractions;
+using Sylvaro.Application.Security;
+using Sylvaro.Domain.Entities;
+using Sylvaro.Infrastructure.Persistence;
 
-namespace Normyx.Api.Endpoints;
+namespace Sylvaro.Api.Endpoints;
 
 public static class QuestionnaireEndpoints
 {
@@ -24,7 +24,7 @@ public static class QuestionnaireEndpoints
         return app;
     }
 
-    private static async Task<IResult> GetQuestionnaireAsync([FromRoute] Guid versionId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> GetQuestionnaireAsync([FromRoute] Guid versionId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         var questionnaire = await dbContext.ComplianceQuestionnaires
@@ -44,7 +44,7 @@ public static class QuestionnaireEndpoints
     private static async Task<IResult> UpsertQuestionnaireAsync(
         [FromRoute] Guid versionId,
         [FromBody] UpsertQuestionnaireRequest request,
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);

@@ -1,4 +1,4 @@
-namespace Normyx.Api.Contracts.Errors;
+namespace Sylvaro.Api.Contracts.Errors;
 
 public sealed record ApiErrorEnvelope(string CorrelationId, ApiErrorDetail Error);
 

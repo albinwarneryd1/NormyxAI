@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Options;
-using Normyx.Application.Abstractions;
+using Sylvaro.Application.Abstractions;
 
-namespace Normyx.Infrastructure.Storage;
+namespace Sylvaro.Infrastructure.Storage;
 
 public class LocalObjectStorage(IOptions<StorageOptions> options) : IObjectStorage
 {

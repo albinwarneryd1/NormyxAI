@@ -1,4 +1,4 @@
-namespace Normyx.Domain.Enums;
+namespace Sylvaro.Domain.Enums;
 
 public enum AiSystemStatus
 {

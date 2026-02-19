@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Normyx.Domain.Entities;
-using Normyx.Domain.Enums;
+using Sylvaro.Domain.Entities;
+using Sylvaro.Domain.Enums;
 
-namespace Normyx.Infrastructure.Persistence;
+namespace Sylvaro.Infrastructure.Persistence;
 
 public static class SeedData
 {
-    public static async Task EnsureSeedAsync(NormyxDbContext dbContext, CancellationToken cancellationToken = default)
+    public static async Task EnsureSeedAsync(SylvaroDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.Tenants.AnyAsync(cancellationToken))
         {

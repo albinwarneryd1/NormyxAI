@@ -1,9 +1,9 @@
 @page "/audit-log"
-@inject Normyx.Web.Services.NormyxApiClient Api
-@inject Normyx.Web.Services.AuthSession Session
+@inject Sylvaro.Web.Services.SylvaroApiClient Api
+@inject Sylvaro.Web.Services.AuthSession Session
 @inject IJSRuntime JsRuntime
 
-<PageTitle>Audit Records - Normyx AI</PageTitle>
+<PageTitle>Audit Records - Sylvaro</PageTitle>
 
 @if (!Session.IsInitialized)
 {
@@ -122,7 +122,7 @@ else
 }
 
 @code {
-    private List<Normyx.Web.Models.AuditLogDto> _logs = [];
+    private List<Sylvaro.Web.Models.AuditLogDto> _logs = [];
     private string _error = string.Empty;
 
     private string _actionFilter = string.Empty;
@@ -139,7 +139,7 @@ else
     private IReadOnlyList<string> _actionTypes = [];
     private IReadOnlyList<string> _targetTypes = [];
 
-    private IReadOnlyList<Normyx.Web.Models.AuditLogDto> _filteredLogs => _logs
+    private IReadOnlyList<Sylvaro.Web.Models.AuditLogDto> _filteredLogs => _logs
         .Where(x => string.IsNullOrWhiteSpace(_actionFilter) || x.ActionType.Equals(_actionFilter, StringComparison.OrdinalIgnoreCase))
         .Where(x => string.IsNullOrWhiteSpace(_targetFilter) || x.TargetType.Equals(_targetFilter, StringComparison.OrdinalIgnoreCase))
         .Where(x => string.IsNullOrWhiteSpace(_actorFilter) || (x.ActorUserId?.ToString().Contains(_actorFilter, StringComparison.OrdinalIgnoreCase) ?? false))
@@ -175,7 +175,7 @@ else
         try
         {
             _error = string.Empty;
-            _logs = (await Api.GetAsync<List<Normyx.Web.Models.AuditLogDto>>("/audit?take=300")) ?? [];
+            _logs = (await Api.GetAsync<List<Sylvaro.Web.Models.AuditLogDto>>("/audit?take=300")) ?? [];
             _actionTypes = _logs
                 .Select(x => x.ActionType)
                 .Where(x => !string.IsNullOrWhiteSpace(x))
@@ -238,7 +238,7 @@ else
         return trimmed.Length <= 160 ? trimmed : trimmed[..160] + "...";
     }
 
-    private static string GetHashRef(Normyx.Web.Models.AuditLogDto log)
+    private static string GetHashRef(Sylvaro.Web.Models.AuditLogDto log)
     {
         var input = $"{log.Id}|{log.Timestamp:O}|{log.ActionType}|{log.TargetType}|{log.TargetId}|{log.ActorUserId}";
         var bytes = System.Text.Encoding.UTF8.GetBytes(input);

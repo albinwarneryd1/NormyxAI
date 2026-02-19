@@ -1,9 +1,9 @@
 using System.Net.Mime;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
-using Normyx.Api.Contracts.Errors;
+using Sylvaro.Api.Contracts.Errors;
 
-namespace Normyx.Api.Middleware;
+namespace Sylvaro.Api.Middleware;
 
 public sealed class GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExceptionMiddleware> logger)
 {

@@ -1,4 +1,4 @@
-namespace Normyx.Api.Contracts.Auth;
+namespace Sylvaro.Api.Contracts.Auth;
 
 using System.ComponentModel.DataAnnotations;
 

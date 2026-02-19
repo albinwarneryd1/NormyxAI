@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
-using Normyx.Application.Abstractions;
+using Sylvaro.Application.Abstractions;
 
-namespace Normyx.Infrastructure.Compliance;
+namespace Sylvaro.Infrastructure.Compliance;
 
 public sealed class InMemoryAssessmentExecutionGuard : IAssessmentExecutionGuard
 {

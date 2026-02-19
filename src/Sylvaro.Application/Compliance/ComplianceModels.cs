@@ -1,6 +1,6 @@
-using Normyx.Domain.Enums;
+using Sylvaro.Domain.Enums;
 
-namespace Normyx.Application.Compliance;
+namespace Sylvaro.Application.Compliance;
 
 public record DraftActionItem(
     string Title,

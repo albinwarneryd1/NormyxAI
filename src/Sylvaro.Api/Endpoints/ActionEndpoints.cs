@@ -2,14 +2,14 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Normyx.Api.Utilities;
-using Normyx.Application.Abstractions;
-using Normyx.Application.Security;
-using Normyx.Domain.Entities;
-using Normyx.Domain.Enums;
-using Normyx.Infrastructure.Persistence;
+using Sylvaro.Api.Utilities;
+using Sylvaro.Application.Abstractions;
+using Sylvaro.Application.Security;
+using Sylvaro.Domain.Entities;
+using Sylvaro.Domain.Enums;
+using Sylvaro.Infrastructure.Persistence;
 
-namespace Normyx.Api.Endpoints;
+namespace Sylvaro.Api.Endpoints;
 
 public static class ActionEndpoints
 {
@@ -31,7 +31,7 @@ public static class ActionEndpoints
         return app;
     }
 
-    private static async Task<IResult> ListActionsAsync([FromRoute] Guid versionId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> ListActionsAsync([FromRoute] Guid versionId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
 
@@ -57,7 +57,7 @@ public static class ActionEndpoints
         }));
     }
 
-    private static async Task<IResult> ActionBoardAsync([FromRoute] Guid versionId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> ActionBoardAsync([FromRoute] Guid versionId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
 
@@ -93,7 +93,7 @@ public static class ActionEndpoints
 
     public record UpdateActionStatusRequest(ActionStatus Status);
 
-    private static async Task<IResult> UpdateStatusAsync([FromRoute] Guid actionId, [FromBody] UpdateActionStatusRequest request, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> UpdateStatusAsync([FromRoute] Guid actionId, [FromBody] UpdateActionStatusRequest request, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
 
@@ -112,7 +112,7 @@ public static class ActionEndpoints
 
     public record ApproveActionRequest([property: Required, StringLength(1000, MinimumLength = 2)] string Comment);
 
-    private static async Task<IResult> ApproveActionAsync([FromRoute] Guid actionId, [FromBody] ApproveActionRequest request, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> ApproveActionAsync([FromRoute] Guid actionId, [FromBody] ApproveActionRequest request, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         var userId = TenantContext.RequireUserId(currentUser);
@@ -136,7 +136,7 @@ public static class ActionEndpoints
         return Results.NoContent();
     }
 
-    private static async Task<IResult> ListReviewsAsync([FromRoute] Guid actionId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> ListReviewsAsync([FromRoute] Guid actionId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         var actionInTenant = await dbContext.ActionItems
@@ -163,7 +163,7 @@ public static class ActionEndpoints
         return Results.Ok(reviews);
     }
 
-    private static async Task<IResult> ListReviewsForVersionAsync([FromRoute] Guid versionId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> ListReviewsForVersionAsync([FromRoute] Guid versionId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         var versionInTenant = await dbContext.AiSystemVersions
@@ -197,7 +197,7 @@ public static class ActionEndpoints
     private static async Task<IResult> ReviewActionAsync(
         [FromRoute] Guid actionId,
         [FromBody] ReviewActionRequest request,
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);

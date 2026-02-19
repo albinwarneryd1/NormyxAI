@@ -3,12 +3,12 @@ using System.Security.Cryptography;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Normyx.Api.Configuration;
-using Normyx.Application.Abstractions;
-using Normyx.Application.Security;
-using Normyx.Infrastructure.Persistence;
+using Sylvaro.Api.Configuration;
+using Sylvaro.Application.Abstractions;
+using Sylvaro.Application.Security;
+using Sylvaro.Infrastructure.Persistence;
 
-namespace Normyx.Api.Endpoints;
+namespace Sylvaro.Api.Endpoints;
 
 public static class SecurityEndpoints
 {
@@ -31,7 +31,7 @@ public static class SecurityEndpoints
     }
 
     private static async Task<IResult> ListSessionsAsync(
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         ICurrentUserContext currentUser)
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
@@ -70,7 +70,7 @@ public static class SecurityEndpoints
 
     private static async Task<IResult> RevokeSessionAsync(
         [FromRoute] Guid sessionId,
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         ICurrentUserContext currentUser)
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
@@ -95,7 +95,7 @@ public static class SecurityEndpoints
 
     private static async Task<IResult> RevokeOtherSessionsAsync(
         [FromBody] RevokeOtherSessionsRequest request,
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         ICurrentUserContext currentUser)
     {
         if (!currentUser.IsAuthenticated || currentUser.UserId is null)
@@ -121,7 +121,7 @@ public static class SecurityEndpoints
     }
 
     private static async Task<IResult> ListApiTokensAsync(
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         ICurrentUserContext currentUser)
     {
         if (!currentUser.IsAuthenticated || currentUser.TenantId is null)
@@ -150,7 +150,7 @@ public static class SecurityEndpoints
 
     private static async Task<IResult> CreateApiTokenAsync(
         [FromBody] CreateApiTokenRequest request,
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         ICurrentUserContext currentUser)
     {
         if (!currentUser.IsAuthenticated || currentUser.TenantId is null || currentUser.UserId is null)
@@ -168,7 +168,7 @@ public static class SecurityEndpoints
         }
 
         var tokenRaw = $"nxa_{Convert.ToHexString(RandomNumberGenerator.GetBytes(24)).ToLowerInvariant()}";
-        var token = new Normyx.Domain.Entities.ApiToken
+        var token = new Sylvaro.Domain.Entities.ApiToken
         {
             Id = Guid.NewGuid(),
             TenantId = currentUser.TenantId.Value,
@@ -197,7 +197,7 @@ public static class SecurityEndpoints
 
     private static async Task<IResult> RevokeApiTokenAsync(
         [FromRoute] Guid tokenId,
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         ICurrentUserContext currentUser)
     {
         if (!currentUser.IsAuthenticated || currentUser.TenantId is null)

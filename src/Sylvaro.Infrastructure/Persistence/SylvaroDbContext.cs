@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using Normyx.Domain.Entities;
+using Sylvaro.Domain.Entities;
 
-namespace Normyx.Infrastructure.Persistence;
+namespace Sylvaro.Infrastructure.Persistence;
 
-public class NormyxDbContext(DbContextOptions<NormyxDbContext> options) : DbContext(options)
+public class SylvaroDbContext(DbContextOptions<SylvaroDbContext> options) : DbContext(options)
 {
     public DbSet<Tenant> Tenants => Set<Tenant>();
     public DbSet<User> Users => Set<User>();

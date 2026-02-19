@@ -1,8 +1,8 @@
 @page "/"
-@inject Normyx.Web.Services.NormyxApiClient Api
-@inject Normyx.Web.Services.AuthSession Session
+@inject Sylvaro.Web.Services.SylvaroApiClient Api
+@inject Sylvaro.Web.Services.AuthSession Session
 
-<PageTitle>Executive Overview - Normyx AI</PageTitle>
+<PageTitle>Executive Overview - Sylvaro</PageTitle>
 
 @if (!Session.IsInitialized)
 {
@@ -214,18 +214,18 @@ else
     private string _error = string.Empty;
     private string _exportMessage = string.Empty;
 
-    private Normyx.Web.Models.DashboardTenantDto? _dashboard;
-    private Normyx.Web.Models.DashboardSystemDto? _systemDashboard;
-    private Normyx.Web.Models.AuditLogDto? _latestAudit;
-    private List<Normyx.Web.Models.AiSystemListItem> _systems = [];
-    private List<Normyx.Web.Models.VersionSummaryDto> _versions = [];
-    private List<Normyx.Web.Models.AssessmentListItem> _assessments = [];
-    private List<Normyx.Web.Models.ActionItemDto> _actions = [];
-    private List<Normyx.Web.Models.FindingDto> _latestFindings = [];
-    private Normyx.Web.Models.InventoryResponse _inventory = new([], []);
+    private Sylvaro.Web.Models.DashboardTenantDto? _dashboard;
+    private Sylvaro.Web.Models.DashboardSystemDto? _systemDashboard;
+    private Sylvaro.Web.Models.AuditLogDto? _latestAudit;
+    private List<Sylvaro.Web.Models.AiSystemListItem> _systems = [];
+    private List<Sylvaro.Web.Models.VersionSummaryDto> _versions = [];
+    private List<Sylvaro.Web.Models.AssessmentListItem> _assessments = [];
+    private List<Sylvaro.Web.Models.ActionItemDto> _actions = [];
+    private List<Sylvaro.Web.Models.FindingDto> _latestFindings = [];
+    private Sylvaro.Web.Models.InventoryResponse _inventory = new([], []);
     private List<KeyValuePair<string, int>> _dataCategorySummary = [];
     private List<TrendPoint> _trendBars = [];
-    private List<Normyx.Web.Models.ActionItemDto> _upcomingDeadlines = [];
+    private List<Sylvaro.Web.Models.ActionItemDto> _upcomingDeadlines = [];
     private List<AssessmentTimelineItem> _assessmentTimeline = [];
     private List<ComponentRiskRow> _componentRiskRows = [];
 
@@ -309,9 +309,9 @@ else
     {
         try
         {
-            _dashboard = await Api.GetAsync<Normyx.Web.Models.DashboardTenantDto>("/dashboard/tenant");
-            _systems = (await Api.GetAsync<List<Normyx.Web.Models.AiSystemListItem>>("/aisystems")) ?? [];
-            _latestAudit = (await Api.GetAsync<List<Normyx.Web.Models.AuditLogDto>>("/audit?take=1"))?.FirstOrDefault();
+            _dashboard = await Api.GetAsync<Sylvaro.Web.Models.DashboardTenantDto>("/dashboard/tenant");
+            _systems = (await Api.GetAsync<List<Sylvaro.Web.Models.AiSystemListItem>>("/aisystems")) ?? [];
+            _latestAudit = (await Api.GetAsync<List<Sylvaro.Web.Models.AuditLogDto>>("/audit?take=1"))?.FirstOrDefault();
 
             var primarySystem = _systems.OrderByDescending(x => x.UpdatedAt).FirstOrDefault();
             if (primarySystem is null)
@@ -320,10 +320,10 @@ else
             }
 
             _primarySystemName = primarySystem.Name;
-            _systemDashboard = await Api.GetAsync<Normyx.Web.Models.DashboardSystemDto>($"/dashboard/system/{primarySystem.Id}");
+            _systemDashboard = await Api.GetAsync<Sylvaro.Web.Models.DashboardSystemDto>($"/dashboard/system/{primarySystem.Id}");
             _assessmentCount = _systemDashboard?.AssessmentsCount ?? 0;
 
-            _versions = (await Api.GetAsync<List<Normyx.Web.Models.VersionSummaryDto>>($"/aisystems/{primarySystem.Id}/versions")) ?? [];
+            _versions = (await Api.GetAsync<List<Sylvaro.Web.Models.VersionSummaryDto>>($"/aisystems/{primarySystem.Id}/versions")) ?? [];
             var latestVersion = _versions.OrderByDescending(x => x.VersionNumber).FirstOrDefault();
             if (latestVersion is null)
             {
@@ -332,10 +332,10 @@ else
 
             _latestVersionId = latestVersion.Id;
             _latestVersionLabel = $"v{latestVersion.VersionNumber}";
-            _assessments = (await Api.GetAsync<List<Normyx.Web.Models.AssessmentListItem>>($"/versions/{latestVersion.Id}/assessments")) ?? [];
-            _actions = (await Api.GetAsync<List<Normyx.Web.Models.ActionItemDto>>($"/actions/version/{latestVersion.Id}")) ?? [];
-            _inventory = await Api.GetAsync<Normyx.Web.Models.InventoryResponse>($"/versions/{latestVersion.Id}/inventory") ?? new([], []);
-            var architecture = await Api.GetAsync<Normyx.Web.Models.ArchitectureResponse>($"/versions/{latestVersion.Id}/architecture") ?? new([], [], []);
+            _assessments = (await Api.GetAsync<List<Sylvaro.Web.Models.AssessmentListItem>>($"/versions/{latestVersion.Id}/assessments")) ?? [];
+            _actions = (await Api.GetAsync<List<Sylvaro.Web.Models.ActionItemDto>>($"/actions/version/{latestVersion.Id}")) ?? [];
+            _inventory = await Api.GetAsync<Sylvaro.Web.Models.InventoryResponse>($"/versions/{latestVersion.Id}/inventory") ?? new([], []);
+            var architecture = await Api.GetAsync<Sylvaro.Web.Models.ArchitectureResponse>($"/versions/{latestVersion.Id}/architecture") ?? new([], [], []);
 
             _componentRiskRows = architecture.Components
                 .OrderBy(x => x.Name)
@@ -369,7 +369,7 @@ else
             var latestAssessment = _assessments.OrderByDescending(x => x.RanAt).FirstOrDefault();
             if (latestAssessment is not null)
             {
-                _latestFindings = (await Api.GetAsync<List<Normyx.Web.Models.FindingDto>>($"/findings/assessment/{latestAssessment.Id}")) ?? [];
+                _latestFindings = (await Api.GetAsync<List<Sylvaro.Web.Models.FindingDto>>($"/findings/assessment/{latestAssessment.Id}")) ?? [];
                 _latestFindingsCount = _latestFindings.Count;
             }
 
@@ -456,9 +456,9 @@ else
         };
 
     private static ComponentRiskRow BuildComponentRiskRow(
-        Normyx.Web.Models.ComponentDto component,
-        Normyx.Web.Models.ArchitectureResponse architecture,
-        Normyx.Web.Models.InventoryResponse inventory)
+        Sylvaro.Web.Models.ComponentDto component,
+        Sylvaro.Web.Models.ArchitectureResponse architecture,
+        Sylvaro.Web.Models.InventoryResponse inventory)
     {
         var hasSensitiveFlow = architecture.Flows.Any(flow =>
             (flow.FromComponentId == component.Id || flow.ToComponentId == component.Id) &&

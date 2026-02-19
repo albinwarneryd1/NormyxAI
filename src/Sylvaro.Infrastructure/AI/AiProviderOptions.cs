@@ -1,4 +1,4 @@
-namespace Normyx.Infrastructure.AI;
+namespace Sylvaro.Infrastructure.AI;
 
 public class AiProviderOptions
 {

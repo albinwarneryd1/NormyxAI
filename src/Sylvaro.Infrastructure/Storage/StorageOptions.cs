@@ -1,4 +1,4 @@
-namespace Normyx.Infrastructure.Storage;
+namespace Sylvaro.Infrastructure.Storage;
 
 public class StorageOptions
 {

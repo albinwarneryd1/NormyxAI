@@ -1,8 +1,8 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
-using Normyx.Application.Abstractions;
+using Sylvaro.Application.Abstractions;
 
-namespace Normyx.Infrastructure.Auth;
+namespace Sylvaro.Infrastructure.Auth;
 
 public class HttpCurrentUserContext(IHttpContextAccessor accessor) : ICurrentUserContext
 {

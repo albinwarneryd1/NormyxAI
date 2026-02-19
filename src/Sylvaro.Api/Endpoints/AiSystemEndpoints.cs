@@ -2,14 +2,14 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Normyx.Api.Utilities;
-using Normyx.Application.Abstractions;
-using Normyx.Application.Security;
-using Normyx.Domain.Entities;
-using Normyx.Domain.Enums;
-using Normyx.Infrastructure.Persistence;
+using Sylvaro.Api.Utilities;
+using Sylvaro.Application.Abstractions;
+using Sylvaro.Application.Security;
+using Sylvaro.Domain.Entities;
+using Sylvaro.Domain.Enums;
+using Sylvaro.Infrastructure.Persistence;
 
-namespace Normyx.Api.Endpoints;
+namespace Sylvaro.Api.Endpoints;
 
 public static class AiSystemEndpoints
 {
@@ -30,7 +30,7 @@ public static class AiSystemEndpoints
         return app;
     }
 
-    private static async Task<IResult> ListSystemsAsync(NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> ListSystemsAsync(SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
 
@@ -59,7 +59,7 @@ public static class AiSystemEndpoints
 
     private static async Task<IResult> CreateSystemAsync(
         [FromBody] CreateAiSystemRequest request,
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
@@ -94,7 +94,7 @@ public static class AiSystemEndpoints
         return Results.Created($"/aisystems/{system.Id}", new { AiSystemId = system.Id, VersionId = initialVersion.Id, initialVersion.VersionNumber });
     }
 
-    private static async Task<IResult> GetSystemAsync([FromRoute] Guid systemId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> GetSystemAsync([FromRoute] Guid systemId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
 
@@ -125,7 +125,7 @@ public static class AiSystemEndpoints
     private static async Task<IResult> UpdateSystemAsync(
         [FromRoute] Guid systemId,
         [FromBody] UpdateAiSystemRequest request,
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
@@ -146,7 +146,7 @@ public static class AiSystemEndpoints
         return Results.NoContent();
     }
 
-    private static async Task<IResult> ArchiveSystemAsync([FromRoute] Guid systemId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> ArchiveSystemAsync([FromRoute] Guid systemId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
 
@@ -163,7 +163,7 @@ public static class AiSystemEndpoints
         return Results.NoContent();
     }
 
-    private static async Task<IResult> ListVersionsAsync([FromRoute] Guid systemId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> ListVersionsAsync([FromRoute] Guid systemId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
 
@@ -182,7 +182,7 @@ public static class AiSystemEndpoints
     private static async Task<IResult> CreateVersionAsync(
         [FromRoute] Guid systemId,
         [FromBody] CreateVersionRequest request,
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);

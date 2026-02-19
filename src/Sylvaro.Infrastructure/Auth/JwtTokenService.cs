@@ -4,10 +4,10 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Normyx.Application.Abstractions;
-using Normyx.Domain.Entities;
+using Sylvaro.Application.Abstractions;
+using Sylvaro.Domain.Entities;
 
-namespace Normyx.Infrastructure.Auth;
+namespace Sylvaro.Infrastructure.Auth;
 
 public class JwtTokenService(IOptions<JwtOptions> options) : IJwtTokenService
 {

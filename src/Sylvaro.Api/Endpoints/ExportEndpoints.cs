@@ -4,13 +4,13 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Normyx.Api.Utilities;
-using Normyx.Application.Abstractions;
-using Normyx.Application.Security;
-using Normyx.Domain.Entities;
-using Normyx.Infrastructure.Persistence;
+using Sylvaro.Api.Utilities;
+using Sylvaro.Application.Abstractions;
+using Sylvaro.Application.Security;
+using Sylvaro.Domain.Entities;
+using Sylvaro.Infrastructure.Persistence;
 
-namespace Normyx.Api.Endpoints;
+namespace Sylvaro.Api.Endpoints;
 
 public static class ExportEndpoints
 {
@@ -34,7 +34,7 @@ public static class ExportEndpoints
     private static async Task<IResult> GenerateExportAsync(
         [FromRoute] Guid versionId,
         [FromBody] GenerateExportRequest request,
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         ICurrentUserContext currentUser,
         IExportService exportService,
         IObjectStorage objectStorage,
@@ -128,7 +128,7 @@ public static class ExportEndpoints
         else
         {
             var lines = BuildPdfLines(request.ExportType, version, latestAssessment, actions, controls, linkedEvidence);
-            outputBytes = await exportService.GeneratePdfAsync($"Normyx AI {request.ExportType}", lines);
+            outputBytes = await exportService.GeneratePdfAsync($"Sylvaro {request.ExportType}", lines);
             outputContentType = "application/pdf";
             extension = "pdf";
         }
@@ -159,7 +159,7 @@ public static class ExportEndpoints
         {
             webhookResults = await SendToEnabledWebhooksAsync(dbContext, tenantId, webhookPublisher, new
             {
-                eventType = "normyx.export.generated",
+                eventType = "sylvaro.export.generated",
                 artifactId = artifact.Id,
                 artifact.ExportType,
                 artifact.MimeType,
@@ -178,7 +178,7 @@ public static class ExportEndpoints
         });
     }
 
-    private static async Task<IResult> ListExportsAsync([FromRoute] Guid versionId, NormyxDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> ListExportsAsync([FromRoute] Guid versionId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
 
@@ -198,7 +198,7 @@ public static class ExportEndpoints
         return Results.Ok(exports);
     }
 
-    private static async Task<IResult> DownloadExportAsync([FromRoute] Guid artifactId, NormyxDbContext dbContext, ICurrentUserContext currentUser, IObjectStorage objectStorage)
+    private static async Task<IResult> DownloadExportAsync([FromRoute] Guid artifactId, SylvaroDbContext dbContext, ICurrentUserContext currentUser, IObjectStorage objectStorage)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
         var artifact = await dbContext.ExportArtifacts.FirstOrDefaultAsync(x => x.Id == artifactId && x.TenantId == tenantId);
@@ -244,7 +244,7 @@ public static class ExportEndpoints
     }
 
     private static async Task<WebhookPublishResult[]> SendToEnabledWebhooksAsync(
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         Guid tenantId,
         IWebhookPublisher webhookPublisher,
         object payload)

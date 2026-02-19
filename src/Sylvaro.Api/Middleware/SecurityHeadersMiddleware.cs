@@ -1,4 +1,4 @@
-namespace Normyx.Api.Middleware;
+namespace Sylvaro.Api.Middleware;
 
 public sealed class SecurityHeadersMiddleware(RequestDelegate next)
 {

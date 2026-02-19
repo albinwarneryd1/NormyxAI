@@ -1,4 +1,4 @@
-# Normyx AI Runbook
+# Sylvaro Runbook
 
 ## Health checks
 
@@ -15,8 +15,8 @@ The API seeds demo tenant/system if no tenant exists.
 
 ## Backup targets
 
-- PostgreSQL volume: `normyx-db-data`
-- Upload/export files: `normyx-api-data`
+- PostgreSQL volume: `sylvaro-db-data`
+- Upload/export files: `sylvaro-api-data`
 
 ## Operational checks
 

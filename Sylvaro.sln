@@ -5,19 +5,19 @@ VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E3E14214-AFBA-4F08-8C22-A722126C0CC4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Normyx.Tests", "tests\Normyx.Tests\Normyx.Tests.csproj", "{0E46D0CD-1438-477F-B5DF-DA0C155BE807}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sylvaro.Tests", "tests\Sylvaro.Tests\Sylvaro.Tests.csproj", "{0E46D0CD-1438-477F-B5DF-DA0C155BE807}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2249B5CD-FFA3-4003-8722-6E7333EF7FB0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Normyx.Domain", "src\Normyx.Domain\Normyx.Domain.csproj", "{A8CFA536-A22D-4C7C-A41F-4B9E7CC121A0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sylvaro.Domain", "src\Sylvaro.Domain\Sylvaro.Domain.csproj", "{A8CFA536-A22D-4C7C-A41F-4B9E7CC121A0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Normyx.Api", "src\Normyx.Api\Normyx.Api.csproj", "{5486B5C0-591A-4AA6-B0D0-6706C7E9044B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sylvaro.Api", "src\Sylvaro.Api\Sylvaro.Api.csproj", "{5486B5C0-591A-4AA6-B0D0-6706C7E9044B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Normyx.Application", "src\Normyx.Application\Normyx.Application.csproj", "{AA2381C2-47C6-4675-BB36-1FC172627A55}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sylvaro.Application", "src\Sylvaro.Application\Sylvaro.Application.csproj", "{AA2381C2-47C6-4675-BB36-1FC172627A55}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Normyx.Web", "src\Normyx.Web\Normyx.Web.csproj", "{41D6AFCC-4862-4D06-BA3F-51F67D5C4D83}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sylvaro.Web", "src\Sylvaro.Web\Sylvaro.Web.csproj", "{41D6AFCC-4862-4D06-BA3F-51F67D5C4D83}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Normyx.Infrastructure", "src\Normyx.Infrastructure\Normyx.Infrastructure.csproj", "{841E3C9E-997F-49D6-A40F-35F85117944A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sylvaro.Infrastructure", "src\Sylvaro.Infrastructure\Sylvaro.Infrastructure.csproj", "{841E3C9E-997F-49D6-A40F-35F85117944A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

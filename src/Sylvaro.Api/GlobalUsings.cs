@@ -1,1 +1,1 @@
-global using Normyx.Api.Filters;
+global using Sylvaro.Api.Filters;

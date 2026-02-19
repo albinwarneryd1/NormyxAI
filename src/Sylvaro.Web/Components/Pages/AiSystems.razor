@@ -1,8 +1,8 @@
 @page "/ai-systems"
-@inject Normyx.Web.Services.NormyxApiClient Api
-@inject Normyx.Web.Services.AuthSession Session
+@inject Sylvaro.Web.Services.SylvaroApiClient Api
+@inject Sylvaro.Web.Services.AuthSession Session
 
-<PageTitle>AI Systems - Normyx AI</PageTitle>
+<PageTitle>AI Systems - Sylvaro</PageTitle>
 
 @if (!Session.IsInitialized)
 {
@@ -61,7 +61,7 @@ else
 
 @code {
     private readonly CreateSystemForm _createForm = new();
-    private List<Normyx.Web.Models.AiSystemListItem> _systems = [];
+    private List<Sylvaro.Web.Models.AiSystemListItem> _systems = [];
     private string _error = string.Empty;
     private bool _attemptedInitialLoad;
 
@@ -92,7 +92,7 @@ else
     {
         try
         {
-            _systems = (await Api.GetAsync<List<Normyx.Web.Models.AiSystemListItem>>("/aisystems")) ?? [];
+            _systems = (await Api.GetAsync<List<Sylvaro.Web.Models.AiSystemListItem>>("/aisystems")) ?? [];
         }
         catch (Exception ex)
         {

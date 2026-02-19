@@ -2,11 +2,11 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Normyx.Api.Utilities;
-using Normyx.Application.Abstractions;
-using Normyx.Infrastructure.Persistence;
+using Sylvaro.Api.Utilities;
+using Sylvaro.Application.Abstractions;
+using Sylvaro.Infrastructure.Persistence;
 
-namespace Normyx.Api.Endpoints;
+namespace Sylvaro.Api.Endpoints;
 
 public static class AuditEndpoints
 {
@@ -20,8 +20,8 @@ public static class AuditEndpoints
         return app;
     }
 
-    private static IQueryable<Normyx.Domain.Entities.AuditLog> ApplyFilters(
-        IQueryable<Normyx.Domain.Entities.AuditLog> query,
+    private static IQueryable<Sylvaro.Domain.Entities.AuditLog> ApplyFilters(
+        IQueryable<Sylvaro.Domain.Entities.AuditLog> query,
         Guid tenantId,
         Guid? actorUserId,
         string? actionType,
@@ -59,7 +59,7 @@ public static class AuditEndpoints
         [FromQuery] string? actionType,
         [FromQuery] string? targetType,
         [FromQuery] Guid? targetId,
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);
@@ -98,7 +98,7 @@ public static class AuditEndpoints
         [FromQuery] string? actionType,
         [FromQuery] string? targetType,
         [FromQuery] Guid? targetId,
-        NormyxDbContext dbContext,
+        SylvaroDbContext dbContext,
         ICurrentUserContext currentUser)
     {
         var tenantId = TenantContext.RequireTenantId(currentUser);

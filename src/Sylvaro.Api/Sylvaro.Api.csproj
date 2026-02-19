@@ -24,8 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Normyx.Application\Normyx.Application.csproj" />
-    <ProjectReference Include="..\Normyx.Infrastructure\Normyx.Infrastructure.csproj" />
+    <ProjectReference Include="..\Sylvaro.Application\Sylvaro.Application.csproj" />
+    <ProjectReference Include="..\Sylvaro.Infrastructure\Sylvaro.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

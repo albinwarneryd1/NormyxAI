@@ -4,14 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Normyx.Infrastructure.Persistence;
+using Sylvaro.Infrastructure.Persistence;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Normyx.Infrastructure.Persistence.Migrations
+namespace Sylvaro.Infrastructure.Persistence.Migrations
 {
-    [DbContext(typeof(NormyxDbContext))]
+    [DbContext(typeof(SylvaroDbContext))]
     [Migration("20260219182213_AddApiTokens")]
     partial class AddApiTokens
     {
@@ -25,7 +25,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Normyx.Domain.Entities.ActionItem", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.ActionItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -76,7 +76,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("ActionItems");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.ActionReview", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.ActionReview", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -105,7 +105,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("ActionReviews");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.AiSystem", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.AiSystem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -143,7 +143,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("AiSystems");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.AiSystemVersion", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.AiSystemVersion", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -175,7 +175,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("AiSystemVersions");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.ApiToken", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.ApiToken", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -219,7 +219,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("ApiTokens");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.Assessment", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.Assessment", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -257,7 +257,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("Assessments");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.AuditLog", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.AuditLog", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -310,7 +310,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("AuditLogs");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.ComplianceQuestionnaire", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.ComplianceQuestionnaire", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -336,7 +336,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("ComplianceQuestionnaires");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.Component", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.Component", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -375,7 +375,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("Components");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.Control", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.Control", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -413,7 +413,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("Controls");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.ControlInstance", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.ControlInstance", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -446,7 +446,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("ControlInstances");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.DataFlow", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.DataFlow", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -483,7 +483,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("DataFlows");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.DataInventoryItem", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.DataInventoryItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -527,7 +527,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("DataInventoryItems");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.DataStore", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.DataStore", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -564,7 +564,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("DataStores");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.Document", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.Document", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -600,7 +600,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("Documents");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.EvidenceExcerpt", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.EvidenceExcerpt", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -634,7 +634,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("EvidenceExcerpts");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.EvidenceLink", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.EvidenceLink", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -657,7 +657,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("EvidenceLinks");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.ExportArtifact", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.ExportArtifact", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -694,7 +694,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("ExportArtifacts");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.Finding", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.Finding", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -733,7 +733,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("Findings");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.PolicyPack", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.PolicyPack", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -761,7 +761,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("PolicyPacks");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.PolicyRule", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.PolicyRule", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -797,7 +797,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("PolicyRules");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.RagChunk", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.RagChunk", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -837,7 +837,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("RagChunks");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.RefreshToken", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -877,7 +877,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.Role", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.Role", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -895,7 +895,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.Tenant", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.Tenant", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -913,7 +913,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("Tenants");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.TenantIntegration", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.TenantIntegration", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -950,7 +950,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("TenantIntegrations");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.TenantPolicyPackSelection", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.TenantPolicyPackSelection", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -976,7 +976,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("TenantPolicyPackSelections");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.User", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1014,7 +1014,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.UserRole", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.UserRole", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -1029,7 +1029,7 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("UserRoles");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.Vendor", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.Vendor", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1068,9 +1068,9 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.ToTable("Vendors");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.ActionItem", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.ActionItem", b =>
                 {
-                    b.HasOne("Normyx.Domain.Entities.AiSystemVersion", "AiSystemVersion")
+                    b.HasOne("Sylvaro.Domain.Entities.AiSystemVersion", "AiSystemVersion")
                         .WithMany("ActionItems")
                         .HasForeignKey("AiSystemVersionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1079,9 +1079,9 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.Navigation("AiSystemVersion");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.ActionReview", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.ActionReview", b =>
                 {
-                    b.HasOne("Normyx.Domain.Entities.ActionItem", "ActionItem")
+                    b.HasOne("Sylvaro.Domain.Entities.ActionItem", "ActionItem")
                         .WithMany()
                         .HasForeignKey("ActionItemId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1090,24 +1090,24 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.Navigation("ActionItem");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.AiSystem", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.AiSystem", b =>
                 {
-                    b.HasOne("Normyx.Domain.Entities.User", null)
+                    b.HasOne("Sylvaro.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("OwnerUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.AiSystemVersion", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.AiSystemVersion", b =>
                 {
-                    b.HasOne("Normyx.Domain.Entities.AiSystem", "AiSystem")
+                    b.HasOne("Sylvaro.Domain.Entities.AiSystem", "AiSystem")
                         .WithMany("Versions")
                         .HasForeignKey("AiSystemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Normyx.Domain.Entities.User", null)
+                    b.HasOne("Sylvaro.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("CreatedByUserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1116,9 +1116,9 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.Navigation("AiSystem");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.Assessment", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.Assessment", b =>
                 {
-                    b.HasOne("Normyx.Domain.Entities.AiSystemVersion", "AiSystemVersion")
+                    b.HasOne("Sylvaro.Domain.Entities.AiSystemVersion", "AiSystemVersion")
                         .WithMany("Assessments")
                         .HasForeignKey("AiSystemVersionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1127,9 +1127,9 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.Navigation("AiSystemVersion");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.ComplianceQuestionnaire", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.ComplianceQuestionnaire", b =>
                 {
-                    b.HasOne("Normyx.Domain.Entities.AiSystemVersion", "AiSystemVersion")
+                    b.HasOne("Sylvaro.Domain.Entities.AiSystemVersion", "AiSystemVersion")
                         .WithMany()
                         .HasForeignKey("AiSystemVersionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1138,9 +1138,9 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.Navigation("AiSystemVersion");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.Component", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.Component", b =>
                 {
-                    b.HasOne("Normyx.Domain.Entities.AiSystemVersion", "AiSystemVersion")
+                    b.HasOne("Sylvaro.Domain.Entities.AiSystemVersion", "AiSystemVersion")
                         .WithMany("Components")
                         .HasForeignKey("AiSystemVersionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1149,9 +1149,9 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.Navigation("AiSystemVersion");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.ControlInstance", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.ControlInstance", b =>
                 {
-                    b.HasOne("Normyx.Domain.Entities.AiSystemVersion", "AiSystemVersion")
+                    b.HasOne("Sylvaro.Domain.Entities.AiSystemVersion", "AiSystemVersion")
                         .WithMany("ControlInstances")
                         .HasForeignKey("AiSystemVersionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1160,9 +1160,9 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.Navigation("AiSystemVersion");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.DataFlow", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.DataFlow", b =>
                 {
-                    b.HasOne("Normyx.Domain.Entities.AiSystemVersion", "AiSystemVersion")
+                    b.HasOne("Sylvaro.Domain.Entities.AiSystemVersion", "AiSystemVersion")
                         .WithMany("DataFlows")
                         .HasForeignKey("AiSystemVersionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1171,9 +1171,9 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.Navigation("AiSystemVersion");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.DataInventoryItem", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.DataInventoryItem", b =>
                 {
-                    b.HasOne("Normyx.Domain.Entities.AiSystemVersion", "AiSystemVersion")
+                    b.HasOne("Sylvaro.Domain.Entities.AiSystemVersion", "AiSystemVersion")
                         .WithMany("DataInventoryItems")
                         .HasForeignKey("AiSystemVersionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1182,9 +1182,9 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.Navigation("AiSystemVersion");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.DataStore", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.DataStore", b =>
                 {
-                    b.HasOne("Normyx.Domain.Entities.AiSystemVersion", "AiSystemVersion")
+                    b.HasOne("Sylvaro.Domain.Entities.AiSystemVersion", "AiSystemVersion")
                         .WithMany("DataStores")
                         .HasForeignKey("AiSystemVersionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1193,9 +1193,9 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.Navigation("AiSystemVersion");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.EvidenceExcerpt", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.EvidenceExcerpt", b =>
                 {
-                    b.HasOne("Normyx.Domain.Entities.Document", "Document")
+                    b.HasOne("Sylvaro.Domain.Entities.Document", "Document")
                         .WithMany("Excerpts")
                         .HasForeignKey("DocumentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1204,9 +1204,9 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.Navigation("Document");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.EvidenceLink", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.EvidenceLink", b =>
                 {
-                    b.HasOne("Normyx.Domain.Entities.EvidenceExcerpt", "EvidenceExcerpt")
+                    b.HasOne("Sylvaro.Domain.Entities.EvidenceExcerpt", "EvidenceExcerpt")
                         .WithMany("EvidenceLinks")
                         .HasForeignKey("EvidenceExcerptId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1215,9 +1215,9 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.Navigation("EvidenceExcerpt");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.Finding", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.Finding", b =>
                 {
-                    b.HasOne("Normyx.Domain.Entities.Assessment", "Assessment")
+                    b.HasOne("Sylvaro.Domain.Entities.Assessment", "Assessment")
                         .WithMany("Findings")
                         .HasForeignKey("AssessmentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1226,9 +1226,9 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.Navigation("Assessment");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.PolicyRule", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.PolicyRule", b =>
                 {
-                    b.HasOne("Normyx.Domain.Entities.PolicyPack", "PolicyPack")
+                    b.HasOne("Sylvaro.Domain.Entities.PolicyPack", "PolicyPack")
                         .WithMany("Rules")
                         .HasForeignKey("PolicyPackId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1237,9 +1237,9 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.Navigation("PolicyPack");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.RefreshToken", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.RefreshToken", b =>
                 {
-                    b.HasOne("Normyx.Domain.Entities.User", "User")
+                    b.HasOne("Sylvaro.Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1248,9 +1248,9 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.User", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.User", b =>
                 {
-                    b.HasOne("Normyx.Domain.Entities.Tenant", "Tenant")
+                    b.HasOne("Sylvaro.Domain.Entities.Tenant", "Tenant")
                         .WithMany("Users")
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1259,15 +1259,15 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.Navigation("Tenant");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.UserRole", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.UserRole", b =>
                 {
-                    b.HasOne("Normyx.Domain.Entities.Role", "Role")
+                    b.HasOne("Sylvaro.Domain.Entities.Role", "Role")
                         .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Normyx.Domain.Entities.User", "User")
+                    b.HasOne("Sylvaro.Domain.Entities.User", "User")
                         .WithMany("UserRoles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1278,9 +1278,9 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.Vendor", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.Vendor", b =>
                 {
-                    b.HasOne("Normyx.Domain.Entities.AiSystemVersion", "AiSystemVersion")
+                    b.HasOne("Sylvaro.Domain.Entities.AiSystemVersion", "AiSystemVersion")
                         .WithMany("Vendors")
                         .HasForeignKey("AiSystemVersionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1289,12 +1289,12 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.Navigation("AiSystemVersion");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.AiSystem", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.AiSystem", b =>
                 {
                     b.Navigation("Versions");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.AiSystemVersion", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.AiSystemVersion", b =>
                 {
                     b.Navigation("ActionItems");
 
@@ -1313,37 +1313,37 @@ namespace Normyx.Infrastructure.Persistence.Migrations
                     b.Navigation("Vendors");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.Assessment", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.Assessment", b =>
                 {
                     b.Navigation("Findings");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.Document", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.Document", b =>
                 {
                     b.Navigation("Excerpts");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.EvidenceExcerpt", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.EvidenceExcerpt", b =>
                 {
                     b.Navigation("EvidenceLinks");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.PolicyPack", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.PolicyPack", b =>
                 {
                     b.Navigation("Rules");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.Role", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.Role", b =>
                 {
                     b.Navigation("UserRoles");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.Tenant", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.Tenant", b =>
                 {
                     b.Navigation("Users");
                 });
 
-            modelBuilder.Entity("Normyx.Domain.Entities.User", b =>
+            modelBuilder.Entity("Sylvaro.Domain.Entities.User", b =>
                 {
                     b.Navigation("UserRoles");
                 });

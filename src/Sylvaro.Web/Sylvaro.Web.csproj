@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
-    <ProjectReference Include="..\Normyx.Application\Normyx.Application.csproj" />
+    <ProjectReference Include="..\Sylvaro.Application\Sylvaro.Application.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

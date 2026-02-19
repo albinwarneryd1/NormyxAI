@@ -1,9 +1,9 @@
 @page "/tenant-settings"
-@inject Normyx.Web.Services.NormyxApiClient Api
-@inject Normyx.Web.Services.AuthSession Session
+@inject Sylvaro.Web.Services.SylvaroApiClient Api
+@inject Sylvaro.Web.Services.AuthSession Session
 @inject NavigationManager Nav
 
-<PageTitle>Tenant Settings - Normyx AI</PageTitle>
+<PageTitle>Tenant Settings - Sylvaro</PageTitle>
 
 @if (!Session.IsInitialized)
 {
@@ -124,11 +124,11 @@ else
 }
 
 @code {
-    private Normyx.Web.Models.TenantDto? _tenant;
-    private List<Normyx.Web.Models.UserDto> _users = [];
-    private List<Normyx.Web.Models.RoleDto> _roles = [];
-    private List<Normyx.Web.Models.IntegrationWebhookDto> _integrations = [];
-    private List<Normyx.Web.Models.PolicyPackSelectionDto> _policyPacks = [];
+    private Sylvaro.Web.Models.TenantDto? _tenant;
+    private List<Sylvaro.Web.Models.UserDto> _users = [];
+    private List<Sylvaro.Web.Models.RoleDto> _roles = [];
+    private List<Sylvaro.Web.Models.IntegrationWebhookDto> _integrations = [];
+    private List<Sylvaro.Web.Models.PolicyPackSelectionDto> _policyPacks = [];
 
     private string _error = string.Empty;
     private string _integrationMessage = string.Empty;
@@ -167,12 +167,12 @@ else
     {
         try
         {
-            _tenant = await Api.GetAsync<Normyx.Web.Models.TenantDto>("/tenants/me");
+            _tenant = await Api.GetAsync<Sylvaro.Web.Models.TenantDto>("/tenants/me");
             _tenantUpdate.Name = _tenant?.Name ?? string.Empty;
-            _users = (await Api.GetAsync<List<Normyx.Web.Models.UserDto>>("/tenants/users")) ?? [];
-            _roles = (await Api.GetAsync<List<Normyx.Web.Models.RoleDto>>("/tenants/roles")) ?? [];
-            _integrations = (await Api.GetAsync<List<Normyx.Web.Models.IntegrationWebhookDto>>("/integrations/webhooks")) ?? [];
-            _policyPacks = (await Api.GetAsync<List<Normyx.Web.Models.PolicyPackSelectionDto>>("/tenants/policy-packs")) ?? [];
+            _users = (await Api.GetAsync<List<Sylvaro.Web.Models.UserDto>>("/tenants/users")) ?? [];
+            _roles = (await Api.GetAsync<List<Sylvaro.Web.Models.RoleDto>>("/tenants/roles")) ?? [];
+            _integrations = (await Api.GetAsync<List<Sylvaro.Web.Models.IntegrationWebhookDto>>("/integrations/webhooks")) ?? [];
+            _policyPacks = (await Api.GetAsync<List<Sylvaro.Web.Models.PolicyPackSelectionDto>>("/tenants/policy-packs")) ?? [];
 
             HydrateWebhookForm("Jira", _jira);
             HydrateWebhookForm("AzureDevOps", _azureDevOps);
@@ -247,7 +247,7 @@ else
         try
         {
             _error = string.Empty;
-            var result = await Api.PostAsync<Normyx.Application.Abstractions.WebhookPublishResult>($"/integrations/webhooks/{provider}/test", new { });
+            var result = await Api.PostAsync<Sylvaro.Application.Abstractions.WebhookPublishResult>($"/integrations/webhooks/{provider}/test", new { });
             _integrationMessage = result is null
                 ? $"Test sent to {provider}."
                 : $"{provider} test status: {result.StatusCode}, success={result.Success}.";

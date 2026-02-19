@@ -1,6 +1,6 @@
-using Normyx.Application.Compliance;
+using Sylvaro.Application.Compliance;
 
-namespace Normyx.Application.Abstractions;
+namespace Sylvaro.Application.Abstractions;
 
 public interface IAiDraftService
 {

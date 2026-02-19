@@ -1,6 +1,6 @@
-using Normyx.Domain.Entities;
+using Sylvaro.Domain.Entities;
 
-namespace Normyx.Application.Abstractions;
+namespace Sylvaro.Application.Abstractions;
 
 public interface IJwtTokenService
 {
