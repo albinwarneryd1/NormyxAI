@@ -247,6 +247,17 @@ public class ControlInstance
     public AiSystemVersion AiSystemVersion { get; set; } = null!;
 }
 
+public class ComplianceQuestionnaire
+{
+    public Guid Id { get; set; }
+    public Guid AiSystemVersionId { get; set; }
+    public string AnswersJson { get; set; } = "{}";
+    public Guid UpdatedByUserId { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+
+    public AiSystemVersion AiSystemVersion { get; set; } = null!;
+}
+
 public class Assessment
 {
     public Guid Id { get; set; }

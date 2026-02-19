@@ -24,6 +24,7 @@ public class NormyxDbContext(DbContextOptions<NormyxDbContext> options) : DbCont
     public DbSet<PolicyRule> PolicyRules => Set<PolicyRule>();
     public DbSet<Control> Controls => Set<Control>();
     public DbSet<ControlInstance> ControlInstances => Set<ControlInstance>();
+    public DbSet<ComplianceQuestionnaire> ComplianceQuestionnaires => Set<ComplianceQuestionnaire>();
     public DbSet<Assessment> Assessments => Set<Assessment>();
     public DbSet<Finding> Findings => Set<Finding>();
     public DbSet<ActionItem> ActionItems => Set<ActionItem>();

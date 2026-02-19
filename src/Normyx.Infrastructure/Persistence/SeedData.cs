@@ -102,6 +102,14 @@ public static class SeedData
         dbContext.Components.AddRange(components);
         dbContext.Vendors.Add(vendor);
         dbContext.DataInventoryItems.AddRange(inventoryItems);
+        dbContext.ComplianceQuestionnaires.Add(new ComplianceQuestionnaire
+        {
+            Id = Guid.NewGuid(),
+            AiSystemVersionId = versionId,
+            AnswersJson = "{\"automatedDecisionMaking\":\"true\",\"criticalSector\":\"true\"}",
+            UpdatedByUserId = adminId,
+            UpdatedAt = DateTimeOffset.UtcNow
+        });
 
         dbContext.PolicyPacks.AddRange(
             new PolicyPack { Id = Guid.NewGuid(), Name = "GDPR Core", Version = "2026.1", Scope = PolicyScope.Gdpr },

@@ -21,6 +21,10 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 builder.Services.AddScoped<ICurrentUserContext, HttpCurrentUserContext>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddSingleton<Normyx.Infrastructure.Compliance.PolicyEngine>();
+builder.Services.AddScoped<IAiDraftService, Normyx.Infrastructure.Compliance.AiDraftService>();
+builder.Services.AddScoped<IAssessmentService, Normyx.Infrastructure.Compliance.AssessmentService>();
+builder.Services.AddScoped<IExportService, Normyx.Infrastructure.Exports.PdfExportService>();
 
 var jwt = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>() ?? new JwtOptions();
 var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.SigningKey));
@@ -96,5 +100,13 @@ app.MapArchitectureEndpoints();
 app.MapInventoryEndpoints();
 app.MapDocumentEndpoints();
 app.MapAuditEndpoints();
+app.MapQuestionnaireEndpoints();
+app.MapAssessmentEndpoints();
+app.MapFindingEndpoints();
+app.MapActionEndpoints();
+app.MapExportEndpoints();
+app.MapDashboardEndpoints();
 
 app.Run();
+
+public partial class Program;
