@@ -14,7 +14,7 @@
         <div class="alert-danger">@_error</div>
     }
 
-    <EditForm Model="_model" OnValidSubmit="OnSubmitAsync">
+    <EditForm FormName="login-form" Model="_model" OnValidSubmit="OnSubmitAsync">
         <div class="field">
             <label>Tenant</label>
             <InputText @bind-Value="_model.TenantName" class="text-input" />

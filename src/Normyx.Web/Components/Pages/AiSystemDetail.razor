@@ -89,7 +89,7 @@ else
             }
 
             <h2>Questionnaire</h2>
-            <EditForm Model="_questionnaire" OnValidSubmit="SaveQuestionnaireAsync">
+            <EditForm FormName="system-questionnaire-form" Model="_questionnaire" OnValidSubmit="SaveQuestionnaireAsync">
                 <div class="field-grid">
                     <InputText @bind-Value="_questionnaire.AutomatedDecisionMaking" class="text-input" placeholder="automatedDecisionMaking true/false" />
                     <InputText @bind-Value="_questionnaire.CriticalSector" class="text-input" placeholder="criticalSector true/false" />
@@ -106,7 +106,7 @@ else
             </ul>
 
             <h3>Add component</h3>
-            <EditForm Model="_newComponent" OnValidSubmit="AddComponentAsync">
+            <EditForm FormName="system-add-component-form" Model="_newComponent" OnValidSubmit="AddComponentAsync">
                 <div class="field-grid">
                     <InputText @bind-Value="_newComponent.Name" class="text-input" placeholder="Component name" />
                     <InputText @bind-Value="_newComponent.Type" class="text-input" placeholder="Type" />
@@ -125,7 +125,7 @@ else
             </ul>
 
             <h3>Add flow</h3>
-            <EditForm Model="_newFlow" OnValidSubmit="AddFlowAsync">
+            <EditForm FormName="system-add-flow-form" Model="_newFlow" OnValidSubmit="AddFlowAsync">
                 <div class="field-grid">
                     <InputSelect @bind-Value="_newFlow.FromComponentId" class="text-input">
                         <option value="@Guid.Empty">From component</option>
@@ -157,7 +157,7 @@ else
             </ul>
 
             <h3>Add data store</h3>
-            <EditForm Model="_newStore" OnValidSubmit="AddStoreAsync">
+            <EditForm FormName="system-add-store-form" Model="_newStore" OnValidSubmit="AddStoreAsync">
                 <div class="field-grid">
                     <InputSelect @bind-Value="_newStore.ComponentId" class="text-input">
                         <option value="@Guid.Empty">Component</option>
@@ -186,7 +186,7 @@ else
             </ul>
 
             <h3>Add data inventory item</h3>
-            <EditForm Model="_newDataItem" OnValidSubmit="AddDataItemAsync">
+            <EditForm FormName="system-add-data-item-form" Model="_newDataItem" OnValidSubmit="AddDataItemAsync">
                 <div class="field-grid">
                     <InputText @bind-Value="_newDataItem.DataCategory" class="text-input" placeholder="Data category" />
                     <InputText @bind-Value="_newDataItem.Source" class="text-input" placeholder="Source" />
@@ -207,7 +207,7 @@ else
             </ul>
 
             <h3>Add vendor</h3>
-            <EditForm Model="_newVendor" OnValidSubmit="AddVendorAsync">
+            <EditForm FormName="system-add-vendor-form" Model="_newVendor" OnValidSubmit="AddVendorAsync">
                 <div class="field-grid">
                     <InputText @bind-Value="_newVendor.Name" class="text-input" placeholder="Vendor name" />
                     <InputText @bind-Value="_newVendor.ServiceType" class="text-input" placeholder="Service type" />
@@ -245,7 +245,7 @@ else
                 <button class="btn-small" @onclick="LoadExcerptsAsync">Load excerpts</button>
             </div>
 
-            <EditForm Model="_newExcerpt" OnValidSubmit="CreateExcerptAsync">
+            <EditForm FormName="system-create-excerpt-form" Model="_newExcerpt" OnValidSubmit="CreateExcerptAsync">
                 <div class="field-grid">
                     <InputText @bind-Value="_newExcerpt.Title" class="text-input" placeholder="Excerpt title" />
                     <InputText @bind-Value="_newExcerpt.PageRef" class="text-input" placeholder="Page ref" />
@@ -262,7 +262,7 @@ else
             </ul>
 
             <h3>Link evidence</h3>
-            <EditForm Model="_linkEvidence" OnValidSubmit="LinkEvidenceAsync">
+            <EditForm FormName="system-link-evidence-form" Model="_linkEvidence" OnValidSubmit="LinkEvidenceAsync">
                 <div class="field-grid">
                     <InputSelect @bind-Value="_linkEvidence.EvidenceExcerptId" class="text-input">
                         <option value="">Select excerpt</option>

@@ -20,7 +20,7 @@ else
             <div class="alert-danger">@_error</div>
         }
 
-        <EditForm Model="_createForm" OnValidSubmit="CreateSystemAsync">
+        <EditForm FormName="ai-systems-create-form" Model="_createForm" OnValidSubmit="CreateSystemAsync">
             <div class="field-grid">
                 <InputText @bind-Value="_createForm.Name" class="text-input" placeholder="System name" />
                 <InputText @bind-Value="_createForm.Description" class="text-input" placeholder="Description" />

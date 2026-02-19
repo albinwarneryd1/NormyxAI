@@ -23,7 +23,7 @@ else
         @if (_tenant is not null)
         {
             <p><strong>@_tenant.Name</strong> (created @_tenant.CreatedAt.ToString("u"))</p>
-            <EditForm OnValidSubmit="SaveTenantAsync">
+            <EditForm FormName="tenant-update-form" OnValidSubmit="SaveTenantAsync">
                 <div class="field-grid">
                     <InputText @bind-Value="_tenantName" class="text-input" placeholder="Tenant name" />
                 </div>
@@ -47,7 +47,7 @@ else
         </table>
 
         <h3>Add user</h3>
-        <EditForm Model="_newUser" OnValidSubmit="CreateUserAsync">
+        <EditForm FormName="tenant-create-user-form" Model="_newUser" OnValidSubmit="CreateUserAsync">
             <div class="field-grid">
                 <InputText @bind-Value="_newUser.Email" class="text-input" placeholder="Email" />
                 <InputText @bind-Value="_newUser.DisplayName" class="text-input" placeholder="Display name" />
@@ -83,7 +83,7 @@ else
 
         <div class="card-shell" style="margin-top:0.8rem;">
             <h3>Jira webhook</h3>
-            <EditForm Model="_jira" OnValidSubmit="SaveJiraWebhookAsync">
+            <EditForm FormName="tenant-jira-webhook-form" Model="_jira" OnValidSubmit="SaveJiraWebhookAsync">
                 <div class="field-grid">
                     <InputText @bind-Value="_jira.WebhookUrl" class="text-input" placeholder="https://..." />
                     <InputText @bind-Value="_jira.AuthHeader" class="text-input" placeholder="Authorization header (optional)" />
@@ -98,7 +98,7 @@ else
 
         <div class="card-shell" style="margin-top:0.8rem;">
             <h3>Azure DevOps webhook</h3>
-            <EditForm Model="_azureDevOps" OnValidSubmit="SaveAzureWebhookAsync">
+            <EditForm FormName="tenant-ado-webhook-form" Model="_azureDevOps" OnValidSubmit="SaveAzureWebhookAsync">
                 <div class="field-grid">
                     <InputText @bind-Value="_azureDevOps.WebhookUrl" class="text-input" placeholder="https://..." />
                     <InputText @bind-Value="_azureDevOps.AuthHeader" class="text-input" placeholder="Authorization header (optional)" />
