@@ -40,8 +40,13 @@ public static class DashboardEndpoints
         return Results.Ok(new { systemCount, openActions, riskDistribution });
     }
 
-    private static async Task<IResult> SystemDashboardAsync([FromRoute] Guid systemId, SylvaroDbContext dbContext, ICurrentUserContext currentUser)
+    private static async Task<IResult> SystemDashboardAsync(
+        [FromRoute] Guid systemId,
+        SylvaroDbContext dbContext,
+        ICurrentUserContext currentUser,
+        ILoggerFactory loggerFactory)
     {
+        var logger = loggerFactory.CreateLogger("DashboardEndpoints");
         var tenantId = TenantContext.RequireTenantId(currentUser);
 
         var system = await dbContext.AiSystems.FirstOrDefaultAsync(x => x.Id == systemId && x.TenantId == tenantId);
@@ -62,7 +67,7 @@ public static class DashboardEndpoints
         {
             x.Id,
             x.RanAt,
-            score = ExtractTotalScore(x.RiskScoresJson)
+            score = ExtractTotalScore(x.RiskScoresJson, logger, x.Id, systemId)
         });
 
         return Results.Ok(new
@@ -75,12 +80,16 @@ public static class DashboardEndpoints
         });
     }
 
-    private static int ExtractTotalScore(string riskScoresJson)
+    private static int ExtractTotalScore(string riskScoresJson, ILogger logger, Guid assessmentId, Guid systemId)
     {
         var marker = "\"totalScore\":";
         var index = riskScoresJson.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
         if (index < 0)
         {
+            logger.LogWarning(
+                "Dashboard score parsing fallback: totalScore marker missing. AssessmentId={AssessmentId}, SystemId={SystemId}",
+                assessmentId,
+                systemId);
             return 0;
         }
 
@@ -88,6 +97,17 @@ public static class DashboardEndpoints
         var end = riskScoresJson.IndexOfAny([',', '}'], start);
         var span = end > start ? riskScoresJson[start..end] : riskScoresJson[start..];
 
-        return int.TryParse(span, out var score) ? score : 0;
+        if (int.TryParse(span, out var score))
+        {
+            return score;
+        }
+
+        logger.LogWarning(
+            "Dashboard score parsing fallback: invalid totalScore value '{ScoreToken}'. AssessmentId={AssessmentId}, SystemId={SystemId}",
+            span,
+            assessmentId,
+            systemId);
+
+        return 0;
     }
 }
